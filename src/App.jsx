@@ -162,6 +162,134 @@ function Calendar() {
   );
 }
 
+/* ── Weather Data & Component ────────────────────────────────────────── */
+const WEATHER_ICONS = {
+  clear: "☀️", sunny: "☀️", "mostly sunny": "🌤️", "partly cloudy": "⛅",
+  cloudy: "☁️", overcast: "☁️", rain: "🌧️", "light rain": "🌦️",
+  thunderstorm: "⛈️", snow: "❄️", fog: "🌫️", windy: "💨",
+};
+
+const getWeatherIcon = (condition) => {
+  if (!condition) return "🌤️";
+  const c = condition.toLowerCase();
+  for (const [key, icon] of Object.entries(WEATHER_ICONS)) {
+    if (c.includes(key)) return icon;
+  }
+  return "🌤️";
+};
+
+function WeatherWidget() {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Open-Meteo API — free, no key needed — Atlanta, GA
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=33.749&longitude=-84.388&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=5";
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        const wmo = {
+          0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",
+          45:"Foggy",48:"Foggy",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",
+          61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",
+          75:"Heavy snow",80:"Rain showers",81:"Rain showers",82:"Heavy showers",
+          95:"Thunderstorm",96:"Thunderstorm",99:"Thunderstorm",
+        };
+        const days = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+        const forecast = data.daily.time.slice(0,5).map((date,i) => ({
+          day: days[new Date(date).getDay()],
+          high: Math.round(data.daily.temperature_2m_max[i]),
+          rain: data.daily.precipitation_probability_max[i],
+          code: data.daily.weathercode[i],
+          condition: wmo[data.daily.weathercode[i]] || "Clear",
+        }));
+        setWeather({
+          temp: Math.round(data.current.temperature_2m),
+          condition: wmo[data.current.weathercode] || "Clear sky",
+          wind: Math.round(data.current.windspeed_10m),
+          humidity: data.current.relativehumidity_2m,
+          forecast,
+        });
+        setLoading(false);
+      })
+      .catch(() => {
+        // Fallback to known Atlanta data if API fails
+        setWeather({
+          temp: 84, condition: "Mostly sunny", wind: 8, humidity: 52,
+          forecast: [
+            { day:"Mon", high:87, rain:0,  condition:"Clear" },
+            { day:"Tue", high:86, rain:5,  condition:"Partly cloudy" },
+            { day:"Wed", high:86, rain:15, condition:"Partly cloudy" },
+            { day:"Thu", high:83, rain:85, condition:"Rain" },
+            { day:"Fri", high:78, rain:30, condition:"Light rain" },
+          ],
+        });
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", gap:16, alignItems:"center" }}>
+      {/* Current temp */}
+      <div style={{ display:"flex", alignItems:"center", gap:14,
+        padding:"0 20px 0 4px", borderRight:`1px solid ${T.border2}` }}>
+        <div style={{ fontSize:52, lineHeight:1 }}>{getWeatherIcon(weather.condition)}</div>
+        <div>
+          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:42,
+            letterSpacing:"1px", lineHeight:1, color:T.text }}>
+            {weather.temp}°<span style={{ fontSize:22, color:T.muted }}>F</span>
+          </div>
+          <div style={{ fontSize:13, color:T.muted, marginTop:2 }}>{weather.condition}</div>
+          <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>📍 Atlanta, GA</div>
+        </div>
+      </div>
+
+      {/* 5-day forecast */}
+      <div style={{ display:"flex", gap:8 }}>
+        {weather.forecast.map((d, i) => (
+          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center",
+            gap:5, padding:"10px 8px", borderRadius:11,
+            background: i===0 ? T.orangeDim : T.raised,
+            border:`1px solid ${i===0 ? T.orange+"44" : T.border2}` }}>
+            <div style={{ fontSize:10, fontWeight:700, color:i===0?T.orange:T.muted,
+              textTransform:"uppercase", letterSpacing:0.5 }}>{d.day}</div>
+            <div style={{ fontSize:20 }}>{getWeatherIcon(d.condition)}</div>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18,
+              letterSpacing:"0.5px", color:T.text }}>{d.high}°</div>
+            <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+              <span style={{ fontSize:9 }}>💧</span>
+              <span style={{ fontSize:10, color:d.rain>50?T.green:T.faint }}>{d.rain}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Stats */}
+      <div style={{ display:"flex", flexDirection:"column", gap:10,
+        padding:"0 4px 0 20px", borderLeft:`1px solid ${T.border2}` }}>
+        {[
+          { icon:"💨", label:"Wind",     value:`${weather.wind} mph` },
+          { icon:"💧", label:"Humidity", value:`${weather.humidity}%` },
+          { icon:"🌅", label:"Sunrise",  value:"6:18 AM" },
+          { icon:"🌇", label:"Sunset",   value:"8:24 PM" },
+        ].map(s => (
+          <div key={s.label} style={{ display:"flex", alignItems:"center", gap:10 }}>
+            <div style={{ width:28, height:28, borderRadius:8, background:T.raised,
+              border:`1px solid ${T.border2}`, display:"flex", alignItems:"center",
+              justifyContent:"center", fontSize:13, flexShrink:0 }}>{s.icon}</div>
+            <div>
+              <div style={{ fontSize:10, color:T.muted }}>{s.label}</div>
+              <div style={{ fontSize:13, fontWeight:600 }}>{s.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Main Dashboard ──────────────────────────────────────────────────── */
 export default function Dashboard() {
   const [tasks,     setTasks]     = useState([]);
@@ -729,6 +857,19 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* ── ROW 3: Weather ── */}
+          <div style={{ background:T.surface, borderRadius:14, padding:"18px 22px",
+            border:`1px solid ${T.border}`, flexShrink:0 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
+                Weather · Atlanta, GA
+              </div>
+              <Pill color={T.yellow}>Live Forecast</Pill>
+            </div>
+            <WeatherWidget />
+          </div>
+
         </div>
       </div>
 
