@@ -303,6 +303,8 @@ export default function Dashboard() {
   const [editGoal,  setEditGoal]  = useState(null);
   const [saving,    setSaving]    = useState(false);
   const [toast,     setToast]     = useState("");
+  const [baseBalance, setBaseBalance] = useState(14560.75);
+  const [editBalance, setEditBalance] = useState(false);
 
   const showToast = m => { setToast(m); setTimeout(()=>setToast(""), 2400); };
 
@@ -398,7 +400,7 @@ export default function Dashboard() {
   const pct      = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
   const income   = txns.filter(t => t.type==="income") .reduce((a,t) => a + Math.abs(parseFloat(t.amount)), 0);
   const expenses = txns.filter(t => t.type==="expense").reduce((a,t) => a + Math.abs(parseFloat(t.amount)), 0);
-  const balance  = 14560.75 + income - expenses;
+  const balance  = baseBalance + income - expenses;
   const pColor   = p => p==="high" ? T.red : p==="medium" ? T.yellow : T.faint;
 
   return (
@@ -599,25 +601,52 @@ export default function Dashboard() {
             {/* Balance */}
             <div style={{ background:"linear-gradient(145deg,#1a0e06,#131313)", borderRadius:14,
               padding:"18px 20px", border:`1px solid ${T.orange}33`,
-              position:"relative", overflow:"hidden", width:190 }}>
+              position:"relative", overflow:"hidden", width:210 }}>
               <div style={{ position:"absolute", top:-20, right:-20, width:90, height:90, borderRadius:"50%",
                 background:`radial-gradient(circle,${T.orangeDim},transparent)`, pointerEvents:"none" }} />
-              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
-                textTransform:"uppercase", marginBottom:8 }}>Balance</div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Balance</div>
+                <button onClick={()=>setEditBalance(true)}
+                  style={{ fontSize:10, padding:"2px 8px", borderRadius:6, background:T.orangeDim,
+                    border:`1px solid ${T.orange}44`, color:T.orange, fontWeight:700 }}>✎ Edit</button>
+              </div>
               {loading.txns ? <Spinner /> : (
                 <>
-                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"1px", marginBottom:4 }}>
-                    ${balance.toLocaleString("en-US",{minimumFractionDigits:2})}
-                  </div>
-                  <Pill color={T.green}>▲ 3.48%</Pill>
-                  <div style={{ marginTop:14, display:"flex", flexDirection:"column", gap:8 }}>
-                    {[{l:"Income",v:`+$${income.toFixed(2)}`,c:T.green},{l:"Expenses",v:`-$${expenses.toFixed(2)}`,c:T.red}].map(s=>(
-                      <div key={s.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                        <span style={{ fontSize:11, color:T.muted }}>{s.l}</span>
-                        <span style={{ fontSize:13, fontWeight:700, color:s.c }}>{s.v}</span>
+                  {editBalance ? (
+                    <div className="fu">
+                      <input type="number" defaultValue={baseBalance}
+                        id="balanceInput"
+                        style={{ width:"100%", background:T.raised, border:`1px solid ${T.orange}`,
+                          borderRadius:8, padding:"8px 10px", color:T.text, fontSize:14,
+                          fontWeight:700, marginBottom:8 }} />
+                      <div style={{ display:"flex", gap:6 }}>
+                        <button onClick={()=>setEditBalance(false)}
+                          style={{ flex:1, padding:"6px", background:T.faint, borderRadius:7,
+                            color:T.muted, fontSize:12 }}>Cancel</button>
+                        <button onClick={()=>{
+                          const val = parseFloat(document.getElementById("balanceInput").value);
+                          if (!isNaN(val)) { setBaseBalance(val); showToast("Balance updated ✓"); }
+                          setEditBalance(false);
+                        }} style={{ flex:1, padding:"6px", background:T.orange, borderRadius:7,
+                          color:"white", fontSize:12, fontWeight:700 }}>Save</button>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"1px", marginBottom:4 }}>
+                        ${balance.toLocaleString("en-US",{minimumFractionDigits:2})}
+                      </div>
+                      <Pill color={T.green}>▲ 3.48%</Pill>
+                      <div style={{ marginTop:14, display:"flex", flexDirection:"column", gap:8 }}>
+                        {[{l:"Income",v:`+$${income.toFixed(2)}`,c:T.green},{l:"Expenses",v:`-$${expenses.toFixed(2)}`,c:T.red}].map(s=>(
+                          <div key={s.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                            <span style={{ fontSize:11, color:T.muted }}>{s.l}</span>
+                            <span style={{ fontSize:13, fontWeight:700, color:s.c }}>{s.v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -840,6 +869,12 @@ export default function Dashboard() {
                         color:parseFloat(tx.amount)>0?T.green:T.red }}>
                         {parseFloat(tx.amount)>0?"+":""}{parseFloat(tx.amount)<0?"-$":"$"}{Math.abs(parseFloat(tx.amount)).toFixed(2)}
                       </div>
+                      <button className="del" onClick={async ()=>{
+                        setTxns(ts=>ts.filter(t=>t.id!==tx.id));
+                        await supabase.from("transactions").delete().eq("id", tx.id);
+                        showToast("Transaction removed");
+                      }} style={{ background:"none", color:T.red, fontSize:14, padding:"0 3px",
+                        borderRadius:4, opacity:0, transition:"opacity 0.15s", flexShrink:0 }}>×</button>
                     </div>
                   ))}
                   {txns.length===0&&<div style={{ textAlign:"center", color:T.muted, fontSize:12, padding:"16px 0" }}>No transactions yet</div>}
