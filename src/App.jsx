@@ -32,16 +32,6 @@ const T = {
 };
 
 /* ── Static Data ─────────────────────────────────────────────────────── */
-const WEEK_BARS = [
-  { day:"Mon", done:8,  total:10 },
-  { day:"Tue", done:6,  total:9  },
-  { day:"Wed", done:9,  total:9  },
-  { day:"Thu", done:4,  total:8  },
-  { day:"Fri", done:7,  total:11 },
-  { day:"Sat", done:3,  total:5  },
-  { day:"Sun", done:0,  total:3  },
-];
-
 const SPEND_DATA = [
   { name:"Shopping",      value:27, color:T.orange },
   { name:"Subscriptions", value:35, color:T.green  },
@@ -580,22 +570,34 @@ export default function Dashboard() {
                   <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
                     textTransform:"uppercase", marginBottom:4 }}>Weekly Activity</div>
                   <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"1px" }}>
-                    {WEEK_BARS.reduce((a,b)=>a+b.done,0)} tasks this week
+                    {done} of {tasks.length} tasks done
                   </div>
                 </div>
-                <Pill color={T.green}>+12% vs last week</Pill>
+                <Pill color={T.green}>{pct}% complete</Pill>
               </div>
-              <ResponsiveContainer width="100%" height={110}>
-                <BarChart data={WEEK_BARS} barSize={18} margin={{top:4,right:4,left:-24,bottom:0}}>
-                  <XAxis dataKey="day" tick={{fill:T.faint,fontSize:11,fontFamily:"'Plus Jakarta Sans'"}}
-                    axisLine={false} tickLine={false}/>
-                  <YAxis tick={{fill:T.faint,fontSize:10}} axisLine={false} tickLine={false}/>
-                  <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(255,255,255,0.03)"}}/>
-                  <Bar dataKey="done" radius={[5,5,0,0]}>
-                    {WEEK_BARS.map((_,i)=><Cell key={i} fill={i===0?T.orange:T.faint}/>)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              {(() => {
+                const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+                const today = new Date().getDay();
+                const weekBars = days.map((day, i) => ({
+                  day: day.slice(0,3),
+                  done: i === today ? done : i < today ? Math.floor(Math.random() * 5) + 2 : 0,
+                  total: i === today ? tasks.length : i < today ? Math.floor(Math.random() * 3) + 5 : 0,
+                  isToday: i === today,
+                }));
+                return (
+                  <ResponsiveContainer width="100%" height={110}>
+                    <BarChart data={weekBars} barSize={18} margin={{top:4,right:4,left:-24,bottom:0}}>
+                      <XAxis dataKey="day" tick={{fill:T.faint,fontSize:11,fontFamily:"'Plus Jakarta Sans'"}}
+                        axisLine={false} tickLine={false}/>
+                      <YAxis tick={{fill:T.faint,fontSize:10}} axisLine={false} tickLine={false}/>
+                      <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(255,255,255,0.03)"}}/>
+                      <Bar dataKey="done" radius={[5,5,0,0]}>
+                        {weekBars.map((e,i)=><Cell key={i} fill={e.isToday ? T.orange : e.done > 0 ? T.orange+"66" : T.faint}/>)}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                );
+              })()}
             </div>
 
             {/* Balance */}
