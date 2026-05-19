@@ -663,8 +663,8 @@ export default function Dashboard() {
 
                         {/* Delete card */}
                         <button onClick={()=>deleteCard(c.id)}
-                          style={{ width:"100%", marginTop:8, padding:"7px", background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.25)", borderRadius:9, color:"rgba(239,68,68,0.8)", fontSize:11, fontWeight:600, cursor:"pointer" }}>
-                          Remove Card
+                          style={{ width:"100%", marginTop:8, padding:"9px", background:`linear-gradient(135deg,${T.red},#dc2626)`, border:"none", borderRadius:9, color:"white", fontSize:12, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 14px rgba(239,68,68,0.35)`, letterSpacing:"0.5px" }}>
+                          🗑 Remove Card
                         </button>
                       </div>
                     );
