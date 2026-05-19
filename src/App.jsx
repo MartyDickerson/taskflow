@@ -735,7 +735,7 @@ export default function Dashboard() {
                     boxShadow:`0 0 12px ${T.orangeGlow}`, opacity:saving?0.6:1 }}>+</button>
               </div>
               {loading.tasks ? <Spinner /> : (
-                <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:3, maxHeight:260 }}>
+                <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:3 }}>
                   {tasks.map(task=>(
                     <div key={task.id} className="task-row fu" style={{ display:"flex", alignItems:"center",
                       padding:"8px 10px", borderRadius:9, cursor:"pointer", transition:"background 0.13s",
