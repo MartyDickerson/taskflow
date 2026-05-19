@@ -914,7 +914,7 @@ export default function Dashboard() {
                   color:"white", opacity:saving?0.6:1 }}>💾 Save</button>
               </div>
               {!fitnessLog ? <Spinner/> : (
-                <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+                <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1, minHeight:0 }}>
                   {[
                     { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:10000, color:T.accent },
                     { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316" },
@@ -957,11 +957,11 @@ export default function Dashboard() {
                     ];
                     const m = motivations[new Date().getDay()];
                     return (
-                      <div style={{ marginTop:8, borderRadius:12, overflow:"hidden", position:"relative", height:90, flexShrink:0 }}>
-                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover" }} alt="motivation" />
-                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.1))",
-                          display:"flex", alignItems:"flex-end", padding:"10px 12px" }}>
-                          <div style={{ fontSize:10, color:"white", fontWeight:600, lineHeight:1.4, fontStyle:"italic" }}>"{m.quote}"</div>
+                      <div style={{ marginTop:8, borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:120 }}>
+                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0 }} alt="motivation" />
+                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1))",
+                          display:"flex", alignItems:"flex-end", padding:"14px 14px" }}>
+                          <div style={{ fontSize:13, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{m.quote}"</div>
                         </div>
                       </div>
                     );
