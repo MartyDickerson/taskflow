@@ -132,125 +132,131 @@ function Calendar() {
 }
 
 function WeatherWidget({ compact=false }) {
-  const [weather, setWeather] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [unit, setUnit] = useState("F");
-  const [tab, setTab] = useState("Temperature");
+  const [weather, setWeather]       = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [unit, setUnit]             = useState("F");
+  const [tab, setTab]               = useState("Temperature");
+  const [loc, setLoc]               = useState({ name:"Alpharetta, GA", lat:34.0754, lon:-84.2941 });
+  const [editLoc, setEditLoc]       = useState(false);
+  const [locInput, setLocInput]     = useState("");
+  const [locResults, setLocResults] = useState([]);
+  const [searching, setSearching]   = useState(false);
 
-  useEffect(() => {
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=34.0754&longitude=-84.2941&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=7")
+  const fetchWeather = (lat, lon) => {
+    setLoading(true);
+    const wmo={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",51:"Light drizzle",61:"Light rain",63:"Rain",80:"Rain showers",95:"Thunderstorm"};
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=7`)
       .then(r=>r.json()).then(data=>{
-        const wmo={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",51:"Light drizzle",61:"Light rain",63:"Rain",80:"Rain showers",95:"Thunderstorm"};
-        const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        const now = new Date();
-        const currentHour = now.getHours();
-        const hourLabels = ["Now","1 AM","4 AM","7 AM","10 AM","1 PM","4 PM","7 PM"];
-        const hourIndices = [currentHour, 1, 4, 7, 10, 13, 16, 19];
-        const hourly = hourIndices.map((h, i) => ({
-          label: hourLabels[i],
-          temp: Math.round(data.hourly.temperature_2m[h] || 75),
-          precip: data.hourly.precipitation_probability[h] || 0,
-          wind: Math.round(data.hourly.windspeed_10m[h] || 8),
-        }));
-        const forecast = data.daily.time.map((date, i) => ({
-          day: days[new Date(date).getDay()],
-          high: Math.round(data.daily.temperature_2m_max[i]),
-          low: Math.round(data.daily.temperature_2m_min[i]),
-          rain: data.daily.precipitation_probability_max[i],
-          condition: wmo[data.daily.weathercode[i]] || "Clear",
-          code: data.daily.weathercode[i],
-        }));
-        setWeather({
-          temp: Math.round(data.current.temperature_2m),
-          high: Math.round(data.daily.temperature_2m_max[0]),
-          low: Math.round(data.daily.temperature_2m_min[0]),
-          condition: wmo[data.current.weathercode] || "Clear sky",
-          wind: Math.round(data.current.windspeed_10m),
-          humidity: data.current.relativehumidity_2m,
-          precip: data.current.precipitation_probability || 0,
-          hourly, forecast,
+        const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        const now=new Date(), h=now.getHours();
+        const hourLabels=["Now","1 AM","4 AM","7 AM","10 AM","1 PM","4 PM","7 PM"];
+        const hourIndices=[h,1,4,7,10,13,16,19];
+        const hourly=hourIndices.map((idx,i)=>({ label:hourLabels[i], temp:Math.round(data.hourly.temperature_2m[idx]||75), precip:data.hourly.precipitation_probability[idx]||0, wind:Math.round(data.hourly.windspeed_10m[idx]||8) }));
+        const forecast=data.daily.time.map((dateStr,i)=>{
+          const [y,m,d]=dateStr.split("-").map(Number);
+          return { day:DAYS[new Date(y,m-1,d).getDay()], high:Math.round(data.daily.temperature_2m_max[i]), low:Math.round(data.daily.temperature_2m_min[i]), rain:data.daily.precipitation_probability_max[i], condition:wmo[data.daily.weathercode[i]]||"Clear" };
         });
+        setWeather({ temp:Math.round(data.current.temperature_2m), high:Math.round(data.daily.temperature_2m_max[0]), low:Math.round(data.daily.temperature_2m_min[0]), condition:wmo[data.current.weathercode]||"Clear sky", wind:Math.round(data.current.windspeed_10m), humidity:data.current.relativehumidity_2m, precip:data.current.precipitation_probability||0, hourly, forecast });
         setLoading(false);
-      }).catch(()=>{
-        setWeather({
-          temp:77, high:88, low:63, condition:"Clear sky", wind:7, humidity:49, precip:2,
-          hourly:[{label:"Now",temp:77,precip:2,wind:7},{label:"1 AM",temp:73,precip:5,wind:6},{label:"4 AM",temp:68,precip:8,wind:5},{label:"7 AM",temp:67,precip:10,wind:5},{label:"10 AM",temp:79,precip:15,wind:8},{label:"1 PM",temp:91,precip:20,wind:10},{label:"4 PM",temp:92,precip:30,wind:12},{label:"7 PM",temp:84,precip:25,wind:9}],
-          forecast:[{day:"Mon",high:88,low:63,rain:2,condition:"Clear sky"},{day:"Tue",high:90,low:65,rain:7,condition:"Partly cloudy"},{day:"Wed",high:94,low:69,rain:13,condition:"Partly cloudy"},{day:"Thu",high:95,low:70,rain:57,condition:"Rain"},{day:"Fri",high:77,low:65,rain:72,condition:"Rain"},{day:"Sat",high:78,low:64,rain:30,condition:"Partly cloudy"},{day:"Sun",high:87,low:67,rain:20,condition:"Partly cloudy"}],
-        });
-        setLoading(false);
-      });
-  }, []);
+      }).catch(()=>setLoading(false));
+  };
 
-  const toC = v => Math.round((v-32)*5/9);
-  const fmt = v => unit==="F" ? `${v}°` : `${toC(v)}°`;
+  useEffect(()=>{ fetchWeather(loc.lat, loc.lon); }, [loc.lat, loc.lon]);
+
+  const searchLocation = async () => {
+    if (!locInput.trim()) return;
+    setSearching(true);
+    try {
+      const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locInput)}&count=5&language=en&format=json`);
+      const d=await r.json();
+      setLocResults(d.results||[]);
+    } catch(e){ setLocResults([]); }
+    setSearching(false);
+  };
+
+  const selectLocation = (result) => {
+    setLoc({ name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude });
+    setEditLoc(false); setLocInput(""); setLocResults([]);
+  };
+
+  const toC = v=>Math.round((v-32)*5/9);
+  const fmt = v=>unit==="F"?`${v}°`:`${toC(v)}°`;
 
   if (loading) return <Spinner />;
 
-  const chartData = tab==="Temperature" ? weather.hourly.map(h=>({label:h.label,value:h.temp}))
-    : tab==="Precipitation" ? weather.hourly.map(h=>({label:h.label,value:h.precip}))
-    : weather.hourly.map(h=>({label:h.label,value:h.wind}));
-
-  const chartColor = tab==="Temperature" ? "#c8a84b" : tab==="Precipitation" ? T.accentLight : T.green;
+  const chartData = tab==="Temperature"?weather.hourly.map(h=>({label:h.label,value:h.temp})):tab==="Precipitation"?weather.hourly.map(h=>({label:h.label,value:h.precip})):weather.hourly.map(h=>({label:h.label,value:h.wind}));
+  const chartColor = tab==="Temperature"?"#c8a84b":tab==="Precipitation"?T.accentLight:T.green;
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-      {/* Top row: current + chart */}
+      {editLoc&&(
+        <div className="fu" style={{ marginBottom:4 }}>
+          <div style={{ display:"flex", gap:6 }}>
+            <input value={locInput} onChange={e=>setLocInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&searchLocation()}
+              placeholder="Search city... e.g. Atlanta, GA"
+              style={{ flex:1, background:T.raised, border:`1px solid ${T.accent}`, borderRadius:8, padding:"7px 10px", color:T.text, fontSize:12 }} />
+            <button onClick={searchLocation} disabled={searching}
+              style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:8, color:"white", fontSize:12, fontWeight:700 }}>
+              {searching?"...":"Search"}
+            </button>
+            <button onClick={()=>{setEditLoc(false);setLocResults([]);}} style={{ padding:"7px 10px", background:T.faint, borderRadius:8, color:T.muted, fontSize:12 }}>✕</button>
+          </div>
+          {locResults.length>0&&(
+            <div style={{ marginTop:6, background:T.card, border:`1px solid ${T.border2}`, borderRadius:9, overflow:"hidden", position:"absolute", zIndex:100, width:"calc(100% - 48px)" }}>
+              {locResults.map((r,i)=>(
+                <div key={i} onClick={()=>selectLocation(r)} style={{ padding:"8px 12px", fontSize:12, cursor:"pointer", borderBottom:`1px solid ${T.border}`, color:T.text }}
+                  onMouseEnter={e=>e.currentTarget.style.background=T.accentDim}
+                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                  📍 {r.name}, {r.admin1||""} {r.country}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <div style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:12 }}>
-        {/* Left: current conditions */}
         <div>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
             <div style={{ fontSize:34, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
             <div>
               <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:30, lineHeight:1, color:T.text }}>{fmt(weather.temp)}</div>
               <div style={{ display:"flex", gap:4, marginTop:2 }}>
-                {["F","C"].map(u=><button key={u} onClick={()=>setUnit(u)} style={{ padding:"1px 7px", borderRadius:5, fontSize:10, fontWeight:700,
-                  background:unit===u?T.raised:"transparent", border:`1px solid ${unit===u?T.border2:"transparent"}`, color:unit===u?T.text:T.muted }}>{u}</button>)}
+                {["F","C"].map(u=><button key={u} onClick={()=>setUnit(u)} style={{ padding:"1px 7px", borderRadius:5, fontSize:10, fontWeight:700, background:unit===u?T.raised:"transparent", border:`1px solid ${unit===u?T.border2:"transparent"}`, color:unit===u?T.text:T.muted }}>{u}</button>)}
               </div>
             </div>
           </div>
-          <div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>High {fmt(weather.high)} · Low {fmt(weather.low)}</div>
-          <div style={{ fontSize:12, color:T.text, marginBottom:6 }}>{weather.condition}</div>
+          <div style={{ fontSize:11, color:T.muted, marginBottom:6 }}>High {fmt(weather.high)} · Low {fmt(weather.low)}</div>
+          <div style={{ fontSize:12, color:T.text, marginBottom:8 }}>{weather.condition}</div>
           {[{l:"Humidity",v:`${weather.humidity}%`},{l:"Precipitation",v:`${weather.precip}%`},{l:"Wind",v:`${weather.wind} mph`}].map(s=>(
             <div key={s.l} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:`1px solid ${T.border}` }}>
               <span style={{ fontSize:11, color:T.muted }}>{s.l}</span>
               <span style={{ fontSize:11, fontWeight:600, color:T.text }}>{s.v}</span>
             </div>
           ))}
+          <button onClick={()=>setEditLoc(!editLoc)} style={{ marginTop:8, fontSize:10, color:T.accentLight, background:"none", border:"none", padding:0, cursor:"pointer" }}>
+            📍 {loc.name} ✎
+          </button>
         </div>
-
-        {/* Right: chart with tabs */}
         <div>
           <div style={{ display:"flex", gap:6, marginBottom:8 }}>
             {["Temperature","Precipitation","Wind"].map(t=>(
-              <button key={t} onClick={()=>setTab(t)} style={{ fontSize:10, padding:"3px 10px", borderRadius:7, fontWeight:600,
-                background:tab===t?T.raised:"transparent", border:`1px solid ${tab===t?T.border2:"transparent"}`,
-                color:tab===t?T.text:T.muted, transition:"all 0.15s" }}>{t}</button>
+              <button key={t} onClick={()=>setTab(t)} style={{ fontSize:10, padding:"3px 10px", borderRadius:7, fontWeight:600, background:tab===t?T.raised:"transparent", border:`1px solid ${tab===t?T.border2:"transparent"}`, color:tab===t?T.text:T.muted, transition:"all 0.15s" }}>{t}</button>
             ))}
           </div>
           <ResponsiveContainer width="100%" height={90}>
             <AreaChart data={chartData} margin={{top:5,right:5,left:-30,bottom:0}}>
-              <defs>
-                <linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
-                </linearGradient>
-              </defs>
+              <defs><linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/><stop offset="95%" stopColor={chartColor} stopOpacity={0}/></linearGradient></defs>
               <XAxis dataKey="label" tick={{fill:T.muted,fontSize:9}} axisLine={false} tickLine={false}/>
               <YAxis tick={{fill:T.muted,fontSize:9}} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border2}`, borderRadius:8, fontSize:11 }}
-                labelStyle={{ color:T.muted }} itemStyle={{ color:chartColor }}/>
-              <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2} fill="url(#wGrad)"
-                dot={{ fill:chartColor, r:2 }} activeDot={{ r:4, fill:chartColor }}/>
+              <Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border2}`, borderRadius:8, fontSize:11 }} labelStyle={{ color:T.muted }} itemStyle={{ color:chartColor }}/>
+              <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2} fill="url(#wGrad)" dot={{ fill:chartColor, r:2 }} activeDot={{ r:4, fill:chartColor }}/>
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Bottom: 7-day forecast */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, paddingTop:8, borderTop:`1px solid ${T.border}` }}>
         {weather.forecast.map((d,i)=>(
-          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"6px 4px", borderRadius:9,
-            background:i===0?T.accentDim:"transparent", border:`1px solid ${i===0?T.accent+"44":"transparent"}` }}>
+          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"6px 4px", borderRadius:9, background:i===0?T.accentDim:"transparent", border:`1px solid ${i===0?T.accent+"44":"transparent"}` }}>
             <div style={{ fontSize:9, fontWeight:700, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
             <div style={{ fontSize:18 }}>{getWIcon(d.condition)}</div>
             <div style={{ fontSize:10, fontWeight:700, color:T.text }}>{fmt(d.high)}</div>
@@ -261,6 +267,7 @@ function WeatherWidget({ compact=false }) {
     </div>
   );
 }
+
 
 export default function Dashboard() {
   const [tasks,       setTasks]       = useState([]);
