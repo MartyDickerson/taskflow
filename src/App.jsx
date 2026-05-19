@@ -507,7 +507,7 @@ export default function Dashboard() {
         </div>
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:7 }}>
-            <div style={{ width:32, height:32, borderRadius:"50%", background:`linear-gradient(135deg,${T.accent},${T.pink})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, color:"white" }}>MD</div>
+            <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", border:`2px solid ${T.accent}`, flexShrink:0 }}><img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} /></div>
             <div><div style={{ fontSize:13, fontWeight:700 }}>Marty Dickerson</div><div style={{ fontSize:10, color:T.muted }}>Premium</div></div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:5 }}>
@@ -524,7 +524,7 @@ export default function Dashboard() {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0 }}>
           <div>
             <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:"2px", lineHeight:1 }}>Dashboard</div>
-            <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{loading.tasks?"Loading...":`${tasks.filter(t=>!t.done).length} tasks remaining · Mon, May 18 2026`}</div>
+            <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{loading.tasks?"Loading...":`${tasks.filter(t=>!t.done).length} tasks remaining · ${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}`}</div>
           </div>
           <div style={{ display:"flex", gap:9, alignItems:"center" }}>
             <button style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", borderRadius:9, fontSize:13, fontWeight:700, background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white", boxShadow:`0 0 16px ${T.accentGlow}` }}
@@ -590,7 +590,7 @@ export default function Dashboard() {
                     <ResponsiveContainer width="100%" height={120}>
                       <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
                         <XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/>
-                        <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false}/>
+                        <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false} allowDecimals={false}/>
                         <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
                         <Bar dataKey="done" radius={[5,5,0,0]}>
                           {weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}
@@ -601,20 +601,20 @@ export default function Dashboard() {
                     {/* Per-day task summary */}
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:5, marginTop:8 }}>
                       {weekBars.map((d,i)=>(
-                        <div key={i} style={{ padding:"8px 6px", borderRadius:9, minHeight:70,
+                        <div key={i} style={{ padding:"8px 5px", borderRadius:9, minHeight:80,
                           background: d.isToday ? T.accentDim : d.done>0 ? "rgba(124,58,237,0.06)" : "rgba(255,255,255,0.02)",
                           border:`1px solid ${d.isToday?T.accent+"44":d.done>0?"rgba(124,58,237,0.18)":T.border}` }}>
                           {d.done > 0 ? (
                             <>
-                              <div style={{ fontSize:9, fontWeight:700, color:d.isToday?T.accentLight:T.muted,
-                                textTransform:"uppercase", letterSpacing:0.5, marginBottom:5 }}>
+                              <div style={{ fontSize:10, fontWeight:700, color:d.isToday?T.accentLight:T.muted,
+                                textTransform:"uppercase", letterSpacing:0.5, marginBottom:6 }}>
                                 {d.done} task{d.done!==1?"s":""}
                               </div>
                               <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
                                 {d.taskNames.slice(0,3).map((name,j)=>(
                                   <div key={j} style={{ display:"flex", alignItems:"flex-start", gap:4 }}>
                                     <div style={{ width:4, height:4, borderRadius:"50%", background:d.isToday?T.accentLight:T.accent+"88", marginTop:3, flexShrink:0 }} />
-                                    <div style={{ fontSize:9, color:d.isToday?T.text:"rgba(255,255,255,0.55)", lineHeight:1.3,
+                                    <div style={{ fontSize:9.5, color:d.isToday?T.text:"rgba(255,255,255,0.6)", lineHeight:1.4,
                                       overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>
                                       {name}
                                     </div>
@@ -741,7 +741,7 @@ export default function Dashboard() {
                         {/* Nav + delete row */}
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
                           <button onClick={()=>setSelectedCard(i=>(i-1+cards.length)%cards.length)}
-                            style={{ background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", color:"white", width:28, height:28, borderRadius:8, fontSize:14, cursor:"pointer" }}>‹</button>
+                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:32, height:32, borderRadius:9, fontSize:18, cursor:"pointer", fontWeight:700 }}>‹</button>
                           <div style={{ display:"flex", gap:5, alignItems:"center" }}>
                             {cards.map((_,i)=>(
                               <div key={i} onClick={()=>setSelectedCard(i)}
@@ -750,7 +750,7 @@ export default function Dashboard() {
                             ))}
                           </div>
                           <button onClick={()=>setSelectedCard(i=>(i+1)%cards.length)}
-                            style={{ background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", color:"white", width:28, height:28, borderRadius:8, fontSize:14, cursor:"pointer" }}>›</button>
+                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:32, height:32, borderRadius:9, fontSize:18, cursor:"pointer", fontWeight:700 }}>›</button>
                         </div>
 
                         {/* Delete card */}
@@ -809,7 +809,7 @@ export default function Dashboard() {
                   <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16, padding:"12px 14px", background:T.raised, borderRadius:12, border:`1px solid ${T.border2}` }}>
                     <Ring pct={goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0} size={60} stroke={6} color={T.accent}
                       center={<div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, color:T.text }}>{goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0}%</div>}/>
-                    <div><div style={{ fontSize:13, fontWeight:700, marginBottom:2 }}>Overall Progress</div><div style={{ fontSize:11, color:T.muted }}>{goals.filter(g=>g.progress===100).length} of {goals.length} complete</div></div>
+                    <div><div style={{ fontSize:13, fontWeight:700, marginBottom:2 }}>Overall Progress</div><div style={{ fontSize:11, color:T.muted }}>{goals.filter(g=>g.progress>=100).length} of {goals.length} goals complete</div></div>
                   </div>
                   <div style={{ flex:1, display:"flex", flexDirection:"column", gap:12, overflowY:"auto" }}>
                     {goals.map(g=>(
