@@ -410,7 +410,13 @@ export default function Dashboard() {
     return () => { supabase.removeChannel(s1); supabase.removeChannel(s2); supabase.removeChannel(s3); supabase.removeChannel(s4); };
   }, []);
 
-  const toggleTask  = async(task) => { setTasks(ts=>ts.map(t=>t.id===task.id?{...t,done:!t.done}:t)); await supabase.from("tasks").update({done:!task.done}).eq("id",task.id); };
+  const toggleTask  = async(task) => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+    const newDone = !task.done;
+    setTasks(ts=>ts.map(t=>t.id===task.id?{...t,done:newDone,completed_date:newDone?dateStr:null}:t));
+    await supabase.from("tasks").update({ done:newDone, completed_date:newDone?dateStr:null }).eq("id",task.id);
+  };
   const addTask     = async() => { if(!newTask.trim()) return; setSaving(true); const{data}=await supabase.from("tasks").insert({text:newTask.trim(),done:false,priority:"medium"}).select().single(); if(data) setTasks(ts=>[...ts,data]); setNewTask(""); setSaving(false); showToast("Task added ✓"); };
   const deleteTask  = async(id) => { setTasks(ts=>ts.filter(t=>t.id!==id)); await supabase.from("tasks").delete().eq("id",id); showToast("Task removed"); };
   const saveGoal    = async(goal,pct) => { setGoals(gs=>gs.map(g=>g.id===goal.id?{...g,progress:pct}:g)); await supabase.from("goals").update({progress:pct}).eq("id",goal.id); setEditGoal(null); showToast("Goal updated ✓"); };
@@ -544,15 +550,22 @@ export default function Dashboard() {
               {(()=>{
                 const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
                 const todayIdx=0;
-                const weekBars=dayNames.map((day,i)=>({
-                  day,
-                  done:i===todayIdx?done:i<todayIdx?Math.floor(Math.random()*5)+2:0,
-                  total:i===todayIdx?tasks.length:i<todayIdx?Math.floor(Math.random()*3)+5:0,
-                  isToday:i===todayIdx
-                }));
+
+                // Build week dates starting Mon May 18
+                const weekDates = dayNames.map((_,i)=>{
+                  const d = new Date(2026,4,18);
+                  d.setDate(d.getDate()+i);
+                  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                });
+
+                const weekBars = dayNames.map((day,i)=>{
+                  const dayTasks = tasks.filter(t=>t.completed_date===weekDates[i]);
+                  return { day, done:dayTasks.length, isToday:i===todayIdx, taskNames:dayTasks.map(t=>t.text) };
+                });
+
                 return (
                   <div>
-                    <ResponsiveContainer width="100%" height={130}>
+                    <ResponsiveContainer width="100%" height={120}>
                       <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
                         <XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/>
                         <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false}/>
@@ -562,19 +575,38 @@ export default function Dashboard() {
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
-                    {/* Summary row below chart */}
-                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, marginTop:6 }}>
+
+                    {/* Per-day task summary */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:5, marginTop:8 }}>
                       {weekBars.map((d,i)=>(
-                        <div key={i} style={{ textAlign:"center", padding:"6px 4px", borderRadius:8,
-                          background: d.isToday ? T.accentDim : d.done>0 ? "rgba(124,58,237,0.06)" : "transparent",
-                          border: `1px solid ${d.isToday ? T.accent+"44" : d.done>0 ? "rgba(124,58,237,0.15)" : "transparent"}` }}>
+                        <div key={i} style={{ padding:"8px 6px", borderRadius:9, minHeight:70,
+                          background: d.isToday ? T.accentDim : d.done>0 ? "rgba(124,58,237,0.06)" : "rgba(255,255,255,0.02)",
+                          border:`1px solid ${d.isToday?T.accent+"44":d.done>0?"rgba(124,58,237,0.18)":T.border}` }}>
                           {d.done > 0 ? (
                             <>
-                              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color: d.isToday ? T.accentLight : "rgba(255,255,255,0.6)", lineHeight:1 }}>{d.done}</div>
-                              <div style={{ fontSize:8, color: d.isToday ? T.accentLight : T.muted, marginTop:2, lineHeight:1.3 }}>task{d.done!==1?"s":""}{"\n"}done</div>
+                              <div style={{ fontSize:9, fontWeight:700, color:d.isToday?T.accentLight:T.muted,
+                                textTransform:"uppercase", letterSpacing:0.5, marginBottom:5 }}>
+                                {d.done} task{d.done!==1?"s":""}
+                              </div>
+                              <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
+                                {d.taskNames.slice(0,3).map((name,j)=>(
+                                  <div key={j} style={{ display:"flex", alignItems:"flex-start", gap:4 }}>
+                                    <div style={{ width:4, height:4, borderRadius:"50%", background:d.isToday?T.accentLight:T.accent+"88", marginTop:3, flexShrink:0 }} />
+                                    <div style={{ fontSize:9, color:d.isToday?T.text:"rgba(255,255,255,0.55)", lineHeight:1.3,
+                                      overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>
+                                      {name}
+                                    </div>
+                                  </div>
+                                ))}
+                                {d.taskNames.length > 3 && (
+                                  <div style={{ fontSize:8, color:T.muted, marginTop:1 }}>+{d.taskNames.length-3} more</div>
+                                )}
+                              </div>
                             </>
                           ) : (
-                            <div style={{ fontSize:8, color:T.faint, marginTop:4 }}>—</div>
+                            <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:8 }}>
+                              {i < todayIdx ? "None" : i===todayIdx ? "No tasks\ncomplete" : "—"}
+                            </div>
                           )}
                         </div>
                       ))}
