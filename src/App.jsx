@@ -541,8 +541,46 @@ export default function Dashboard() {
                   <div style={{ fontSize:11, color:T.muted }}>{tasks.filter(t=>!t.done).length} remaining</div>
                 </div>
               </div>
-              {(()=>{ const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],todayIdx=0,weekBars=dayNames.map((day,i)=>({day,done:i===todayIdx?done:i<todayIdx?Math.floor(Math.random()*5)+2:0,isToday:i===todayIdx}));
-                return <ResponsiveContainer width="100%" height={130}><BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}><XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false}/><Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/><Bar dataKey="done" radius={[5,5,0,0]}>{weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}</Bar></BarChart></ResponsiveContainer>;
+              {(()=>{
+                const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                const todayIdx=0;
+                const weekBars=dayNames.map((day,i)=>({
+                  day,
+                  done:i===todayIdx?done:i<todayIdx?Math.floor(Math.random()*5)+2:0,
+                  total:i===todayIdx?tasks.length:i<todayIdx?Math.floor(Math.random()*3)+5:0,
+                  isToday:i===todayIdx
+                }));
+                return (
+                  <div>
+                    <ResponsiveContainer width="100%" height={130}>
+                      <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
+                        <XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/>
+                        <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false}/>
+                        <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
+                        <Bar dataKey="done" radius={[5,5,0,0]}>
+                          {weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                    {/* Summary row below chart */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, marginTop:6 }}>
+                      {weekBars.map((d,i)=>(
+                        <div key={i} style={{ textAlign:"center", padding:"6px 4px", borderRadius:8,
+                          background: d.isToday ? T.accentDim : d.done>0 ? "rgba(124,58,237,0.06)" : "transparent",
+                          border: `1px solid ${d.isToday ? T.accent+"44" : d.done>0 ? "rgba(124,58,237,0.15)" : "transparent"}` }}>
+                          {d.done > 0 ? (
+                            <>
+                              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color: d.isToday ? T.accentLight : "rgba(255,255,255,0.6)", lineHeight:1 }}>{d.done}</div>
+                              <div style={{ fontSize:8, color: d.isToday ? T.accentLight : T.muted, marginTop:2, lineHeight:1.3 }}>task{d.done!==1?"s":""}{"\n"}done</div>
+                            </>
+                          ) : (
+                            <div style={{ fontSize:8, color:T.faint, marginTop:4 }}>—</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
               })()}
             </div>
 
