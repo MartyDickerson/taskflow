@@ -827,11 +827,22 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${T.border}` }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-                      <span style={{ fontSize:12, color:T.muted }}>Budget Used</span>
-                      <span style={{ fontSize:12, fontWeight:700, color:T.accentLight }}>{Math.round((expenses/3000)*100)}%</span>
-                    </div>
-                    <Bar2 pct={(expenses/3000)*100} color={T.accent} h={5} />
+                    <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Upcoming Bills</div>
+                    {txns.filter(t=>t.type==="expense").slice(0,3).length===0?(
+                      <div style={{ fontSize:11, color:T.faint, textAlign:"center", padding:"6px 0" }}>No upcoming bills</div>
+                    ):(
+                      txns.filter(t=>t.type==="expense").slice(0,3).map((t,i)=>(
+                        <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                          padding:"6px 9px", borderRadius:8, marginBottom:5,
+                          background:T.raised, border:`1px solid ${T.border2}` }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+                            <span style={{ fontSize:13 }}>{t.icon}</span>
+                            <span style={{ fontSize:11, color:T.text }}>{t.name}</span>
+                          </div>
+                          <span style={{ fontSize:12, fontWeight:700, color:T.red }}>-${Math.abs(parseFloat(t.amount)).toFixed(2)}</span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </>
               )}
@@ -894,9 +905,26 @@ export default function Dashboard() {
                         style={{ background:"none", color:T.red, fontSize:14, padding:"0 3px", borderRadius:4, opacity:0, transition:"opacity 0.15s", flexShrink:0 }}>×</button>
                     </div>
                   ); })}
-                  <div style={{ marginTop:8, padding:"9px 12px", borderRadius:10, background:`linear-gradient(135deg,${T.accentDim},${T.pinkDim})`, border:`1px solid ${T.accent}22` }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, marginBottom:5 }}><span style={{ color:T.muted }}>Monthly Budget</span><span style={{ fontWeight:700, color:T.accentLight }}>{Math.min(Math.round((expenses/3000)*100),100)}% used</span></div>
-                    <Bar2 pct={(expenses/3000)*100} color={T.accent} h={5} />
+                  <div style={{ marginTop:8, padding:"10px 12px", borderRadius:10, background:`linear-gradient(135deg,${T.accentDim},${T.pinkDim})`, border:`1px solid ${T.accent}22` }}>
+                    <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Expense Summary</div>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
+                      {[
+                        { l:"Total In",  v:`$${income.toFixed(0)}`,   c:T.green },
+                        { l:"Total Out", v:`$${expenses.toFixed(0)}`, c:T.red },
+                        { l:"Net",       v:`${income-expenses>=0?"+":"-"}$${Math.abs(income-expenses).toFixed(0)}`, c:income-expenses>=0?T.green:T.red },
+                      ].map(s=>(
+                        <div key={s.l} style={{ textAlign:"center", padding:"6px 4px", borderRadius:8, background:"rgba(0,0,0,0.2)" }}>
+                          <div style={{ fontSize:9, color:T.muted, marginBottom:3 }}>{s.l}</div>
+                          <div style={{ fontSize:13, fontWeight:800, color:s.c }}>{s.v}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ marginTop:8, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <span style={{ fontSize:10, color:T.muted }}>{txns.length} transaction{txns.length!==1?"s":""} this month</span>
+                      <span style={{ fontSize:10, fontWeight:700, color:income-expenses>=0?T.green:T.red }}>
+                        {income-expenses>=0?"▲ Saving":"▼ Overspent"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
