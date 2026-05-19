@@ -236,6 +236,20 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   const [unit, setUnit]             = useState("F");
   const [tab, setTab]               = useState("Temperature");
   const [loc, setLoc]               = useState({ name:"Alpharetta, GA", lat:34.0754, lon:-84.2941 });
+
+  // Load saved location from Supabase on mount
+  useEffect(()=>{
+    supabase.from("settings").select("value").eq("key","weather_location").single()
+      .then(({data})=>{
+        if(data?.value){
+          try {
+            const saved = JSON.parse(data.value);
+            setLoc(saved);
+            if(onLocChange) onLocChange(saved.name.split(",")[0]);
+          } catch(e){}
+        }
+      });
+  },[]);
   const [editLoc, setEditLoc]       = useState(false);
   const [locInput, setLocInput]     = useState("");
   const [locResults, setLocResults] = useState([]);
@@ -277,9 +291,11 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   };
 
   const selectLocation = (result) => {
-    const newName = result.name;
-    setLoc({ name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude });
-    if(onLocChange) onLocChange(newName);
+    const newLoc = { name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude };
+    setLoc(newLoc);
+    // Save to Supabase so it persists on refresh
+    supabase.from("settings").upsert({ key:"weather_location", value:JSON.stringify(newLoc), updated_at:new Date().toISOString() });
+    if(onLocChange) onLocChange(result.name);
     setEditLoc(false); setLocInput(""); setLocResults([]);
   };
 
