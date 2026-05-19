@@ -10,25 +10,25 @@ const supabase = createClient(
 
 /* ── Tokens ─────────────────────────────────────────────────────────── */
 const T = {
-  bg:        "#0c0c0c",
-  surface:   "#131313",
-  raised:    "#181818",
-  card:      "#1c1c1c",
-  border:    "#222222",
-  border2:   "#2c2c2c",
-  orange:    "#e06d20",
-  orangeB:   "#f07830",
-  orangeDim: "rgba(224,109,32,0.15)",
-  orangeGlow:"rgba(224,109,32,0.28)",
-  green:     "#4aba72",
-  greenDim:  "rgba(74,186,114,0.14)",
-  red:       "#e05555",
-  redDim:    "rgba(224,85,85,0.14)",
-  yellow:    "#e0a020",
-  yellowDim: "rgba(224,160,32,0.14)",
-  text:      "#f2f2f2",
-  muted:     "#777",
-  faint:     "#3a3a3a",
+  bg:        "#0a0a0a",
+  surface:   "#111111",
+  raised:    "#161616",
+  card:      "#1a1a1a",
+  border:    "#1e1e1e",
+  border2:   "#282828",
+  orange:    "#c8f135",
+  orangeB:   "#d4f53c",
+  orangeDim: "rgba(200,241,53,0.1)",
+  orangeGlow:"rgba(200,241,53,0.22)",
+  green:     "#c8f135",
+  greenDim:  "rgba(200,241,53,0.1)",
+  red:       "#ff5555",
+  redDim:    "rgba(255,85,85,0.12)",
+  yellow:    "#c8f135",
+  yellowDim: "rgba(200,241,53,0.1)",
+  text:      "#f0f0f0",
+  muted:     "#5a5a5a",
+  faint:     "#2e2e2e",
 };
 
 /* ── Static Data ─────────────────────────────────────────────────────── */
@@ -429,7 +429,7 @@ export default function Dashboard() {
         input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
         input::placeholder{color:#3a3a3a}input:focus,select:focus{outline:none}
         button{cursor:pointer;border:none;outline:none}
-        .nb:hover{background:rgba(224,109,32,0.12)!important}
+        .nb:hover{background:rgba(200,241,53,0.08)!important}
         .task-row:hover{background:rgba(255,255,255,0.03)!important}
         .task-row:hover .del{opacity:1!important}
         .txn-row:hover{background:rgba(255,255,255,0.03)!important}
@@ -444,7 +444,7 @@ export default function Dashboard() {
       {/* Toast */}
       {toast && (
         <div style={{ position:"fixed", top:18, right:18, zIndex:9999,
-          background:`linear-gradient(135deg,${T.orange},#f59e0b)`, color:"white",
+          background:`linear-gradient(135deg,#c8f135,#a8d420)`, color:"#0a0a0a",
           padding:"9px 18px", borderRadius:10, fontSize:13, fontWeight:700,
           boxShadow:`0 4px 24px ${T.orangeGlow}`, animation:"toastIn 0.28s ease" }}>{toast}</div>
       )}
@@ -531,8 +531,8 @@ export default function Dashboard() {
           </div>
           <div style={{ display:"flex", gap:9, alignItems:"center" }}>
             <button style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px",
-              borderRadius:9, fontSize:13, fontWeight:700, background:T.orange, border:"none",
-              color:"white", boxShadow:`0 0 16px ${T.orangeGlow}` }}
+              borderRadius:9, fontSize:13, fontWeight:700, background:`linear-gradient(135deg,#c8f135,#a8d420)`, border:"none",
+              color:"#0a0a0a", boxShadow:`0 0 16px ${T.orangeGlow}` }}
               onClick={() => document.getElementById("newTaskInput")?.focus()}>
               + New Task
             </button>
@@ -637,7 +637,7 @@ export default function Dashboard() {
             </div>
 
             {/* Balance */}
-            <div style={{ background:"linear-gradient(145deg,#1a0e06,#131313)", borderRadius:14,
+            <div style={{ background:"linear-gradient(145deg,#0f1a06,#111111)", borderRadius:14,
               padding:"18px 20px", border:`1px solid ${T.orange}33`,
               position:"relative", overflow:"hidden" }}>
               <div style={{ position:"absolute", top:-20, right:-20, width:90, height:90, borderRadius:"50%",
@@ -730,8 +730,8 @@ export default function Dashboard() {
                   style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`,
                     borderRadius:9, padding:"8px 12px", color:T.text, fontSize:12 }} />
                 <button onClick={addTask} disabled={saving}
-                  style={{ padding:"8px 14px", background:`linear-gradient(135deg,${T.orange},#f59e0b)`,
-                    borderRadius:9, color:"white", fontSize:16, fontWeight:900,
+                  style={{ padding:"8px 14px", background:`linear-gradient(135deg,#c8f135,#a8d420)`,
+                    borderRadius:9, color:"#0a0a0a", fontSize:16, fontWeight:900,
                     boxShadow:`0 0 12px ${T.orangeGlow}`, opacity:saving?0.6:1 }}>+</button>
               </div>
               {loading.tasks ? <Spinner /> : (
@@ -834,9 +834,9 @@ export default function Dashboard() {
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Finance Tracker</div>
                 <button onClick={()=>setShowTxnForm(!showTxnForm)}
                   style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
-                    background:showTxnForm?T.orangeDim:`linear-gradient(135deg,${T.orange},#f59e0b)`,
+                    background:showTxnForm?T.orangeDim:`linear-gradient(135deg,#c8f135,#a8d420)`,
                     border:showTxnForm?`1px solid ${T.orange}44`:"none",
-                    color:showTxnForm?T.orange:"white" }}>
+                    color:showTxnForm?T.orange:"#0a0a0a" }}>
                   {showTxnForm?"✕":"+ Add"}
                 </button>
               </div>
@@ -867,7 +867,7 @@ export default function Dashboard() {
                       {["💳","💼","🛒","🎬","⚡","💻","🍔","✈️","🏥","🎮"].map(ic=><option key={ic}>{ic}</option>)}
                     </select>
                     <button onClick={addTxn} disabled={saving}
-                      style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.orange},#f59e0b)`,
+                      style={{ padding:"7px 12px", background:`linear-gradient(135deg,#c8f135,#a8d420)`,
                         borderRadius:7, color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
                   </div>
                 </div>
@@ -962,7 +962,7 @@ export default function Dashboard() {
                 style={{ flex:1, padding:"10px", background:T.raised,
                   border:`1px solid ${T.border2}`, borderRadius:9, color:T.muted, fontSize:13, fontWeight:600 }}>Cancel</button>
               <button onClick={()=>saveGoal(editGoal, editGoal.progress)}
-                style={{ flex:1, padding:"10px", background:`linear-gradient(135deg,${T.orange},#f59e0b)`,
+                style={{ flex:1, padding:"10px", background:`linear-gradient(135deg,#c8f135,#a8d420)`,
                   borderRadius:9, color:"white", fontSize:13, fontWeight:700,
                   boxShadow:`0 0 14px ${T.orangeGlow}` }}>Save</button>
             </div>
