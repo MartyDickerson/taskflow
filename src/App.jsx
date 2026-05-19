@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -134,74 +134,127 @@ function Calendar() {
 function WeatherWidget({ compact=false }) {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [unit, setUnit] = useState("F");
+  const [tab, setTab] = useState("Temperature");
+
   useEffect(() => {
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=34.0754&longitude=-84.2941&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=5")
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=34.0754&longitude=-84.2941&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=7")
       .then(r=>r.json()).then(data=>{
         const wmo={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",51:"Light drizzle",61:"Light rain",63:"Rain",80:"Rain showers",95:"Thunderstorm"};
-        const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-        const forecast=data.daily.time.slice(0,5).map((date,i)=>({ day:days[new Date(date).getDay()], high:Math.round(data.daily.temperature_2m_max[i]), rain:data.daily.precipitation_probability_max[i], condition:wmo[data.daily.weathercode[i]]||"Clear" }));
-        setWeather({ temp:Math.round(data.current.temperature_2m), condition:wmo[data.current.weathercode]||"Clear sky", wind:Math.round(data.current.windspeed_10m), humidity:data.current.relativehumidity_2m, forecast });
+        const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        const now = new Date();
+        const currentHour = now.getHours();
+        const hourLabels = ["Now","1 AM","4 AM","7 AM","10 AM","1 PM","4 PM","7 PM"];
+        const hourIndices = [currentHour, 1, 4, 7, 10, 13, 16, 19];
+        const hourly = hourIndices.map((h, i) => ({
+          label: hourLabels[i],
+          temp: Math.round(data.hourly.temperature_2m[h] || 75),
+          precip: data.hourly.precipitation_probability[h] || 0,
+          wind: Math.round(data.hourly.windspeed_10m[h] || 8),
+        }));
+        const forecast = data.daily.time.map((date, i) => ({
+          day: i===0?"Today":days[new Date(date).getDay()],
+          high: Math.round(data.daily.temperature_2m_max[i]),
+          low: Math.round(data.daily.temperature_2m_min[i]),
+          rain: data.daily.precipitation_probability_max[i],
+          condition: wmo[data.daily.weathercode[i]] || "Clear",
+          code: data.daily.weathercode[i],
+        }));
+        setWeather({
+          temp: Math.round(data.current.temperature_2m),
+          high: Math.round(data.daily.temperature_2m_max[0]),
+          low: Math.round(data.daily.temperature_2m_min[0]),
+          condition: wmo[data.current.weathercode] || "Clear sky",
+          wind: Math.round(data.current.windspeed_10m),
+          humidity: data.current.relativehumidity_2m,
+          precip: data.current.precipitation_probability || 0,
+          hourly, forecast,
+        });
         setLoading(false);
-      }).catch(()=>{ setWeather({ temp:82, condition:"Clear sky", wind:7, humidity:44, forecast:[{day:"Mon",high:86,rain:2,condition:"Clear"},{day:"Tue",high:90,rain:7,condition:"Partly cloudy"},{day:"Wed",high:93,rain:22,condition:"Partly cloudy"},{day:"Thu",high:95,rain:51,condition:"Rain"},{day:"Fri",high:82,rain:67,condition:"Rain"}] }); setLoading(false); });
+      }).catch(()=>{
+        setWeather({
+          temp:77, high:88, low:63, condition:"Clear sky", wind:7, humidity:49, precip:2,
+          hourly:[{label:"Now",temp:77,precip:2,wind:7},{label:"1 AM",temp:73,precip:5,wind:6},{label:"4 AM",temp:68,precip:8,wind:5},{label:"7 AM",temp:67,precip:10,wind:5},{label:"10 AM",temp:79,precip:15,wind:8},{label:"1 PM",temp:91,precip:20,wind:10},{label:"4 PM",temp:92,precip:30,wind:12},{label:"7 PM",temp:84,precip:25,wind:9}],
+          forecast:[{day:"Today",high:88,low:63,rain:2,condition:"Clear sky"},{day:"Tue",high:90,low:65,rain:7,condition:"Partly cloudy"},{day:"Wed",high:94,low:69,rain:13,condition:"Partly cloudy"},{day:"Thu",high:95,low:70,rain:57,condition:"Rain"},{day:"Fri",high:77,low:65,rain:72,condition:"Rain"},{day:"Sat",high:78,low:64,rain:30,condition:"Partly cloudy"},{day:"Sun",high:87,low:67,rain:20,condition:"Partly cloudy"}],
+        });
+        setLoading(false);
+      });
   }, []);
+
+  const toC = v => Math.round((v-32)*5/9);
+  const fmt = v => unit==="F" ? `${v}°` : `${toC(v)}°`;
+
   if (loading) return <Spinner />;
-  if (compact) return (
-    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-      {/* Current conditions */}
-      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-        <div style={{ fontSize:28, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
-        <div>
-          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:24, letterSpacing:"1px", lineHeight:1, color:T.text }}>{weather.temp}°<span style={{ fontSize:12, color:T.muted }}>F</span></div>
-          <div style={{ fontSize:10, color:T.muted }}>{weather.condition}</div>
-        </div>
-        <div style={{ marginLeft:"auto", display:"flex", gap:8 }}>
-          <div style={{ textAlign:"center" }}><div style={{ fontSize:9, color:T.muted }}>💨</div><div style={{ fontSize:10, fontWeight:600 }}>{weather.wind}mph</div></div>
-          <div style={{ textAlign:"center" }}><div style={{ fontSize:9, color:T.muted }}>💧</div><div style={{ fontSize:10, fontWeight:600 }}>{weather.humidity}%</div></div>
-        </div>
-      </div>
-      {/* 5-day forecast */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:4 }}>
-        {weather.forecast.map((d,i)=>(
-          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"8px 4px", borderRadius:9,
-            background:i===0?T.accentDim:T.raised,
-            border:`1px solid ${i===0?T.accent+"55":T.border2}`,
-            boxShadow:i===0?`0 0 10px ${T.accentGlow}`:"none" }}>
-            <div style={{ fontSize:8, fontWeight:800, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
-            <div style={{ fontSize:18 }}>{getWIcon(d.condition)}</div>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:15, color:T.text, lineHeight:1 }}>{d.high}°</div>
-            <div style={{ fontSize:9, color:i===0?T.accentLight:T.muted, textAlign:"center", lineHeight:1.3, paddingTop:1 }}>{d.condition}</div>
-            <div style={{ fontSize:8, color:d.rain>50?T.accentLight:T.faint }}>💧{d.rain}%</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+
+  const chartData = tab==="Temperature" ? weather.hourly.map(h=>({label:h.label,value:h.temp}))
+    : tab==="Precipitation" ? weather.hourly.map(h=>({label:h.label,value:h.precip}))
+    : weather.hourly.map(h=>({label:h.label,value:h.wind}));
+
+  const chartColor = tab==="Temperature" ? "#c8a84b" : tab==="Precipitation" ? T.accentLight : T.green;
+
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", gap:16, alignItems:"center" }}>
-      <div style={{ display:"flex", alignItems:"center", gap:14, padding:"0 20px 0 4px", borderRight:`1px solid ${T.border2}` }}>
-        <div style={{ fontSize:48, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
+    <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+      {/* Top row: current + chart */}
+      <div style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:12 }}>
+        {/* Left: current conditions */}
         <div>
-          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:38, letterSpacing:"1px", lineHeight:1 }}>{weather.temp}°<span style={{ fontSize:20, color:T.muted }}>F</span></div>
-          <div style={{ fontSize:13, color:T.muted, marginTop:2 }}>{weather.condition}</div>
-          <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>📍 Alpharetta, GA</div>
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
+            <div style={{ fontSize:34, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
+            <div>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:30, lineHeight:1, color:T.text }}>{fmt(weather.temp)}</div>
+              <div style={{ display:"flex", gap:4, marginTop:2 }}>
+                {["F","C"].map(u=><button key={u} onClick={()=>setUnit(u)} style={{ padding:"1px 7px", borderRadius:5, fontSize:10, fontWeight:700,
+                  background:unit===u?T.raised:"transparent", border:`1px solid ${unit===u?T.border2:"transparent"}`, color:unit===u?T.text:T.muted }}>{u}</button>)}
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>High {fmt(weather.high)} · Low {fmt(weather.low)}</div>
+          <div style={{ fontSize:12, color:T.text, marginBottom:6 }}>{weather.condition}</div>
+          {[{l:"Humidity",v:`${weather.humidity}%`},{l:"Precipitation",v:`${weather.precip}%`},{l:"Wind",v:`${weather.wind} mph`}].map(s=>(
+            <div key={s.l} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:`1px solid ${T.border}` }}>
+              <span style={{ fontSize:11, color:T.muted }}>{s.l}</span>
+              <span style={{ fontSize:11, fontWeight:600, color:T.text }}>{s.v}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Right: chart with tabs */}
+        <div>
+          <div style={{ display:"flex", gap:6, marginBottom:8 }}>
+            {["Temperature","Precipitation","Wind"].map(t=>(
+              <button key={t} onClick={()=>setTab(t)} style={{ fontSize:10, padding:"3px 10px", borderRadius:7, fontWeight:600,
+                background:tab===t?T.raised:"transparent", border:`1px solid ${tab===t?T.border2:"transparent"}`,
+                color:tab===t?T.text:T.muted, transition:"all 0.15s" }}>{t}</button>
+            ))}
+          </div>
+          <ResponsiveContainer width="100%" height={90}>
+            <AreaChart data={chartData} margin={{top:5,right:5,left:-30,bottom:0}}>
+              <defs>
+                <linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="label" tick={{fill:T.muted,fontSize:9}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fill:T.muted,fontSize:9}} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border2}`, borderRadius:8, fontSize:11 }}
+                labelStyle={{ color:T.muted }} itemStyle={{ color:chartColor }}/>
+              <Area type="monotone" dataKey="value" stroke={chartColor} strokeWidth={2} fill="url(#wGrad)"
+                dot={{ fill:chartColor, r:2 }} activeDot={{ r:4, fill:chartColor }}/>
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
-      <div style={{ display:"flex", gap:8 }}>
+
+      {/* Bottom: 7-day forecast */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4, paddingTop:8, borderTop:`1px solid ${T.border}` }}>
         {weather.forecast.map((d,i)=>(
-          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"10px 6px", borderRadius:11,
-            background:i===0?T.accentDim:T.raised, border:`1px solid ${i===0?T.accent+"44":T.border2}` }}>
-            <div style={{ fontSize:10, fontWeight:700, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
-            <div style={{ fontSize:20 }}>{getWIcon(d.condition)}</div>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, color:T.text }}>{d.high}°</div>
-            <div style={{ fontSize:10, color:d.rain>50?T.accentLight:T.faint }}>💧{d.rain}%</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:10, padding:"0 4px 0 20px", borderLeft:`1px solid ${T.border2}` }}>
-        {[{icon:"💨",l:"Wind",v:`${weather.wind} mph`},{icon:"💧",l:"Humidity",v:`${weather.humidity}%`},{icon:"🌅",l:"Sunrise",v:"6:18 AM"},{icon:"🌇",l:"Sunset",v:"8:24 PM"}].map(s=>(
-          <div key={s.l} style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ width:28, height:28, borderRadius:8, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13 }}>{s.icon}</div>
-            <div><div style={{ fontSize:10, color:T.muted }}>{s.l}</div><div style={{ fontSize:13, fontWeight:600 }}>{s.v}</div></div>
+          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"6px 4px", borderRadius:9,
+            background:i===0?T.accentDim:"transparent", border:`1px solid ${i===0?T.accent+"44":"transparent"}` }}>
+            <div style={{ fontSize:9, fontWeight:700, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
+            <div style={{ fontSize:18 }}>{getWIcon(d.condition)}</div>
+            <div style={{ fontSize:10, fontWeight:700, color:T.text }}>{fmt(d.high)}</div>
+            <div style={{ fontSize:9, color:T.muted }}>{fmt(d.low)}</div>
           </div>
         ))}
       </div>
