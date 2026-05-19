@@ -550,7 +550,7 @@ export default function Dashboard() {
         <div style={{ flex:1, overflow:"auto", padding:"18px 22px 0 22px", display:"flex", flexDirection:"column", gap:14 }}>
 
           {/* ── ROW 1 ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"200px 280px 1fr 190px 190px", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"200px 260px 1fr 185px 175px", gap:14, alignItems:"stretch" }}>
 
             {/* Completion Ring */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 20px",
@@ -705,8 +705,8 @@ export default function Dashboard() {
               {SPEND_DATA.map(s=>(
                 <div key={s.name} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:5 }}>
                   <div style={{ width:7, height:7, borderRadius:2, background:s.color, flexShrink:0 }} />
-                  <ProgressBar pct={s.value} color={s.color} h={4} />
-                  <span style={{ fontSize:10, color:T.muted, width:22, textAlign:"right" }}>{s.value}%</span>
+                  <span style={{ fontSize:10, color:T.muted, flex:1 }}>{s.name}</span>
+                  <span style={{ fontSize:10, color:T.text, fontWeight:600 }}>{s.value}%</span>
                 </div>
               ))}
             </div>
