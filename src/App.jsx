@@ -953,9 +953,9 @@ export default function Dashboard() {
                     <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Expense Summary</div>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
                       {[
-                        { l:"Total In",  v:`$${income.toFixed(0)}`,   c:T.green },
-                        { l:"Total Out", v:`$${expenses.toFixed(0)}`, c:T.red },
-                        { l:"Net",       v:`${income-expenses>=0?"+":"-"}$${Math.abs(income-expenses).toFixed(0)}`, c:income-expenses>=0?T.green:T.red },
+                        { l:"Total In",  v:`$${income.toFixed(2)}`,   c:T.green },
+                        { l:"Total Out", v:`$${expenses.toFixed(2)}`, c:T.red },
+                        { l:"Net",       v:`${income-expenses>=0?"+":"-"}$${Math.abs(income-expenses).toFixed(2)}`, c:income-expenses>=0?T.green:T.red },
                       ].map(s=>(
                         <div key={s.l} style={{ textAlign:"center", padding:"6px 4px", borderRadius:8, background:"rgba(0,0,0,0.2)" }}>
                           <div style={{ fontSize:9, color:T.muted, marginBottom:3 }}>{s.l}</div>
