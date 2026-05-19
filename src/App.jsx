@@ -521,7 +521,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:"18px 22px", display:"flex", flexDirection:"column", gap:14 }}>
+        <div style={{ flex:1, overflow:"auto", padding:"18px 22px 22px 22px", display:"flex", flexDirection:"column", gap:14 }}>
 
           {/* ── ROW 1 ── */}
           <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto auto", gap:14, alignItems:"stretch" }}>
@@ -905,7 +905,8 @@ export default function Dashboard() {
 
           {/* ── ROW 3: Weather ── */}
           <div style={{ background:T.surface, borderRadius:14, padding:"22px 26px",
-            border:`1px solid ${T.border}`, flexShrink:0, marginTop:10 }}>
+            border:`1px solid ${T.border}`, flexShrink:0,
+            borderTop:`3px solid ${T.orange}44`, marginTop:16 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
                 Weather · Atlanta, GA
