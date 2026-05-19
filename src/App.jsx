@@ -880,7 +880,7 @@ export default function Dashboard() {
                       ];
                       const q = quotes[new Date().getDay()];
                       return (
-                        <div style={{ padding:"10px 12px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, position:"relative" }}>
+                        <div style={{ padding:"10px 12px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, position:"relative", overflow:"hidden" }}>
                           <div style={{ fontSize:18, color:T.accent, marginBottom:4, lineHeight:1 }}>"</div>
                           <div style={{ fontSize:11, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:6 }}>{q.q}</div>
                           <div style={{ fontSize:10, color:T.accentLight, fontWeight:600 }}>— {q.a}</div>
@@ -980,7 +980,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── ROW 3: Fitness Tracker ── */}
-          <div style={{ background:T.surface, borderRadius:14, padding:"18px 22px", border:`1px solid ${T.border}` }}>
+          <div style={{ background:T.surface, borderRadius:14, padding:"18px 22px", border:`1px solid ${T.border}`, marginTop:8 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Fitness Tracker</div>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
