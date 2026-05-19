@@ -576,13 +576,14 @@ export default function Dashboard() {
                 <Pill color={T.green}>{pct}% complete</Pill>
               </div>
               {(() => {
-                const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-                const today = new Date().getDay();
-                const weekBars = days.map((day, i) => ({
-                  day: day.slice(0,3),
-                  done: i === today ? done : i < today ? Math.floor(Math.random() * 5) + 2 : 0,
-                  total: i === today ? tasks.length : i < today ? Math.floor(Math.random() * 3) + 5 : 0,
-                  isToday: i === today,
+                const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+                // May 18 2026 is a Monday = index 0
+                const todayIdx = 0;
+                const weekBars = dayNames.map((day, i) => ({
+                  day,
+                  done: i === todayIdx ? done : i < todayIdx ? Math.floor(Math.random() * 5) + 2 : 0,
+                  total: i === todayIdx ? tasks.length : i < todayIdx ? Math.floor(Math.random() * 3) + 5 : 0,
+                  isToday: i === todayIdx,
                 }));
                 return (
                   <ResponsiveContainer width="100%" height={110}>
@@ -841,7 +842,10 @@ export default function Dashboard() {
                 <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:6 }}>
                   {/* Mini income/expense summary */}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:4 }}>
-                    {[{l:"Income",v:`$${income.toFixed(0)}`,c:T.green,i:"⬆"},{l:"Spent",v:`$${expenses.toFixed(0)}`,c:T.red,i:"⬇"}].map(s=>(
+                    {[
+                    {l:"Income", v:`$${income.toFixed(0)}`,  c:T.green, i:"⬆"},
+                    {l:"Spent",  v:`$${expenses.toFixed(0)}`, c:T.red,   i:"⬇"}
+                  ].map(s=>(
                       <div key={s.l} style={{ padding:"9px 11px", background:T.raised, borderRadius:9, border:`1px solid ${T.border2}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:3 }}>
                           <span style={{ fontSize:11, color:s.c }}>{s.i}</span>
@@ -852,14 +856,17 @@ export default function Dashboard() {
                     ))}
                   </div>
 
-                  {txns.map(tx=>(
+                  {txns.map(tx=>{
+                    const amt = Math.abs(parseFloat(tx.amount));
+                    const isIncome = tx.type === "income";
+                    return (
                     <div key={tx.id} className="txn-row" style={{ display:"flex", alignItems:"center", gap:9,
                       padding:"8px 10px", borderRadius:10, transition:"background 0.13s",
                       background:T.raised, border:`1px solid ${T.border}` }}>
                       <div style={{ width:30, height:30, borderRadius:8, display:"flex", alignItems:"center",
                         justifyContent:"center", fontSize:13, flexShrink:0, fontWeight:900,
-                        background:tx.type==="income"?T.greenDim:T.redDim,
-                        color:tx.type==="income"?T.green:T.red }}>
+                        background:isIncome ? T.greenDim : T.redDim,
+                        color:isIncome ? T.green : T.red }}>
                         {tx.icon}
                       </div>
                       <div style={{ flex:1, minWidth:0 }}>
@@ -868,8 +875,8 @@ export default function Dashboard() {
                         <div style={{ fontSize:10, color:T.muted }}>{tx.date_label}</div>
                       </div>
                       <div style={{ fontSize:13, fontWeight:800, flexShrink:0,
-                        color:parseFloat(tx.amount)>0?T.green:T.red }}>
-                        {parseFloat(tx.amount)>0?"+":""}{parseFloat(tx.amount)<0?"-$":"$"}{Math.abs(parseFloat(tx.amount)).toFixed(2)}
+                        color: isIncome ? T.green : T.red }}>
+                        {isIncome ? "+" : "-"}${amt.toFixed(2)}
                       </div>
                       <button className="del" onClick={async ()=>{
                         setTxns(ts=>ts.filter(t=>t.id!==tx.id));
@@ -878,7 +885,8 @@ export default function Dashboard() {
                       }} style={{ background:"none", color:T.red, fontSize:14, padding:"0 3px",
                         borderRadius:4, opacity:0, transition:"opacity 0.15s", flexShrink:0 }}>×</button>
                     </div>
-                  ))}
+                    );
+                  })}
                   {txns.length===0&&<div style={{ textAlign:"center", color:T.muted, fontSize:12, padding:"16px 0" }}>No transactions yet</div>}
                 </div>
               )}
