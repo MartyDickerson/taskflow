@@ -174,7 +174,7 @@ function WeatherWidget({ compact = false }) {
 
   useEffect(() => {
     // Open-Meteo API — free, no key needed — Atlanta, GA
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=33.749&longitude=-84.388&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=5";
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=34.0754&longitude=-84.2941&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&daily=temperature_2m_max,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FNew_York&forecast_days=5";
     fetch(url)
       .then(r => r.json())
       .then(data => {
@@ -258,7 +258,7 @@ function WeatherWidget({ compact = false }) {
             {weather.temp}°<span style={{ fontSize:22, color:T.muted }}>F</span>
           </div>
           <div style={{ fontSize:13, color:T.muted, marginTop:2 }}>{weather.condition}</div>
-          <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>📍 Atlanta, GA</div>
+          <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>📍 Alpharetta, GA</div>
         </div>
       </div>
 
@@ -629,7 +629,7 @@ export default function Dashboard() {
               border:`1px solid ${T.border}`, overflow:"hidden" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                 <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
-                  Weather · Atlanta
+                  Weather · Alpharetta
                 </div>
                 <Pill color={T.yellow}>Live</Pill>
               </div>
