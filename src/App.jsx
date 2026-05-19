@@ -547,10 +547,10 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:"18px 22px 0 22px", display:"flex", flexDirection:"column", gap:14 }}>
+        <div style={{ flex:1, overflow:"auto", padding:"18px 22px 0 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ── ROW 1 ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"200px 260px 1fr 185px 175px", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"180px minmax(220px,260px) 1fr minmax(160px,185px) minmax(155px,175px)", gap:12, alignItems:"stretch" }}>
 
             {/* Completion Ring */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 20px",
@@ -694,9 +694,9 @@ export default function Dashboard() {
               border:`1px solid ${T.border}` }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
                 textTransform:"uppercase", marginBottom:8 }}>Spending</div>
-              <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
-                <PieChart width={90} height={90}>
-                  <Pie data={SPEND_DATA} cx={45} cy={45} innerRadius={28} outerRadius={42}
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                <PieChart width={80} height={80}>
+                  <Pie data={SPEND_DATA} cx={40} cy={40} innerRadius={22} outerRadius={36}
                     dataKey="value" paddingAngle={2} strokeWidth={0}>
                     {SPEND_DATA.map((e,i)=><Cell key={i} fill={e.color}/>)}
                   </Pie>
