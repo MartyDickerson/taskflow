@@ -230,7 +230,7 @@ function Calendar() {
 }
 
 
-function WeatherWidget({ compact=false }) {
+function WeatherWidget({ compact=false, onLocChange=null }) {
   const [weather, setWeather]       = useState(null);
   const [loading, setLoading]       = useState(true);
   const [unit, setUnit]             = useState("F");
@@ -274,7 +274,9 @@ function WeatherWidget({ compact=false }) {
   };
 
   const selectLocation = (result) => {
+    const newName = result.name;
     setLoc({ name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude });
+    if(onLocChange) onLocChange(newName);
     setEditLoc(false); setLocInput(""); setLocResults([]);
   };
 
@@ -383,6 +385,7 @@ export default function Dashboard() {
   const [activeNav,   setActiveNav]   = useState("Dashboard");
   const [editGoal,    setEditGoal]    = useState(null);
   const [baseBalance, setBaseBalance] = useState(14560.75);
+  const [weatherLocName, setWeatherLocName] = useState("Alpharetta");
   const [editBalance, setEditBalance] = useState(false);
   const [saving,      setSaving]      = useState(false);
   const [toast,       setToast]       = useState("");
@@ -619,10 +622,10 @@ export default function Dashboard() {
             {/* Weather */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · {loc.name.split(",")[0]}</div>
+                <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · {weatherLocName}</div>
                 <Pill color={T.yellow}>Live</Pill>
               </div>
-              <WeatherWidget compact />
+              <WeatherWidget compact onLocChange={name=>setWeatherLocName(name)} />
             </div>
 
             {/* MY CARDS */}
