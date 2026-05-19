@@ -408,6 +408,7 @@ export default function Dashboard() {
   const [editGoal,    setEditGoal]    = useState(null);
   const [baseBalance, setBaseBalance] = useState(14560.75);
   const [weatherLocName, setWeatherLocName] = useState("Alpharetta");
+  const contentRef = React.useRef(null);
   const [editBalance, setEditBalance] = useState(false);
   const [saving,      setSaving]      = useState(false);
   const [toast,       setToast]       = useState("");
@@ -546,7 +547,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflowY:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ── ROW 1: Weekly | Weather | My Cards ── */}
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
