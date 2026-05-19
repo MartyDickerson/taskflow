@@ -760,11 +760,11 @@ export default function Dashboard() {
                         ):(
                           <div className="fu" style={{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:10, padding:10 }}>
                             <div style={{ fontSize:10, color:"rgba(255,255,255,0.7)", fontWeight:700, marginBottom:8 }}>Quick Pay — {c.name}</div>
-                            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+                            <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:6 }}>
                               <input value={payForm.name} onChange={e=>setPayForm({...payForm,name:e.target.value})} placeholder="Pay to / description"
-                                style={{ background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                                style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                               <input type="number" value={payForm.amount} onChange={e=>setPayForm({...payForm,amount:e.target.value})} placeholder="Amount $"
-                                style={{ background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                                style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                             </div>
                             <div style={{ display:"flex", gap:6 }}>
                               <button onClick={()=>setShowPayForm(false)} style={{ flex:1, padding:"7px", background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, color:"rgba(255,255,255,0.6)", fontSize:11 }}>Cancel</button>
