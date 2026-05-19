@@ -8,27 +8,27 @@ const supabase = createClient(
 );
 
 const T = {
-  bg:        "#0a0a0a",
-  surface:   "#111111",
-  raised:    "#161616",
-  card:      "#1a1a1a",
-  border:    "#1e1e1e",
-  border2:   "#282828",
-  accent:    "#c8f135",
-  accentB:   "#aadc1a",
-  accentDim: "rgba(200,241,53,0.1)",
-  accentGlow:"rgba(200,241,53,0.22)",
-  accentLight:"#d4f53c",
-  pink:      "#c8f135",
-  pinkDim:   "rgba(200,241,53,0.08)",
-  green:     "#c8f135",
-  greenDim:  "rgba(200,241,53,0.1)",
-  red:       "#ff5555",
-  redDim:    "rgba(255,85,85,0.12)",
-  yellow:    "#c8f135",
-  text:      "#f0f0f0",
-  muted:     "#5a5a5a",
-  faint:     "#2e2e2e",
+  bg:        "#09091a",
+  surface:   "#0e0e22",
+  raised:    "#12122c",
+  card:      "#161634",
+  border:    "#1e1e3a",
+  border2:   "#252548",
+  accent:    "#7c3aed",
+  accentB:   "#9333ea",
+  accentDim: "rgba(124,58,237,0.15)",
+  accentGlow:"rgba(124,58,237,0.3)",
+  accentLight:"#a78bfa",
+  pink:      "#ec4899",
+  pinkDim:   "rgba(236,72,153,0.15)",
+  green:     "#10b981",
+  greenDim:  "rgba(16,185,129,0.12)",
+  red:       "#ef4444",
+  redDim:    "rgba(239,68,68,0.12)",
+  yellow:    "#f59e0b",
+  text:      "#f0eeff",
+  muted:     "#6b6b9a",
+  faint:     "#2a2a4a",
 };
 
 const SPEND_DATA = [
@@ -205,7 +205,7 @@ function Calendar() {
                 <option value={T.red}>Red</option>
               </select>
               <button onClick={addEvent} disabled={saving}
-                style={{ padding:"6px 14px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"#0a0a0a", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+                style={{ padding:"6px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:7, color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
             </div>
           </div>
         )}
@@ -314,7 +314,7 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
               placeholder="Search city... e.g. Atlanta, GA"
               style={{ flex:1, background:T.raised, border:`1px solid ${T.accent}`, borderRadius:8, padding:"7px 10px", color:T.text, fontSize:12 }} />
             <button onClick={searchLocation} disabled={searching}
-              style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:8, color:"#0a0a0a", fontSize:12, fontWeight:700 }}>
+              style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:8, color:"white", fontSize:12, fontWeight:700 }}>
               {searching?"...":"Search"}
             </button>
             <button onClick={()=>{setEditLoc(false);setLocResults([]);}} style={{ padding:"7px 10px", background:T.faint, borderRadius:8, color:T.muted, fontSize:12 }}>✕</button>
@@ -465,8 +465,8 @@ export default function Dashboard() {
         input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
         input::placeholder{color:#3a3a5a}input:focus,select:focus{outline:none}
         button{cursor:pointer;border:none;outline:none}
-        .nb:hover{background:rgba(200,241,53,0.08)!important}
-        .task-row:hover{background:rgba(200,241,53,0.04)!important}
+        .nb:hover{background:rgba(124,58,237,0.12)!important}
+        .task-row:hover{background:rgba(124,58,237,0.06)!important}
         .task-row:hover .del{opacity:1!important}
         .txn-row:hover{background:rgba(255,255,255,0.03)!important}
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -478,7 +478,7 @@ export default function Dashboard() {
       `}</style>
 
       {toast&&<div style={{ position:"fixed",top:18,right:18,zIndex:9999,
-        background:`linear-gradient(135deg,${T.accent},${T.accentB})`,color:"white",
+        background:`linear-gradient(135deg,${T.accent},${T.pink})`,color:"white",
         padding:"9px 18px",borderRadius:10,fontSize:13,fontWeight:700,
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
@@ -531,7 +531,7 @@ export default function Dashboard() {
             <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{loading.tasks?"Loading...":`${tasks.filter(t=>!t.done).length} tasks remaining · ${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}`}</div>
           </div>
           <div style={{ display:"flex", gap:9, alignItems:"center" }}>
-            <button style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", borderRadius:9, fontSize:13, fontWeight:700, background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"#0a0a0a", boxShadow:`0 0 16px ${T.accentGlow}` }}
+            <button style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", borderRadius:9, fontSize:13, fontWeight:700, background:`linear-gradient(135deg,${T.accent},${T.pink})`, border:"none", color:"white", boxShadow:`0 0 16px ${T.accentGlow}` }}
               onClick={()=>document.getElementById("newTaskInput")?.focus()}>+ New Task</button>
             <div style={{ width:34, height:34, borderRadius:9, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", cursor:"pointer" }}>
               🔔<span style={{ position:"absolute", top:7, right:7, width:6, height:6, borderRadius:"50%", background:T.pink, border:`1.5px solid ${T.bg}` }} className="pulse" />
@@ -562,7 +562,7 @@ export default function Dashboard() {
             </div>
 
             {/* Weekly Bar */}
-            <div style={{ background:`linear-gradient(145deg,#111,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                 <div>
                   <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:4 }}>Weekly Activity</div>
@@ -643,7 +643,7 @@ export default function Dashboard() {
             </div>
 
             {/* Weather */}
-            <div style={{ background:`linear-gradient(145deg,#111,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                 <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · {weatherLocName}</div>
                 <Pill color={T.yellow}>Live</Pill>
@@ -652,7 +652,7 @@ export default function Dashboard() {
             </div>
 
             {/* MY CARDS */}
-            <div style={{ background:"linear-gradient(160deg,#1a1a1a 0%,#1f2a0a 50%,#0a0a0a 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(200,241,53,0.25)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(200,241,53,0.15)` }}>
+            <div style={{ background:"linear-gradient(160deg,#c2410c 0%,#9333ea 55%,#1e1b4b 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(147,51,234,0.3)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(147,51,234,0.3)` }}>
 
               {/* Header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
@@ -696,7 +696,7 @@ export default function Dashboard() {
                       <div>
                         {/* Single card */}
                         <div style={{ borderRadius:14, overflow:"hidden", position:"relative",
-                          background:"linear-gradient(135deg,#1a2a06 0%,#111811 60%,#0a0a0a 100%)",
+                          background:"linear-gradient(135deg,#2d1b5e 0%,#1a1a3e 60%,#0d0d1e 100%)",
                           border:"1px solid rgba(255,255,255,0.12)",
                           boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
                           {/* Blobs */}
@@ -783,7 +783,7 @@ export default function Dashboard() {
               <div style={{ display:"flex", gap:7, marginBottom:12 }}>
                 <input id="newTaskInput" value={newTask} onChange={e=>setNewTask(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTask()} placeholder="Add task… Enter to save"
                   style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:9, padding:"8px 12px", color:T.text, fontSize:12 }} />
-                <button onClick={addTask} disabled={saving} style={{ padding:"8px 14px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:9, color:"#0a0a0a", fontSize:16, fontWeight:900, boxShadow:`0 0 12px ${T.accentGlow}`, opacity:saving?0.6:1 }}>+</button>
+                <button onClick={addTask} disabled={saving} style={{ padding:"8px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:9, color:"white", fontSize:16, fontWeight:900, boxShadow:`0 0 12px ${T.accentGlow}`, opacity:saving?0.6:1 }}>+</button>
               </div>
               {loading.tasks?<Spinner/>:(
                 <div style={{ flex:1, display:"flex", flexDirection:"column", gap:3 }}>
@@ -834,7 +834,7 @@ export default function Dashboard() {
                       <option value="#a78bfa">💜 Lavender</option>
                     </select>
                     <button onClick={addGoal} disabled={saving}
-                      style={{ padding:"7px 14px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7,
+                      style={{ padding:"7px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:7,
                         color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
                   </div>
                 </div>
@@ -922,7 +922,7 @@ export default function Dashboard() {
                       style={{ width:58, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 6px", color:T.text, fontSize:12 }}>
                       {["💳","💼","🛒","🎬","⚡","💻","🍔","✈️","🏥","🎮"].map(ic=><option key={ic}>{ic}</option>)}
                     </select>
-                    <button onClick={addTxn} disabled={saving} style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"#0a0a0a", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+                    <button onClick={addTxn} disabled={saving} style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:7, color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
                   </div>
                 </div>
               )}
@@ -990,7 +990,7 @@ export default function Dashboard() {
             <Bar2 pct={editGoal.progress} color={editGoal.color} h={6} />
             <div style={{ display:"flex", gap:9, marginTop:18 }}>
               <button onClick={()=>setEditGoal(null)} style={{ flex:1, padding:"10px", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:9, color:T.muted, fontSize:13, fontWeight:600 }}>Cancel</button>
-              <button onClick={()=>saveGoal(editGoal,editGoal.progress)} style={{ flex:1, padding:"10px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:9, color:"#0a0a0a", fontSize:13, fontWeight:700, boxShadow:`0 0 14px ${T.accentGlow}` }}>Save</button>
+              <button onClick={()=>saveGoal(editGoal,editGoal.progress)} style={{ flex:1, padding:"10px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:9, color:"white", fontSize:13, fontWeight:700, boxShadow:`0 0 14px ${T.accentGlow}` }}>Save</button>
             </div>
           </div>
         </div>
