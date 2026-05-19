@@ -370,14 +370,19 @@ export default function Dashboard() {
             </div>
 
             {/* Weekly Bar */}
-            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div><div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:3 }}>Weekly Activity</div>
-                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, letterSpacing:"1px", color:T.text }}>{done}/{tasks.length} DONE</div></div>
-                <Pill color={T.green}>{pct}%</Pill>
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                <div>
+                  <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:4 }}>Weekly Activity</div>
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"1px", color:T.text }}>{done} of {tasks.length} Tasks Done</div>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
+                  <Pill color={T.green}>{pct}% complete</Pill>
+                  <div style={{ fontSize:11, color:T.muted }}>{tasks.filter(t=>!t.done).length} remaining</div>
+                </div>
               </div>
               {(()=>{ const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],todayIdx=0,weekBars=dayNames.map((day,i)=>({day,done:i===todayIdx?done:i<todayIdx?Math.floor(Math.random()*5)+2:0,isToday:i===todayIdx}));
-                return <ResponsiveContainer width="100%" height={120}><BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-24,bottom:0}}><XAxis dataKey="day" tick={{fill:T.faint,fontSize:11}} axisLine={false} tickLine={false}/><YAxis tick={{fill:T.faint,fontSize:10}} axisLine={false} tickLine={false}/><Tooltip content={<CustomTip/>} cursor={{fill:"rgba(255,255,255,0.03)"}}/><Bar dataKey="done" radius={[5,5,0,0]}>{weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"55":T.faint}/>)}</Bar></BarChart></ResponsiveContainer>;
+                return <ResponsiveContainer width="100%" height={130}><BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}><XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false}/><Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/><Bar dataKey="done" radius={[5,5,0,0]}>{weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}</Bar></BarChart></ResponsiveContainer>;
               })()}
             </div>
 
