@@ -941,9 +941,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      </div> {/* end TOP SECTION */}
-
-
       {/* Edit Goal Modal */}
       {editGoal && (
         <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)",
