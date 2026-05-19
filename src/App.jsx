@@ -415,7 +415,7 @@ export default function Dashboard() {
     const [{ data:t },{ data:g },{ data:tx },{ data:c }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
-      supabase.from("transactions").select("*").order("type",{ascending:false}).order("created_at",{ascending:false}).limit(6),
+      supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
       supabase.from("cards").select("*").order("created_at",{ascending:true}),
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
@@ -427,7 +427,7 @@ export default function Dashboard() {
   useEffect(() => {
     const s1 = supabase.channel("t").on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>supabase.from("tasks").select("*").order("created_at",{ascending:true}).then(({data})=>setTasks(data||[]))).subscribe();
     const s2 = supabase.channel("g").on("postgres_changes",{event:"*",schema:"public",table:"goals"},()=>supabase.from("goals").select("*").order("created_at",{ascending:true}).then(({data})=>setGoals(data||[]))).subscribe();
-    const s3 = supabase.channel("tx").on("postgres_changes",{event:"*",schema:"public",table:"transactions"},()=>supabase.from("transactions").select("*").order("type",{ascending:false}).order("created_at",{ascending:false}).limit(6).then(({data})=>setTxns(data||[]))).subscribe();
+    const s3 = supabase.channel("tx").on("postgres_changes",{event:"*",schema:"public",table:"transactions"},()=>supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6).then(({data})=>setTxns(data||[]))).subscribe();
     const s4 = supabase.channel("c").on("postgres_changes",{event:"*",schema:"public",table:"cards"},()=>supabase.from("cards").select("*").order("created_at",{ascending:true}).then(({data})=>setCards(data||[]))).subscribe();
     return () => { supabase.removeChannel(s1); supabase.removeChannel(s2); supabase.removeChannel(s3); supabase.removeChannel(s4); };
   }, []);
@@ -936,7 +936,11 @@ export default function Dashboard() {
                       </div>
                     ))}
                   </div>
-                  {txns.map(tx=>{ const amt=Math.abs(parseFloat(tx.amount)),isIncome=tx.type==="income"; return (
+                  {[...txns].sort((a,b)=>{
+                    if(a.type==="income" && b.type!=="income") return -1;
+                    if(a.type!=="income" && b.type==="income") return 1;
+                    return Math.abs(parseFloat(b.amount)) - Math.abs(parseFloat(a.amount));
+                  }).map(tx=>{ const amt=Math.abs(parseFloat(tx.amount)),isIncome=tx.type==="income"; return (
                     <div key={tx.id} className="txn-row" style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 10px", borderRadius:10, transition:"background 0.13s", background:T.raised, border:`1px solid ${T.border}` }}>
                       <div style={{ width:29, height:29, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, flexShrink:0, background:isIncome?T.greenDim:T.redDim, color:isIncome?T.green:T.red }}>{tx.icon}</div>
                       <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:12, fontWeight:600, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{tx.name}</div><div style={{ fontSize:10, color:T.muted }}>{tx.date_label}</div></div>
