@@ -678,7 +678,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── ROW 2 ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr 0.85fr 0.9fr", gap:14, flex:1, minHeight:0 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr 0.85fr 0.9fr", gap:14, minHeight:380 }}>
 
             {/* TO-DO */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px",
@@ -700,7 +700,7 @@ export default function Dashboard() {
                     boxShadow:`0 0 12px ${T.orangeGlow}`, opacity:saving?0.6:1 }}>+</button>
               </div>
               {loading.tasks ? <Spinner /> : (
-                <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:3 }}>
+                <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:3, maxHeight:260 }}>
                   {tasks.map(task=>(
                     <div key={task.id} className="task-row fu" style={{ display:"flex", alignItems:"center",
                       padding:"8px 10px", borderRadius:9, cursor:"pointer", transition:"background 0.13s",
@@ -905,8 +905,7 @@ export default function Dashboard() {
 
           {/* ── ROW 3: Weather ── */}
           <div style={{ background:T.surface, borderRadius:14, padding:"22px 26px",
-            border:`1px solid ${T.border}`, flexShrink:0,
-            borderTop:`3px solid ${T.orange}44`, marginTop:16 }}>
+            border:`1px solid ${T.border}`, flexShrink:0 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
                 Weather · Atlanta, GA
