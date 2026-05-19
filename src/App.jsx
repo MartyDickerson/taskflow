@@ -619,7 +619,7 @@ export default function Dashboard() {
             {/* Weather */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · Alpharetta</div>
+                <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · {loc.name.split(",")[0]}</div>
                 <Pill color={T.yellow}>Live</Pill>
               </div>
               <WeatherWidget compact />
