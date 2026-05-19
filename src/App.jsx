@@ -243,6 +243,9 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
 
   const DEFAULT_LOC = { name:"Alpharetta, GA", lat:34.0754, lon:-84.2941 };
 
+  const saveLoc = (l) => { try { localStorage.setItem("taskflow_weather_loc", JSON.stringify(l)); } catch(e){} };
+  const loadLoc = () => { try { const s=localStorage.getItem("taskflow_weather_loc"); return s?JSON.parse(s):null; } catch(e){ return null; } };
+
   const fetchWeather = (lat, lon) => {
     setLoading(true);
     const wmo={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",51:"Light drizzle",61:"Light rain",63:"Rain",80:"Rain showers",95:"Thunderstorm"};
@@ -262,23 +265,13 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
       }).catch(()=>setLoading(false));
   };
 
-  // On mount: load saved location from Supabase FIRST, then fetch weather
+  // On mount: load saved location from localStorage FIRST, then fetch weather
   useEffect(()=>{
-    supabase.from("settings").select("value").eq("key","weather_location").single()
-      .then(({data})=>{
-        let activeLoc = DEFAULT_LOC;
-        if(data?.value){
-          try { activeLoc = JSON.parse(data.value); } catch(e){}
-        }
-        setLoc(activeLoc);
-        if(onLocChange) onLocChange(activeLoc.name.split(",")[0]);
-        fetchWeather(activeLoc.lat, activeLoc.lon);
-      })
-      .catch(()=>{
-        setLoc(DEFAULT_LOC);
-        if(onLocChange) onLocChange(DEFAULT_LOC.name.split(",")[0]);
-        fetchWeather(DEFAULT_LOC.lat, DEFAULT_LOC.lon);
-      });
+    const saved = loadLoc();
+    const activeLoc = saved || DEFAULT_LOC;
+    setLoc(activeLoc);
+    if(onLocChange) onLocChange(activeLoc.name.split(",")[0]);
+    fetchWeather(activeLoc.lat, activeLoc.lon);
   }, []);
 
   const searchLocation = async () => {
@@ -295,7 +288,7 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   const selectLocation = (result) => {
     const newLoc = { name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude };
     setLoc(newLoc);
-    supabase.from("settings").upsert({ key:"weather_location", value:JSON.stringify(newLoc), updated_at:new Date().toISOString() });
+    saveLoc(newLoc);
     if(onLocChange) onLocChange(result.name);
     setEditLoc(false); setLocInput(""); setLocResults([]);
     fetchWeather(newLoc.lat, newLoc.lon);
