@@ -123,10 +123,13 @@ function Calendar() {
   const dim=new Date(cal.getFullYear(),cal.getMonth()+1,0).getDate();
   const cells=[...Array(fd).fill(null),...Array.from({length:dim},(_,i)=>i+1)];
 
-  // Days that have events this month
+  // Days that have events this month - from Supabase only
   const eventDays = new Set(events
-    .filter(e=>{ const d=new Date(e.event_date); return d.getMonth()===cal.getMonth()&&d.getFullYear()===cal.getFullYear(); })
-    .map(e=>new Date(e.event_date).getDate()));
+    .filter(e=>{ 
+      const [y,m]=e.event_date.split("-").map(Number);
+      return m-1===cal.getMonth()&&y===cal.getFullYear(); 
+    })
+    .map(e=>parseInt(e.event_date.split("-")[2])));
 
   // Today's events
   const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
@@ -162,7 +165,7 @@ function Calendar() {
             boxShadow:isT?`0 0 12px ${T.accentGlow}`:"none",
             position:"relative", transition:"background 0.15s" }}>
             {day||"·"}
-            {hasE&&<div style={{ position:"absolute", bottom:2, left:"50%", transform:"translateX(-50%)", width:4, height:4, borderRadius:"50%", background:T.pink }} />}
+            {hasE&&<div style={{ position:"absolute", bottom:2, left:"50%", transform:"translateX(-50%)", width:4, height:4, borderRadius:"50%", background:T.accentLight }} />}
           </div>;
         })}
       </div>
@@ -478,10 +481,7 @@ export default function Dashboard() {
       {/* SIDEBAR */}
       <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:28 }}>
-         <div style={{ width:34, height:34, borderRadius:10, overflow:"hidden",
-  border:`1.5px solid ${T.accent}`, boxShadow:`0 0 16px ${T.accentGlow}`, flexShrink:0 }}>
-  <img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-</div>
+          <div style={{ width:34, height:34, background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, boxShadow:`0 0 16px ${T.accentGlow}` }}>⚡</div>
           <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px" }}>TaskFlow</span>
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
         </div>
