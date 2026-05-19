@@ -400,6 +400,7 @@ export default function Dashboard() {
   const [showTxnForm, setShowTxnForm] = useState(false);
   const [showGoalForm,setShowGoalForm]= useState(false);
   const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#7c3aed" });
+  const [fitnessLog,  setFitnessLog]  = useState(null);
   const [showCardForm,setShowCardForm]= useState(false);
   const [activeNav,   setActiveNav]   = useState("Dashboard");
   const [editGoal,    setEditGoal]    = useState(null);
@@ -412,13 +413,16 @@ export default function Dashboard() {
   const showToast = m => { setToast(m); setTimeout(()=>setToast(""),2400); };
 
   const loadAll = useCallback(async () => {
-    const [{ data:t },{ data:g },{ data:tx },{ data:c }] = await Promise.all([
+    const today = new Date().toISOString().split("T")[0];
+    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
       supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
       supabase.from("cards").select("*").order("created_at",{ascending:true}),
+      supabase.from("fitness").select("*").eq("log_date",today).single(),
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
+    setFitnessLog(f || { steps:0, calories:0, water_oz:0, workouts:0, sleep_hrs:0, weight:0 });
     setLoading({ tasks:false, goals:false, txns:false, cards:false });
   }, []);
 
@@ -974,6 +978,59 @@ export default function Dashboard() {
               )}
             </div>
           </div>
+
+          {/* ── ROW 3: Fitness Tracker ── */}
+          <div style={{ background:T.surface, borderRadius:14, padding:"18px 22px", border:`1px solid ${T.border}` }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Fitness Tracker</div>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ fontSize:11, color:T.muted }}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span>
+                <button onClick={async()=>{
+                  if(!fitnessLog) return;
+                  setSaving(true);
+                  await supabase.from("fitness").upsert({...fitnessLog, log_date:new Date().toISOString().split("T")[0]});
+                  setSaving(false); showToast("Fitness log saved ✓");
+                }} style={{ fontSize:11, padding:"4px 12px", borderRadius:7, fontWeight:700,
+                  background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
+                  boxShadow:`0 0 10px ${T.accentGlow}`, opacity:saving?0.6:1 }}>
+                  💾 Save
+                </button>
+              </div>
+            </div>
+            {!fitnessLog ? <Spinner/> : (
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:12 }}>
+                {[
+                  { key:"steps",     label:"Steps",       icon:"👟", unit:"steps", max:10000, color:T.accent,  type:"number" },
+                  { key:"calories",  label:"Calories",    icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316", type:"number" },
+                  { key:"water_oz",  label:"Water",       icon:"💧", unit:"oz",    max:128,   color:"#38bdf8", type:"number" },
+                  { key:"workouts",  label:"Workouts",    icon:"💪", unit:"sets",  max:20,    color:T.green,   type:"number" },
+                  { key:"sleep_hrs", label:"Sleep",       icon:"😴", unit:"hrs",   max:12,    color:"#a78bfa", type:"number" },
+                  { key:"weight",    label:"Weight",      icon:"⚖️", unit:"lbs",   max:400,   color:"#fb923c", type:"number" },
+                ].map(m=>(
+                  <div key={m.key} style={{ background:T.raised, borderRadius:12, padding:"14px 12px", border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+                    <div style={{ fontSize:22 }}>{m.icon}</div>
+                    <div style={{ fontSize:10, color:T.muted, fontWeight:700, textTransform:"uppercase", letterSpacing:0.5 }}>{m.label}</div>
+                    <input
+                      type="number" value={fitnessLog[m.key]||0}
+                      onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
+                      style={{ width:"100%", textAlign:"center", background:T.card, border:`1px solid ${T.border2}`,
+                        borderRadius:8, padding:"8px 4px", color:T.text, fontSize:16, fontWeight:800,
+                        fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px" }}
+                    />
+                    <div style={{ fontSize:9, color:T.muted }}>{m.unit}</div>
+                    <div style={{ width:"100%", height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${Math.min((fitnessLog[m.key]||0)/m.max*100,100)}%`,
+                        background:m.color, borderRadius:4, boxShadow:`0 0 6px ${m.color}88`, transition:"width 0.5s ease" }} />
+                    </div>
+                    <div style={{ fontSize:9, color:m.color, fontWeight:600 }}>
+                      {Math.min(Math.round(((fitnessLog[m.key]||0)/m.max)*100),100)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 
