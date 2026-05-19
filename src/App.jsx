@@ -827,22 +827,25 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${T.border}` }}>
-                    <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Upcoming Bills</div>
-                    {txns.filter(t=>t.type==="expense").slice(0,3).length===0?(
-                      <div style={{ fontSize:11, color:T.faint, textAlign:"center", padding:"6px 0" }}>No upcoming bills</div>
-                    ):(
-                      txns.filter(t=>t.type==="expense").slice(0,3).map((t,i)=>(
-                        <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
-                          padding:"6px 9px", borderRadius:8, marginBottom:5,
-                          background:T.raised, border:`1px solid ${T.border2}` }}>
-                          <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-                            <span style={{ fontSize:13 }}>{t.icon}</span>
-                            <span style={{ fontSize:11, color:T.text }}>{t.name}</span>
-                          </div>
-                          <span style={{ fontSize:12, fontWeight:700, color:T.red }}>-${Math.abs(parseFloat(t.amount)).toFixed(2)}</span>
+                    {(()=>{
+                      const quotes=[
+                        { q:"Small daily improvements lead to stunning results.", a:"Robin Sharma" },
+                        { q:"The secret of getting ahead is getting started.", a:"Mark Twain" },
+                        { q:"It always seems impossible until it's done.", a:"Nelson Mandela" },
+                        { q:"Don't watch the clock; do what it does. Keep going.", a:"Sam Levenson" },
+                        { q:"Success is the sum of small efforts repeated daily.", a:"Robert Collier" },
+                        { q:"Push yourself, because no one else is going to do it for you.", a:"Unknown" },
+                        { q:"Great things never come from comfort zones.", a:"Unknown" },
+                      ];
+                      const q = quotes[new Date().getDay()];
+                      return (
+                        <div style={{ padding:"10px 12px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, position:"relative" }}>
+                          <div style={{ fontSize:18, color:T.accent, marginBottom:4, lineHeight:1 }}>"</div>
+                          <div style={{ fontSize:11, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:6 }}>{q.q}</div>
+                          <div style={{ fontSize:10, color:T.accentLight, fontWeight:600 }}>— {q.a}</div>
                         </div>
-                      ))
-                    )}
+                      );
+                    })()}
                   </div>
                 </>
               )}
