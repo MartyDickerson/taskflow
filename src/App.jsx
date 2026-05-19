@@ -501,7 +501,7 @@ export default function Dashboard() {
           <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"0 9px", marginBottom:6 }}>MAIN</div>
           {NAV.slice(0,5).map(item=>{
             const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollTo(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
+            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollToSection(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
               <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
               <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
             </div>;
@@ -509,7 +509,7 @@ export default function Dashboard() {
           <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"16px 9px 6px" }}>TOOLS</div>
           {NAV.slice(5).map(item=>{
             const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollTo(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
+            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollToSection(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
               <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
               <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
             </div>;
@@ -546,7 +546,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div style={{ flex:1, overflowY:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ── ROW 1: Weekly | Weather | My Cards ── */}
           <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
