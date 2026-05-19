@@ -639,7 +639,7 @@ export default function Dashboard() {
             {/* Balance */}
             <div style={{ background:"linear-gradient(145deg,#1a0e06,#131313)", borderRadius:14,
               padding:"18px 20px", border:`1px solid ${T.orange}33`,
-              position:"relative", overflow:"hidden", width:210 }}>
+              position:"relative", overflow:"hidden" }}>
               <div style={{ position:"absolute", top:-20, right:-20, width:90, height:90, borderRadius:"50%",
                 background:`radial-gradient(circle,${T.orangeDim},transparent)`, pointerEvents:"none" }} />
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
@@ -691,7 +691,7 @@ export default function Dashboard() {
 
             {/* Spending Donut */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 20px",
-              border:`1px solid ${T.border}`, width:200 }}>
+              border:`1px solid ${T.border}` }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
                 textTransform:"uppercase", marginBottom:8 }}>Spending</div>
               <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
