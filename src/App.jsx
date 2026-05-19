@@ -593,102 +593,82 @@ export default function Dashboard() {
 
               {loading.cards?<Spinner/>:(
                 <>
-                  {/* Stacked cards — each shows top strip, active card fully expanded */}
-                  <div style={{ position:"relative", flex:1 }}>
-                    {cards.map((c,i)=>{
-                      const isActive = i === selectedCard;
-                      const PEEK = 52; // height of peeked cards
-                      const FULL = 160; // height of active card
-                      // Calculate top position: cards before active peek, active is full, cards after stack below
-                      let top = 0;
-                      for (let j = 0; j < i; j++) {
-                        top += j === selectedCard ? FULL : PEEK;
-                      }
-                      const cardColors = [
-                        "linear-gradient(135deg,#2d1b5e,#1a1a3e)",
-                        "linear-gradient(135deg,#7c3aed99,#1a1a3e)",
-                        "linear-gradient(135deg,#ec489999,#1a1a3e)",
-                      ];
-                      return (
-                        <div key={c.id} onClick={()=>setSelectedCard(i)}
-                          style={{
-                            position:"absolute", left:0, right:0, top,
-                            borderRadius:14, overflow:"hidden", cursor:"pointer",
-                            background: cardColors[i % cardColors.length],
-                            border:`1px solid rgba(255,255,255,${isActive?0.15:0.08})`,
-                            boxShadow:`0 4px 20px rgba(0,0,0,0.4)`,
-                            transition:"top 0.35s cubic-bezier(.4,0,.2,1)",
-                            zIndex: isActive ? 10 : 5 - i,
-                          }}>
+                  {cards.length === 0 && <div style={{ textAlign:"center", color:"rgba(255,255,255,0.4)", fontSize:12, padding:"20px 0" }}>No cards yet — add one above!</div>}
+                  {cards.length > 0 && (() => {
+                    const c = cards[selectedCard];
+                    return (
+                      <div>
+                        {/* Single card */}
+                        <div style={{ borderRadius:14, overflow:"hidden", position:"relative",
+                          background:"linear-gradient(135deg,#2d1b5e 0%,#1a1a3e 60%,#0d0d1e 100%)",
+                          border:"1px solid rgba(255,255,255,0.12)",
+                          boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
+                          {/* Blobs */}
+                          <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.18)", pointerEvents:"none" }} />
+                          <div style={{ position:"absolute", bottom:-20, left:-20, width:80, height:80, borderRadius:"50%", background:"rgba(236,72,153,0.1)", pointerEvents:"none" }} />
 
-                          {/* TOP STRIP — always visible */}
-                          <div style={{ padding:"10px 14px", display:"flex", justifyContent:"space-between", alignItems:"center",
-                            borderBottom: isActive ? `1px solid rgba(255,255,255,0.08)` : "none" }}>
-                            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                              <div style={{ width:28, height:18, borderRadius:4, background:"rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:"white", letterSpacing:0.5 }}>
-                                {c.type?.toUpperCase().slice(0,4)||"VISA"}
+                          <div style={{ padding:"16px", position:"relative", zIndex:1 }}>
+                            {/* Top row */}
+                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+                              <div style={{ display:"flex" }}>
+                                <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(255,200,50,0.75)" }} />
+                                <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(255,100,50,0.55)", marginLeft:-10 }} />
                               </div>
-                              <span style={{ fontSize:12, fontWeight:600, color:"white" }}>{c.name}</span>
+                              <div style={{ width:34, height:24, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
+                                  {[...Array(4)].map((_,k)=><div key={k} style={{ width:6,height:4,background:"rgba(255,255,255,0.35)",borderRadius:1 }}/>)}
+                                </div>
+                              </div>
                             </div>
-                            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                              <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.9)" }}>
-                                ${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}
-                              </span>
-                              <button onClick={e=>{e.stopPropagation();deleteCard(c.id);}}
-                                style={{ background:"rgba(255,255,255,0.1)", border:"none", color:"rgba(255,255,255,0.5)", width:18, height:18, borderRadius:4, fontSize:11, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+
+                            {/* Card number */}
+                            <div style={{ fontFamily:"monospace", fontSize:13, letterSpacing:"3px", color:"rgba(255,255,255,0.65)", marginBottom:16 }}>
+                              •••• •••• •••• {c.number}
+                            </div>
+
+                            {/* Balance + holder */}
+                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end" }}>
+                              <div>
+                                <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:3 }}>AVAILABLE BALANCE</div>
+                                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:"white", letterSpacing:"0.5px", lineHeight:1 }}>
+                                  ${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}
+                                </div>
+                                <div style={{ fontSize:10, color:T.green, marginTop:3 }}>▲ 4.12%</div>
+                              </div>
+                              <div style={{ textAlign:"right" }}>
+                                <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginBottom:2 }}>Card Holder</div>
+                                <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
+                                <div style={{ fontStyle:"italic", fontWeight:900, fontSize:15, color:"white", marginTop:2 }}>
+                                  {c.type?.toUpperCase()||"VISA"}
+                                </div>
+                              </div>
                             </div>
                           </div>
-
-                          {/* FULL CARD BODY — only when active */}
-                          {isActive && (
-                            <div style={{ padding:"12px 14px 14px" }}>
-                              {/* Decorative blobs */}
-                              <div style={{ position:"absolute", top:-20, right:-20, width:90, height:90, borderRadius:"50%", background:"rgba(124,58,237,0.15)", pointerEvents:"none" }} />
-                              <div style={{ position:"absolute", bottom:0, left:-20, width:70, height:70, borderRadius:"50%", background:"rgba(236,72,153,0.08)", pointerEvents:"none" }} />
-
-                              {/* Chip + circles */}
-                              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10, position:"relative", zIndex:1 }}>
-                                <div style={{ display:"flex" }}>
-                                  <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,200,50,0.7)" }} />
-                                  <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,100,50,0.5)", marginLeft:-9 }} />
-                                </div>
-                                <div style={{ width:32, height:22, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
-                                    {[...Array(4)].map((_,k)=><div key={k} style={{ width:6,height:4,background:"rgba(255,255,255,0.3)",borderRadius:1 }}/>)}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Card number */}
-                              <div style={{ fontFamily:"monospace", fontSize:12, letterSpacing:"3px", color:"rgba(255,255,255,0.6)", marginBottom:10, position:"relative", zIndex:1 }}>
-                                •••• •••• •••• {c.number}
-                              </div>
-
-                              {/* Bottom: balance + holder */}
-                              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", position:"relative", zIndex:1 }}>
-                                <div>
-                                  <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:2 }}>AVAILABLE BALANCE</div>
-                                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:"white", letterSpacing:"0.5px" }}>
-                                    ${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}
-                                  </div>
-                                  <div style={{ fontSize:10, color:T.green, marginTop:2 }}>▲ 4.12%</div>
-                                </div>
-                                <div style={{ textAlign:"right" }}>
-                                  <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
-                                  <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
-                                  <div style={{ fontStyle:"italic", fontWeight:900, fontSize:14, color:"white" }}>
-                                    {c.type?.toUpperCase()||"VISA"}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      );
-                    })}
-                    {/* Spacer to push content below stack */}
-                    <div style={{ height: cards.reduce((acc,_,i)=> acc + (i===selectedCard?160:52), 0) + 8 }} />
-                  </div>
+
+                        {/* Nav + delete row */}
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                          <button onClick={()=>setSelectedCard(i=>(i-1+cards.length)%cards.length)}
+                            style={{ background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", color:"white", width:28, height:28, borderRadius:8, fontSize:14, cursor:"pointer" }}>‹</button>
+                          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+                            {cards.map((_,i)=>(
+                              <div key={i} onClick={()=>setSelectedCard(i)}
+                                style={{ width:i===selectedCard?16:6, height:6, borderRadius:3,
+                                  background:i===selectedCard?"white":"rgba(255,255,255,0.3)", cursor:"pointer", transition:"all 0.2s" }} />
+                            ))}
+                          </div>
+                          <button onClick={()=>setSelectedCard(i=>(i+1)%cards.length)}
+                            style={{ background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", color:"white", width:28, height:28, borderRadius:8, fontSize:14, cursor:"pointer" }}>›</button>
+                        </div>
+
+                        {/* Delete card */}
+                        <button onClick={()=>deleteCard(c.id)}
+                          style={{ width:"100%", marginTop:8, padding:"7px", background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.25)", borderRadius:9, color:"rgba(239,68,68,0.8)", fontSize:11, fontWeight:600, cursor:"pointer" }}>
+                          Remove Card
+                        </button>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
             </div>
