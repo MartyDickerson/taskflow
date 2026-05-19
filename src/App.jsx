@@ -88,48 +88,147 @@ const CustomTip = ({ active, payload }) => {
 };
 
 function Calendar() {
-  const [cal, setCal] = useState(new Date(2026,4,1));
-  const today = new Date(2026,4,18);
+  const [cal, setCal]         = useState(new Date(2026,4,1));
+  const today                 = new Date(2026,4,18);
+  const [events, setEvents]   = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newEv, setNewEv]     = useState({ title:"", event_date:"", event_time:"", color:T.accent });
+  const [saving, setSaving]   = useState(false);
+
+  useEffect(()=>{
+    supabase.from("calendar_events").select("*").order("event_date",{ascending:true}).order("event_time",{ascending:true})
+      .then(({data})=>setEvents(data||[]));
+    const sub = supabase.channel("cal-events")
+      .on("postgres_changes",{event:"*",schema:"public",table:"calendar_events"},()=>{
+        supabase.from("calendar_events").select("*").order("event_date",{ascending:true}).order("event_time",{ascending:true})
+          .then(({data})=>setEvents(data||[]));
+      }).subscribe();
+    return ()=>supabase.removeChannel(sub);
+  },[]);
+
+  const addEvent = async () => {
+    if (!newEv.title.trim() || !newEv.event_date) return;
+    setSaving(true);
+    await supabase.from("calendar_events").insert(newEv);
+    setNewEv({ title:"", event_date:"", event_time:"", color:T.accent });
+    setShowAdd(false); setSaving(false);
+  };
+
+  const deleteEvent = async (id) => {
+    setEvents(ev=>ev.filter(e=>e.id!==id));
+    await supabase.from("calendar_events").delete().eq("id",id);
+  };
+
   const fd=new Date(cal.getFullYear(),cal.getMonth(),1).getDay();
   const dim=new Date(cal.getFullYear(),cal.getMonth()+1,0).getDate();
   const cells=[...Array(fd).fill(null),...Array.from({length:dim},(_,i)=>i+1)];
-  const evDays=[3,7,12,18,22,26,30];
+
+  // Days that have events this month
+  const eventDays = new Set(events
+    .filter(e=>{ const d=new Date(e.event_date); return d.getMonth()===cal.getMonth()&&d.getFullYear()===cal.getFullYear(); })
+    .map(e=>new Date(e.event_date).getDate()));
+
+  // Today's events
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  const selectedStr = `${cal.getFullYear()}-${String(cal.getMonth()+1).padStart(2,"0")}`;
+  const todayEvents = events.filter(e=>e.event_date===todayStr);
+
   return (
     <div>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+      {/* Calendar header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
         <button onClick={()=>setCal(new Date(cal.getFullYear(),cal.getMonth()-1))}
           style={{ background:T.faint, border:"none", color:T.muted, width:26, height:26, borderRadius:7, cursor:"pointer", fontSize:13 }}>‹</button>
         <span style={{ fontSize:13, fontWeight:700, color:T.text }}>{MONTHS[cal.getMonth()].slice(0,3)} {cal.getFullYear()}</span>
         <button onClick={()=>setCal(new Date(cal.getFullYear(),cal.getMonth()+1))}
           style={{ background:T.faint, border:"none", color:T.muted, width:26, height:26, borderRadius:7, cursor:"pointer", fontSize:13 }}>›</button>
       </div>
+
+      {/* Day labels */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2, marginBottom:4 }}>
         {DAYS_S.map(d=><div key={d} style={{ textAlign:"center", fontSize:9, color:T.faint, fontWeight:700, padding:"2px 0", textTransform:"uppercase" }}>{d}</div>)}
       </div>
+
+      {/* Calendar grid */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:2 }}>
         {cells.map((day,i)=>{
           const isT=day===today.getDate()&&cal.getMonth()===today.getMonth()&&cal.getFullYear()===today.getFullYear();
-          const hasE=day&&evDays.includes(day)&&!isT;
-          return <div key={i} style={{ textAlign:"center", fontSize:11, padding:"5px 0", borderRadius:7, cursor:day?"pointer":"default",
-            background:isT?T.accent:"transparent", color:!day?"transparent":isT?"white":T.text,
-            fontWeight:isT?800:400, boxShadow:isT?`0 0 12px ${T.accentGlow}`:"none", position:"relative", transition:"background 0.15s" }}>
+          const hasE=day&&eventDays.has(day)&&!isT;
+          return <div key={i} style={{ textAlign:"center", fontSize:11, padding:"5px 0", borderRadius:7,
+            cursor:day?"pointer":"default",
+            background:isT?T.accent:"transparent",
+            color:!day?"transparent":isT?"white":T.text,
+            fontWeight:isT?800:400,
+            boxShadow:isT?`0 0 12px ${T.accentGlow}`:"none",
+            position:"relative", transition:"background 0.15s" }}>
             {day||"·"}
-            {hasE&&<div style={{ position:"absolute", bottom:2, left:"50%", transform:"translateX(-50%)", width:3, height:3, borderRadius:"50%", background:T.pink }} />}
+            {hasE&&<div style={{ position:"absolute", bottom:2, left:"50%", transform:"translateX(-50%)", width:4, height:4, borderRadius:"50%", background:T.pink }} />}
           </div>;
         })}
       </div>
-      <div style={{ marginTop:14, paddingTop:12, borderTop:`1px solid ${T.border}` }}>
-        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Today's Schedule</div>
-        {[{t:"10:00 AM",l:"Team Standup",c:T.accent},{t:"2:30 PM",l:"Client Call",c:T.pink},{t:"5:00 PM",l:"Goal Review",c:T.green}].map((e,i)=>(
-          <div key={i} style={{ display:"flex", alignItems:"center", gap:9, marginBottom:8, padding:"7px 9px", borderRadius:9, background:T.raised, border:`1px solid ${T.border}` }}>
-            <div style={{ width:3, height:26, borderRadius:2, background:e.c, boxShadow:`0 0 6px ${e.c}`, flexShrink:0 }} />
-            <div><div style={{ fontSize:12, fontWeight:600 }}>{e.l}</div><div style={{ fontSize:10, color:T.muted }}>{e.t}</div></div>
+
+      {/* Today's events */}
+      <div style={{ marginTop:12, paddingTop:10, borderTop:`1px solid ${T.border}` }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+          <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>Today's Schedule</div>
+          <button onClick={()=>setShowAdd(!showAdd)}
+            style={{ fontSize:10, padding:"2px 8px", borderRadius:6, fontWeight:700,
+              background:showAdd?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+              border:showAdd?`1px solid ${T.accent}44`:"none", color:showAdd?T.accentLight:"white" }}>
+            {showAdd?"✕":"+ Add"}
+          </button>
+        </div>
+
+        {/* Add event form */}
+        {showAdd&&(
+          <div className="fu" style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:10, marginBottom:10 }}>
+            <input value={newEv.title} onChange={e=>setNewEv({...newEv,title:e.target.value})}
+              placeholder="Event title"
+              style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 9px", color:T.text, fontSize:11, marginBottom:6 }} />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+              <input type="date" value={newEv.event_date} onChange={e=>setNewEv({...newEv,event_date:e.target.value})}
+                style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 9px", color:T.text, fontSize:11 }} />
+              <input type="text" value={newEv.event_time} onChange={e=>setNewEv({...newEv,event_time:e.target.value})}
+                placeholder="Time e.g. 10:00 AM"
+                style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 9px", color:T.text, fontSize:11 }} />
+            </div>
+            <div style={{ display:"flex", gap:6 }}>
+              <select value={newEv.color} onChange={e=>setNewEv({...newEv,color:e.target.value})}
+                style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 9px", color:T.text, fontSize:11 }}>
+                <option value={T.accent}>Purple</option>
+                <option value={T.pink}>Pink</option>
+                <option value={T.green}>Green</option>
+                <option value={T.yellow}>Yellow</option>
+                <option value={T.red}>Red</option>
+              </select>
+              <button onClick={addEvent} disabled={saving}
+                style={{ padding:"6px 14px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+            </div>
           </div>
-        ))}
+        )}
+
+        {/* Event list */}
+        <div style={{ display:"flex", flexDirection:"column", gap:6, maxHeight:180, overflowY:"auto" }}>
+          {todayEvents.length===0&&<div style={{ fontSize:11, color:T.muted, textAlign:"center", padding:"10px 0" }}>No events today</div>}
+          {todayEvents.map(e=>(
+            <div key={e.id} style={{ display:"flex", alignItems:"center", gap:9, padding:"7px 9px", borderRadius:9, background:T.raised, border:`1px solid ${T.border}` }}
+              onMouseEnter={ev=>ev.currentTarget.querySelector(".ev-del").style.opacity="1"}
+              onMouseLeave={ev=>ev.currentTarget.querySelector(".ev-del").style.opacity="0"}>
+              <div style={{ width:3, height:26, borderRadius:2, background:e.color, boxShadow:`0 0 6px ${e.color}`, flexShrink:0 }} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:12, fontWeight:600 }}>{e.title}</div>
+                <div style={{ fontSize:10, color:T.muted }}>{e.event_time||"All day"}</div>
+              </div>
+              <button className="ev-del" onClick={()=>deleteEvent(e.id)}
+                style={{ background:"none", color:T.red, fontSize:14, padding:"0 4px", borderRadius:4, opacity:0, transition:"opacity 0.15s", cursor:"pointer" }}>×</button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
 
 function WeatherWidget({ compact=false }) {
   const [weather, setWeather]       = useState(null);
