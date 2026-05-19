@@ -351,7 +351,7 @@ export default function Dashboard() {
         <div style={{ flex:1, overflow:"auto", padding:"18px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ROW 1: Completion | Weekly | Weather | My Cards */}
-          <div style={{ display:"grid", gridTemplateColumns:"190px 1fr 220px 280px", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"190px 1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
 
             {/* Completion Ring */}
             <div style={{ background:T.surface, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
