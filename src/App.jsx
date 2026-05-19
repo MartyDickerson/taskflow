@@ -235,25 +235,13 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   const [loading, setLoading]       = useState(true);
   const [unit, setUnit]             = useState("F");
   const [tab, setTab]               = useState("Temperature");
-  const [loc, setLoc]               = useState({ name:"Alpharetta, GA", lat:34.0754, lon:-84.2941 });
-
-  // Load saved location from Supabase on mount
-  useEffect(()=>{
-    supabase.from("settings").select("value").eq("key","weather_location").single()
-      .then(({data})=>{
-        if(data?.value){
-          try {
-            const saved = JSON.parse(data.value);
-            setLoc(saved);
-            if(onLocChange) onLocChange(saved.name.split(",")[0]);
-          } catch(e){}
-        }
-      });
-  },[]);
+  const [loc, setLoc]               = useState(null); // null until loaded from Supabase
   const [editLoc, setEditLoc]       = useState(false);
   const [locInput, setLocInput]     = useState("");
   const [locResults, setLocResults] = useState([]);
   const [searching, setSearching]   = useState(false);
+
+  const DEFAULT_LOC = { name:"Alpharetta, GA", lat:34.0754, lon:-84.2941 };
 
   const fetchWeather = (lat, lon) => {
     setLoading(true);
@@ -274,10 +262,24 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
       }).catch(()=>setLoading(false));
   };
 
+  // On mount: load saved location from Supabase FIRST, then fetch weather
   useEffect(()=>{
-    fetchWeather(loc.lat, loc.lon);
-    if(onLocChange) onLocChange(loc.name.split(",")[0]);
-  }, [loc.lat, loc.lon]);
+    supabase.from("settings").select("value").eq("key","weather_location").single()
+      .then(({data})=>{
+        let activeLoc = DEFAULT_LOC;
+        if(data?.value){
+          try { activeLoc = JSON.parse(data.value); } catch(e){}
+        }
+        setLoc(activeLoc);
+        if(onLocChange) onLocChange(activeLoc.name.split(",")[0]);
+        fetchWeather(activeLoc.lat, activeLoc.lon);
+      })
+      .catch(()=>{
+        setLoc(DEFAULT_LOC);
+        if(onLocChange) onLocChange(DEFAULT_LOC.name.split(",")[0]);
+        fetchWeather(DEFAULT_LOC.lat, DEFAULT_LOC.lon);
+      });
+  }, []);
 
   const searchLocation = async () => {
     if (!locInput.trim()) return;
@@ -293,10 +295,10 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   const selectLocation = (result) => {
     const newLoc = { name:`${result.name}, ${result.admin1||result.country}`, lat:result.latitude, lon:result.longitude };
     setLoc(newLoc);
-    // Save to Supabase so it persists on refresh
     supabase.from("settings").upsert({ key:"weather_location", value:JSON.stringify(newLoc), updated_at:new Date().toISOString() });
     if(onLocChange) onLocChange(result.name);
     setEditLoc(false); setLocInput(""); setLocResults([]);
+    fetchWeather(newLoc.lat, newLoc.lon);
   };
 
   const toC = v=>Math.round((v-32)*5/9);
@@ -354,7 +356,7 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
             </div>
           ))}
           <button onClick={()=>setEditLoc(!editLoc)} style={{ marginTop:8, fontSize:10, color:T.accentLight, background:"none", border:"none", padding:0, cursor:"pointer" }}>
-            📍 {loc.name} ✎
+            📍 {loc?.name||"Alpharetta, GA"} ✎
           </button>
         </div>
         <div>
