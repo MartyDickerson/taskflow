@@ -402,6 +402,8 @@ export default function Dashboard() {
   const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#7c3aed" });
   const [fitnessLog,  setFitnessLog]  = useState(null);
   const [showCardForm,setShowCardForm]= useState(false);
+  const [showPayForm, setShowPayForm] = useState(false);
+  const [payForm,     setPayForm]     = useState({ name:"", amount:"" });
   const [activeNav,   setActiveNav]   = useState("Dashboard");
   const [editGoal,    setEditGoal]    = useState(null);
   const [baseBalance, setBaseBalance] = useState(14560.75);
@@ -449,7 +451,7 @@ export default function Dashboard() {
   const addGoal     = async() => { if(!newGoal.text.trim()) return; setSaving(true); const{data}=await supabase.from("goals").insert({text:newGoal.text,progress:newGoal.progress,color:newGoal.color}).select().single(); if(data) setGoals(gs=>[...gs,data]); setNewGoal({text:"",progress:0,color:"#7c3aed"}); setShowGoalForm(false); setSaving(false); showToast("Goal added ✓"); };
   const deleteGoal  = async(id) => { setGoals(gs=>gs.filter(g=>g.id!==id)); await supabase.from("goals").delete().eq("id",id); showToast("Goal removed"); };
   const addTxn      = async() => { if(!newTxn.name.trim()||!newTxn.amount) return; setSaving(true); const amt=newTxn.type==="expense"?-Math.abs(parseFloat(newTxn.amount)):Math.abs(parseFloat(newTxn.amount)); const{data}=await supabase.from("transactions").insert({name:newTxn.name,amount:amt,icon:newTxn.icon,date_label:"Just now",type:newTxn.type}).select().single(); if(data) setTxns(tx=>[data,...tx.slice(0,5)]); setNewTxn({name:"",amount:"",type:"expense",icon:"💳"}); setShowTxnForm(false); setSaving(false); showToast("Transaction saved ✓"); };
-  const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
+  const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color,spend_limit:parseFloat(newCard.spendLimit)||0,spent:0}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent,spendLimit:""}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
   const deleteCard  = async(id) => { setCards(c=>c.filter(x=>x.id!==id)); await supabase.from("cards").delete().eq("id",id); showToast("Card removed"); };
 
   const done     = tasks.filter(t=>t.done).length;
@@ -659,11 +661,15 @@ export default function Dashboard() {
                     <input value={newCard.number} onChange={e=>setNewCard({...newCard,number:e.target.value})} placeholder="Last 4 digits"
                       style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                   </div>
-                  <div style={{ display:"flex", gap:6 }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
                     <input value={newCard.balance} onChange={e=>setNewCard({...newCard,balance:e.target.value})} placeholder="Balance" type="number"
-                      style={{ flex:1, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                    <input value={newCard.spendLimit||""} onChange={e=>setNewCard({...newCard,spendLimit:e.target.value})} placeholder="Spend limit" type="number"
+                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                  </div>
+                  <div style={{ display:"flex", gap:6 }}>
                     <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
-                      style={{ width:80, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
+                      style={{ flex:1, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
                       <option value={T.accent}>Purple</option>
                       <option value={T.pink}>Pink</option>
                       <option value="#1e40af">Blue</option>
@@ -677,77 +683,130 @@ export default function Dashboard() {
 
               {loading.cards?<Spinner/>:(
                 <>
-                  {cards.length === 0 && <div style={{ textAlign:"center", color:"rgba(255,255,255,0.4)", fontSize:12, padding:"20px 0" }}>No cards yet — add one above!</div>}
-                  {cards.length > 0 && (() => {
+                  {cards.length===0&&<div style={{ textAlign:"center", color:"rgba(255,255,255,0.4)", fontSize:12, padding:"20px 0" }}>No cards yet</div>}
+                  {cards.length>0&&(()=>{
                     const c = cards[selectedCard];
+                    const spentPct = c.spend_limit>0 ? Math.min(Math.round((c.spent/c.spend_limit)*100),100) : 0;
                     return (
-                      <div>
-                        {/* Single card */}
+                      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                        {/* Card preview */}
                         <div style={{ borderRadius:14, overflow:"hidden", position:"relative",
                           background:"linear-gradient(135deg,#2d1b5e 0%,#1a1a3e 60%,#0d0d1e 100%)",
-                          border:"1px solid rgba(255,255,255,0.12)",
-                          boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
-                          {/* Blobs */}
+                          border:"1px solid rgba(255,255,255,0.12)", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
                           <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.18)", pointerEvents:"none" }} />
-                          <div style={{ position:"absolute", bottom:-20, left:-20, width:80, height:80, borderRadius:"50%", background:"rgba(236,72,153,0.1)", pointerEvents:"none" }} />
-
-                          <div style={{ padding:"16px", position:"relative", zIndex:1 }}>
-                            {/* Top row */}
-                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+                          <div style={{ padding:"14px", position:"relative", zIndex:1 }}>
+                            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                               <div style={{ display:"flex" }}>
-                                <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(255,200,50,0.75)" }} />
-                                <div style={{ width:24, height:24, borderRadius:"50%", background:"rgba(255,100,50,0.55)", marginLeft:-10 }} />
+                                <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,200,50,0.75)" }} />
+                                <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,100,50,0.55)", marginLeft:-9 }} />
                               </div>
-                              <div style={{ width:34, height:24, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                              <div style={{ width:32, height:22, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
                                   {[...Array(4)].map((_,k)=><div key={k} style={{ width:6,height:4,background:"rgba(255,255,255,0.35)",borderRadius:1 }}/>)}
                                 </div>
                               </div>
                             </div>
-
-                            {/* Card number */}
-                            <div style={{ fontFamily:"monospace", fontSize:13, letterSpacing:"3px", color:"rgba(255,255,255,0.65)", marginBottom:16 }}>
-                              •••• •••• •••• {c.number}
-                            </div>
-
-                            {/* Balance + holder */}
+                            <div style={{ fontFamily:"monospace", fontSize:12, letterSpacing:"3px", color:"rgba(255,255,255,0.6)", marginBottom:10 }}>•••• •••• •••• {c.number}</div>
                             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end" }}>
                               <div>
-                                <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:3 }}>AVAILABLE BALANCE</div>
-                                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:"white", letterSpacing:"0.5px", lineHeight:1 }}>
-                                  ${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}
-                                </div>
-                                <div style={{ fontSize:10, color:T.green, marginTop:3 }}>▲ 4.12%</div>
+                                <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:2 }}>AVAILABLE BALANCE</div>
+                                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:"white", lineHeight:1 }}>${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}</div>
+                                <div style={{ fontSize:10, color:T.green, marginTop:2 }}>▲ 4.12%</div>
                               </div>
                               <div style={{ textAlign:"right" }}>
-                                <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginBottom:2 }}>Card Holder</div>
+                                <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
                                 <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
-                                <div style={{ fontStyle:"italic", fontWeight:900, fontSize:15, color:"white", marginTop:2 }}>
-                                  {c.type?.toUpperCase()||"VISA"}
-                                </div>
+                                <div style={{ fontStyle:"italic", fontWeight:900, fontSize:13, color:"white" }}>{c.type?.toUpperCase()||"VISA"}</div>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        {/* Nav + delete row */}
-                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:10 }}>
+                        {/* Card nav */}
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                           <button onClick={()=>setSelectedCard(i=>(i-1+cards.length)%cards.length)}
-                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:32, height:32, borderRadius:9, fontSize:18, cursor:"pointer", fontWeight:700 }}>‹</button>
-                          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-                            {cards.map((_,i)=>(
-                              <div key={i} onClick={()=>setSelectedCard(i)}
-                                style={{ width:i===selectedCard?16:6, height:6, borderRadius:3,
-                                  background:i===selectedCard?"white":"rgba(255,255,255,0.3)", cursor:"pointer", transition:"all 0.2s" }} />
-                            ))}
+                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:28, height:28, borderRadius:8, fontSize:16, cursor:"pointer", fontWeight:700 }}>‹</button>
+                          <div style={{ display:"flex", gap:5 }}>
+                            {cards.map((_,i)=><div key={i} onClick={()=>setSelectedCard(i)}
+                              style={{ width:i===selectedCard?14:5, height:5, borderRadius:3, background:i===selectedCard?"white":"rgba(255,255,255,0.3)", cursor:"pointer", transition:"all 0.2s" }} />)}
                           </div>
                           <button onClick={()=>setSelectedCard(i=>(i+1)%cards.length)}
-                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:32, height:32, borderRadius:9, fontSize:18, cursor:"pointer", fontWeight:700 }}>›</button>
+                            style={{ background:"rgba(255,255,255,0.15)", border:"1px solid rgba(255,255,255,0.3)", color:"white", width:28, height:28, borderRadius:8, fontSize:16, cursor:"pointer", fontWeight:700 }}>›</button>
                         </div>
 
-                        {/* Delete card */}
+                        {/* Spend limit tracker */}
+                        {c.spend_limit>0&&(
+                          <div style={{ background:"rgba(0,0,0,0.25)", borderRadius:10, padding:"9px 12px", border:"1px solid rgba(255,255,255,0.1)" }}>
+                            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                              <span style={{ fontSize:10, color:"rgba(255,255,255,0.6)" }}>Spend Limit</span>
+                              <span style={{ fontSize:10, color:"white", fontWeight:700 }}>${(c.spent||0).toFixed(2)} / ${parseFloat(c.spend_limit).toLocaleString()}</span>
+                            </div>
+                            <div style={{ height:5, background:"rgba(255,255,255,0.1)", borderRadius:5, overflow:"hidden" }}>
+                              <div style={{ height:"100%", width:`${spentPct}%`, borderRadius:5, transition:"width 0.5s ease",
+                                background: spentPct>80 ? `linear-gradient(90deg,${T.red},#ff8c00)` : `linear-gradient(90deg,${T.green},${T.accent})` }} />
+                            </div>
+                            <div style={{ fontSize:9, color: spentPct>80?"#ff8c00":T.green, marginTop:3, textAlign:"right" }}>
+                              {spentPct}% used {spentPct>80?"⚠️":"✓"}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quick Pay */}
+                        {!showPayForm?(
+                          <button onClick={()=>setShowPayForm(true)}
+                            style={{ width:"100%", padding:"9px", background:"rgba(255,255,255,0.18)", border:"1px solid rgba(255,255,255,0.3)", borderRadius:9, color:"white", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+                            💳 Quick Pay
+                          </button>
+                        ):(
+                          <div className="fu" style={{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.15)", borderRadius:10, padding:10 }}>
+                            <div style={{ fontSize:10, color:"rgba(255,255,255,0.7)", fontWeight:700, marginBottom:8 }}>Quick Pay — {c.name}</div>
+                            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+                              <input value={payForm.name} onChange={e=>setPayForm({...payForm,name:e.target.value})} placeholder="Pay to / description"
+                                style={{ background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                              <input type="number" value={payForm.amount} onChange={e=>setPayForm({...payForm,amount:e.target.value})} placeholder="Amount $"
+                                style={{ background:"rgba(0,0,0,0.3)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                            </div>
+                            <div style={{ display:"flex", gap:6 }}>
+                              <button onClick={()=>setShowPayForm(false)} style={{ flex:1, padding:"7px", background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", borderRadius:7, color:"rgba(255,255,255,0.6)", fontSize:11 }}>Cancel</button>
+                              <button disabled={saving} onClick={async()=>{
+                                if(!payForm.name||!payForm.amount) return;
+                                setSaving(true);
+                                const amt = -Math.abs(parseFloat(payForm.amount));
+                                const {data} = await supabase.from("transactions").insert({
+                                  name:payForm.name, amount:amt, icon:"💳",
+                                  date_label:"Just now", type:"expense", card_id:c.id
+                                }).select().single();
+                                if(data) setTxns(tx=>[data,...tx.slice(0,5)]);
+                                // Update card spent
+                                const newSpent = (parseFloat(c.spent)||0) + Math.abs(parseFloat(payForm.amount));
+                                await supabase.from("cards").update({spent:newSpent}).eq("id",c.id);
+                                setCards(cs=>cs.map(x=>x.id===c.id?{...x,spent:newSpent}:x));
+                                setPayForm({name:"",amount:""});
+                                setShowPayForm(false); setSaving(false);
+                                showToast(`💳 Payment of $${Math.abs(amt).toFixed(2)} logged!`);
+                              }} style={{ flex:2, padding:"7px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", borderRadius:7, color:"white", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>
+                                Pay ${payForm.amount||"0.00"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recent card transactions */}
+                        {txns.filter(t=>t.card_id===c.id).length>0&&(
+                          <div style={{ background:"rgba(0,0,0,0.2)", borderRadius:10, padding:"9px 11px", border:"1px solid rgba(255,255,255,0.08)" }}>
+                            <div style={{ fontSize:9, color:"rgba(255,255,255,0.5)", fontWeight:700, textTransform:"uppercase", letterSpacing:0.5, marginBottom:6 }}>Recent on this card</div>
+                            {txns.filter(t=>t.card_id===c.id).slice(0,3).map(t=>(
+                              <div key={t.id} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+                                <span style={{ fontSize:11, color:"rgba(255,255,255,0.7)" }}>{t.name}</span>
+                                <span style={{ fontSize:11, fontWeight:700, color:T.red }}>-${Math.abs(parseFloat(t.amount)).toFixed(2)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Remove card */}
                         <button onClick={()=>deleteCard(c.id)}
-                          style={{ width:"100%", marginTop:8, padding:"9px", background:`linear-gradient(135deg,${T.red},#dc2626)`, border:"none", borderRadius:9, color:"white", fontSize:12, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 14px rgba(239,68,68,0.35)`, letterSpacing:"0.5px" }}>
+                          style={{ width:"100%", padding:"8px", background:`linear-gradient(135deg,${T.red},#dc2626)`, border:"none", borderRadius:9, color:"white", fontSize:12, fontWeight:700, cursor:"pointer", boxShadow:`0 4px 14px rgba(239,68,68,0.3)` }}>
                           🗑 Remove Card
                         </button>
                       </div>
