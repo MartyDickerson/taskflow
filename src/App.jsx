@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
@@ -408,7 +408,7 @@ export default function Dashboard() {
   const [editGoal,    setEditGoal]    = useState(null);
   const [baseBalance, setBaseBalance] = useState(14560.75);
   const [weatherLocName, setWeatherLocName] = useState("Alpharetta");
-  const contentRef = React.useRef(null);
+  const contentRef = useRef(null);
   const [editBalance, setEditBalance] = useState(false);
   const [saving,      setSaving]      = useState(false);
   const [toast,       setToast]       = useState("");
