@@ -546,24 +546,8 @@ export default function Dashboard() {
         {/* Content */}
         <div style={{ flex:1, overflow:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
-          {/* ROW 1: Completion | Weekly | Weather | My Cards */}
-          <div style={{ display:"grid", gridTemplateColumns:"190px 1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
-
-            {/* Completion Ring */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
-              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:10 }}>Task Completion</div>
-              {loading.tasks?<Spinner/>:(
-                <>
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", flex:1 }}>
-                    <Ring pct={pct} color={T.accent} center={<div style={{ textAlign:"center" }}><div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, color:T.text, lineHeight:1 }}>{pct}%</div><div style={{ fontSize:9, color:T.muted, marginTop:2 }}>DONE</div></div>}/>
-                  </div>
-                  <div style={{ marginTop:10 }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:12, marginBottom:5 }}><span style={{ color:T.muted }}>Tasks done</span><span style={{ fontWeight:700 }}>{done}/{tasks.length}</span></div>
-                    {["high","medium","low"].map(p=>{ const tot=tasks.filter(t=>t.priority===p).length,dn=tasks.filter(t=>t.priority===p&&t.done).length; return tot>0?(<div key={p} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:5 }}><div style={{ width:6,height:6,borderRadius:2,background:pColor(p),flexShrink:0 }}/><Bar2 pct={tot?(dn/tot)*100:0} color={pColor(p)} h={4}/><span style={{ fontSize:10,color:T.muted,width:24,textAlign:"right" }}>{dn}/{tot}</span></div>):null; })}
-                  </div>
-                </>
-              )}
-            </div>
+          {/* ── ROW 1: Weekly | Weather | My Cards ── */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
 
             {/* Weekly Bar */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
