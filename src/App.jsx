@@ -394,7 +394,7 @@ export default function Dashboard() {
   const pColor   = p => p==="high" ? T.red : p==="medium" ? T.yellow : T.faint;
 
   return (
-    <div style={{ display:"flex", height:"100vh", background:T.bg,
+    <div style={{ display:"flex", flexDirection:"column", height:"100vh", background:T.bg,
       fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap');
@@ -414,6 +414,9 @@ export default function Dashboard() {
         .fu{animation:fadeUp 0.3s ease}
         .pulse{animation:pulse 2s infinite}
       `}</style>
+
+      {/* ── TOP SECTION: Sidebar + Main ── */}
+      <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
       {/* Toast */}
       {toast && (
@@ -906,16 +909,20 @@ export default function Dashboard() {
         </div>
       </div>
 
-        {/* ── WEATHER ROW — fixed outside scroll ── */}
-        <div style={{ borderTop:`1px solid ${T.border}`, background:T.surface, padding:"18px 22px", flexShrink:0 }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-            <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
-              Weather · Atlanta, GA
-            </div>
-            <Pill color={T.yellow}>Live Forecast</Pill>
+      </div> {/* end TOP SECTION */}
+
+      {/* ── WEATHER BAR — pinned at bottom ── */}
+      <div style={{ background:T.surface, borderTop:`1px solid ${T.border}`,
+        padding:"16px 24px", flexShrink:0 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+          <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
+            Weather · Atlanta, GA
           </div>
-          <WeatherWidget />
+          <Pill color={T.yellow}>Live Forecast</Pill>
         </div>
+        <WeatherWidget />
+      </div>
+
       
 
       {/* Edit Goal Modal */}
