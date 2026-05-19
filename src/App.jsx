@@ -501,7 +501,7 @@ export default function Dashboard() {
           <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"0 9px", marginBottom:6 }}>MAIN</div>
           {NAV.slice(0,5).map(item=>{
             const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>setActiveNav(item)} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
+            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollTo(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
               <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
               <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
             </div>;
@@ -509,7 +509,7 @@ export default function Dashboard() {
           <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"16px 9px 6px" }}>TOOLS</div>
           {NAV.slice(5).map(item=>{
             const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>setActiveNav(item)} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
+            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollTo(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
               <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
               <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
             </div>;
@@ -822,7 +822,7 @@ export default function Dashboard() {
           <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:380 }}>
 
             {/* TO-DO */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
+            <div id="section-tasks" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:13 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>To Do List</div>
                 <Pill color={T.accent}>{tasks.filter(t=>!t.done).length} remaining</Pill>
@@ -850,7 +850,7 @@ export default function Dashboard() {
             </div>
 
             {/* GOALS */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
+            <div id="section-goals" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weekly Goals</div>
                 <button onClick={()=>setShowGoalForm(!showGoalForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
@@ -938,7 +938,7 @@ export default function Dashboard() {
             </div>
 
             {/* CALENDAR */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, overflowY:"auto" }}>
+            <div id="section-calendar" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, overflowY:"auto" }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:12 }}>Calendar</div>
               <Calendar />
             </div>
@@ -1014,14 +1014,51 @@ export default function Dashboard() {
             </div>
 
             {/* FINANCE */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
+            <div id="section-finance" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:13 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Finance Tracker</div>
-                <button onClick={()=>setShowTxnForm(!showTxnForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
-                  background:showTxnForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-                  border:showTxnForm?`1px solid ${T.accent}44`:"none", color:showTxnForm?T.accentLight:"white" }}>
-                  {showTxnForm?"✕":"+ Add"}
-                </button>
+                <div style={{ display:"flex", gap:6 }}>
+                  <label style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700, cursor:"pointer",
+                    background:"rgba(16,185,129,0.15)", border:`1px solid ${T.green}44`, color:T.green }}>
+                    📥 Import CSV
+                    <input type="file" accept=".csv" style={{ display:"none" }} onChange={async(e)=>{
+                      const file = e.target.files[0];
+                      if(!file) return;
+                      const text = await file.text();
+                      const lines = text.trim().split("\n");
+                      // Navy Federal CSV format: Transaction Date, Transaction Type, Debit, Credit, Description
+                      // Skip header row
+                      let imported = 0;
+                      const toInsert = [];
+                      for(let i=1; i<lines.length; i++){
+                        const cols = lines[i].split(",").map(c=>c.trim().replace(/^"|"$/g,""));
+                        if(cols.length < 5) continue;
+                        const [txDate, txType, debit, credit, description] = cols;
+                        const isCredit = credit && parseFloat(credit) > 0;
+                        const isDebit  = debit  && parseFloat(debit)  > 0;
+                        if(!isCredit && !isDebit) continue;
+                        const amount = isCredit ? parseFloat(credit) : -parseFloat(debit);
+                        const type = isCredit ? "income" : "expense";
+                        // Pick icon based on description
+                        const desc = description.toLowerCase();
+                        const icon = desc.includes("netflix")?"🎬":desc.includes("amazon")?"📦":desc.includes("walmart")||desc.includes("grocery")?"🛒":desc.includes("gas")||desc.includes("shell")||desc.includes("exxon")?"⛽":desc.includes("payroll")||desc.includes("direct dep")?"💼":desc.includes("electric")||desc.includes("utility")?"⚡":desc.includes("restaurant")||desc.includes("mcdonald")||desc.includes("chick")?"🍔":"💳";
+                        toInsert.push({ name:description.slice(0,40), amount, icon, date_label:txDate, type });
+                      }
+                      if(toInsert.length===0){ showToast("No transactions found in CSV"); return; }
+                      setSaving(true);
+                      const {data} = await supabase.from("transactions").insert(toInsert).select();
+                      if(data){ setTxns(tx=>[...data,...tx].slice(0,6)); imported=data.length; }
+                      setSaving(false);
+                      showToast(`✅ Imported ${imported} transactions!`);
+                      e.target.value="";
+                    }} />
+                  </label>
+                  <button onClick={()=>setShowTxnForm(!showTxnForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
+                    background:showTxnForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+                    border:showTxnForm?`1px solid ${T.accent}44`:"none", color:showTxnForm?T.accentLight:"white" }}>
+                    {showTxnForm?"✕":"+ Add"}
+                  </button>
+                </div>
               </div>
               {showTxnForm&&(
                 <div className="fu" style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:11, marginBottom:11 }}>
