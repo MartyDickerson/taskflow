@@ -943,6 +943,29 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+
+                  {/* Daily motivation */}
+                  {(()=>{
+                    const motivations = [
+                      { img:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80", quote:"Push harder than yesterday.", day:0 },
+                      { img:"https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80", quote:"Your body can do it. It's your mind you need to convince.", day:1 },
+                      { img:"https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&q=80", quote:"Sweat now. Shine later.", day:2 },
+                      { img:"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80", quote:"No pain, no gain. Train insane or remain the same.", day:3 },
+                      { img:"https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=400&q=80", quote:"Believe in yourself and all that you are.", day:4 },
+                      { img:"https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400&q=80", quote:"The only bad workout is the one that didn't happen.", day:5 },
+                      { img:"https://images.unsplash.com/photo-1576678927484-cc907957088c?w=400&q=80", quote:"Make yourself proud.", day:6 },
+                    ];
+                    const m = motivations[new Date().getDay()];
+                    return (
+                      <div style={{ marginTop:8, borderRadius:12, overflow:"hidden", position:"relative", height:90, flexShrink:0 }}>
+                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover" }} alt="motivation" />
+                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0.1))",
+                          display:"flex", alignItems:"flex-end", padding:"10px 12px" }}>
+                          <div style={{ fontSize:10, color:"white", fontWeight:600, lineHeight:1.4, fontStyle:"italic" }}>"{m.quote}"</div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
