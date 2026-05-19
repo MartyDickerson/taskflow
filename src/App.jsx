@@ -415,7 +415,7 @@ export default function Dashboard() {
     const [{ data:t },{ data:g },{ data:tx },{ data:c }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
-      supabase.from("transactions").select("*").order("created_at",{ascending:false}).limit(6),
+      supabase.from("transactions").select("*").order("type",{ascending:false}).order("created_at",{ascending:false}).limit(6),
       supabase.from("cards").select("*").order("created_at",{ascending:true}),
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
@@ -427,7 +427,7 @@ export default function Dashboard() {
   useEffect(() => {
     const s1 = supabase.channel("t").on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>supabase.from("tasks").select("*").order("created_at",{ascending:true}).then(({data})=>setTasks(data||[]))).subscribe();
     const s2 = supabase.channel("g").on("postgres_changes",{event:"*",schema:"public",table:"goals"},()=>supabase.from("goals").select("*").order("created_at",{ascending:true}).then(({data})=>setGoals(data||[]))).subscribe();
-    const s3 = supabase.channel("tx").on("postgres_changes",{event:"*",schema:"public",table:"transactions"},()=>supabase.from("transactions").select("*").order("created_at",{ascending:false}).limit(6).then(({data})=>setTxns(data||[]))).subscribe();
+    const s3 = supabase.channel("tx").on("postgres_changes",{event:"*",schema:"public",table:"transactions"},()=>supabase.from("transactions").select("*").order("type",{ascending:false}).order("created_at",{ascending:false}).limit(6).then(({data})=>setTxns(data||[]))).subscribe();
     const s4 = supabase.channel("c").on("postgres_changes",{event:"*",schema:"public",table:"cards"},()=>supabase.from("cards").select("*").order("created_at",{ascending:true}).then(({data})=>setCards(data||[]))).subscribe();
     return () => { supabase.removeChannel(s1); supabase.removeChannel(s2); supabase.removeChannel(s3); supabase.removeChannel(s4); };
   }, []);
