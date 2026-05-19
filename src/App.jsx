@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import avatar from "./assets/avatar.jpg";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
@@ -478,7 +479,10 @@ export default function Dashboard() {
       {/* SIDEBAR */}
       <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:28 }}>
-          <div style={{ width:34, height:34, background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:16, boxShadow:`0 0 16px ${T.accentGlow}` }}>⚡</div>
+         <div style={{ width:34, height:34, borderRadius:10, overflow:"hidden",
+  border:`1.5px solid ${T.accent}`, boxShadow:`0 0 16px ${T.accentGlow}`, flexShrink:0 }}>
+  <img src="https://imgur.com/a/JEHbgun" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+</div>
           <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px" }}>TaskFlow</span>
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
         </div>
