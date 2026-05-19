@@ -398,6 +398,8 @@ export default function Dashboard() {
   const [newTxn,      setNewTxn]      = useState({ name:"", amount:"", type:"expense", icon:"💳" });
   const [newCard,     setNewCard]     = useState({ name:"", number:"", balance:"", type:"visa", color:T.accent });
   const [showTxnForm, setShowTxnForm] = useState(false);
+  const [showGoalForm,setShowGoalForm]= useState(false);
+  const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#7c3aed" });
   const [showCardForm,setShowCardForm]= useState(false);
   const [activeNav,   setActiveNav]   = useState("Dashboard");
   const [editGoal,    setEditGoal]    = useState(null);
@@ -440,6 +442,8 @@ export default function Dashboard() {
   const addTask     = async() => { if(!newTask.trim()) return; setSaving(true); const{data}=await supabase.from("tasks").insert({text:newTask.trim(),done:false,priority:"medium"}).select().single(); if(data) setTasks(ts=>[...ts,data]); setNewTask(""); setSaving(false); showToast("Task added ✓"); };
   const deleteTask  = async(id) => { setTasks(ts=>ts.filter(t=>t.id!==id)); await supabase.from("tasks").delete().eq("id",id); showToast("Task removed"); };
   const saveGoal    = async(goal,pct) => { setGoals(gs=>gs.map(g=>g.id===goal.id?{...g,progress:pct}:g)); await supabase.from("goals").update({progress:pct}).eq("id",goal.id); setEditGoal(null); showToast("Goal updated ✓"); };
+  const addGoal     = async() => { if(!newGoal.text.trim()) return; setSaving(true); const{data}=await supabase.from("goals").insert({text:newGoal.text,progress:newGoal.progress,color:newGoal.color}).select().single(); if(data) setGoals(gs=>[...gs,data]); setNewGoal({text:"",progress:0,color:"#7c3aed"}); setShowGoalForm(false); setSaving(false); showToast("Goal added ✓"); };
+  const deleteGoal  = async(id) => { setGoals(gs=>gs.filter(g=>g.id!==id)); await supabase.from("goals").delete().eq("id",id); showToast("Goal removed"); };
   const addTxn      = async() => { if(!newTxn.name.trim()||!newTxn.amount) return; setSaving(true); const amt=newTxn.type==="expense"?-Math.abs(parseFloat(newTxn.amount)):Math.abs(parseFloat(newTxn.amount)); const{data}=await supabase.from("transactions").insert({name:newTxn.name,amount:amt,icon:newTxn.icon,date_label:"Just now",type:newTxn.type}).select().single(); if(data) setTxns(tx=>[data,...tx.slice(0,5)]); setNewTxn({name:"",amount:"",type:"expense",icon:"💳"}); setShowTxnForm(false); setSaving(false); showToast("Transaction saved ✓"); };
   const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
   const deleteCard  = async(id) => { setCards(c=>c.filter(x=>x.id!==id)); await supabase.from("cards").delete().eq("id",id); showToast("Card removed"); };
@@ -802,8 +806,39 @@ export default function Dashboard() {
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weekly Goals</div>
-                <span style={{ fontSize:10, color:T.muted }}>May 18–24</span>
+                <button onClick={()=>setShowGoalForm(!showGoalForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
+                  background:showGoalForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+                  border:showGoalForm?`1px solid ${T.accent}44`:"none",
+                  color:showGoalForm?T.accentLight:"white" }}>
+                  {showGoalForm?"✕":"+ Add"}
+                </button>
               </div>
+
+              {/* Add Goal Form */}
+              {showGoalForm&&(
+                <div className="fu" style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:11, marginBottom:12 }}>
+                  <input value={newGoal.text} onChange={e=>setNewGoal({...newGoal,text:e.target.value})}
+                    placeholder="Goal title e.g. Run 5K this week"
+                    style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11, marginBottom:7 }} />
+                  <div style={{ display:"flex", gap:6 }}>
+                    <input type="number" value={newGoal.progress} onChange={e=>setNewGoal({...newGoal,progress:Math.min(100,Math.max(0,parseInt(e.target.value)||0))})}
+                      placeholder="Starting %" min="0" max="100"
+                      style={{ width:70, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }} />
+                    <select value={newGoal.color} onChange={e=>setNewGoal({...newGoal,color:e.target.value})}
+                      style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }}>
+                      <option value="#7c3aed">🟣 Purple</option>
+                      <option value="#10b981">🟢 Green</option>
+                      <option value="#f59e0b">🟡 Yellow</option>
+                      <option value="#ec4899">🩷 Pink</option>
+                      <option value="#ef4444">🔴 Red</option>
+                      <option value="#a78bfa">💜 Lavender</option>
+                    </select>
+                    <button onClick={addGoal} disabled={saving}
+                      style={{ padding:"7px 14px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7,
+                        color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+                  </div>
+                </div>
+              )}
               {loading.goals?<Spinner/>:(
                 <>
                   <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16, padding:"12px 14px", background:T.raised, borderRadius:12, border:`1px solid ${T.border2}` }}>
@@ -820,6 +855,8 @@ export default function Dashboard() {
                             <span style={{ fontSize:12, fontWeight:700, color:g.color }}>{g.progress}%</span>
                             <button onClick={()=>setEditGoal({...g})} style={{ background:"none", fontSize:11, color:T.muted, padding:"1px 4px", borderRadius:4 }}
                               onMouseEnter={e=>e.target.style.color=T.accentLight} onMouseLeave={e=>e.target.style.color=T.muted}>✎</button>
+                            <button onClick={()=>deleteGoal(g.id)} style={{ background:"none", fontSize:14, color:T.red, padding:"1px 3px", borderRadius:4, opacity:0.5 }}
+                              onMouseEnter={e=>e.target.style.opacity="1"} onMouseLeave={e=>e.target.style.opacity="0.5"}>×</button>
                           </div>
                         </div>
                         <Bar2 pct={g.progress} color={g.color} />
