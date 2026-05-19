@@ -852,10 +852,12 @@ export default function Dashboard() {
                   </div>
                   <div style={{ flex:1, display:"flex", flexDirection:"column", gap:12, overflowY:"auto" }}>
                     {goals.map(g=>(
-                      <div key={g.id}>
+                      <div key={g.id}
+                        onMouseEnter={e=>e.currentTarget.querySelector(".goal-actions").style.opacity="1"}
+                        onMouseLeave={e=>e.currentTarget.querySelector(".goal-actions").style.opacity="0"}>
                         <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5, alignItems:"center" }}>
                           <div style={{ display:"flex", alignItems:"center", gap:7 }}><div style={{ width:7, height:7, borderRadius:2, background:g.color, flexShrink:0 }}/><span style={{ fontSize:12, fontWeight:500 }}>{g.text}</span></div>
-                          <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <div className="goal-actions" style={{ display:"flex", alignItems:"center", gap:6, opacity:0, transition:"opacity 0.15s" }}>
                             <span style={{ fontSize:12, fontWeight:700, color:g.color }}>{g.progress}%</span>
                             <button onClick={()=>setEditGoal({...g})} style={{ background:"none", fontSize:11, color:T.muted, padding:"1px 4px", borderRadius:4 }}
                               onMouseEnter={e=>e.target.style.color=T.accentLight} onMouseLeave={e=>e.target.style.color=T.muted}>✎</button>
