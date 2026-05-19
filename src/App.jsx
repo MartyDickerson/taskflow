@@ -556,96 +556,134 @@ export default function Dashboard() {
             </div>
 
             {/* MY CARDS */}
-            <div style={{ background:"linear-gradient(135deg, #c2410c 0%, #9333ea 50%, #1e1b4b 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(147,51,234,0.3)`, display:"flex", flexDirection:"column", boxShadow:`0 8px 32px rgba(147,51,234,0.25)` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                <div style={{ fontSize:10, color:"rgba(255,255,255,0.7)", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>My Cards</div>
-                <button onClick={()=>setShowCardForm(!showCardForm)} style={{ fontSize:11, padding:"3px 10px", borderRadius:7, fontWeight:700,
-                  background:showCardForm?"rgba(0,0,0,0.3)":"rgba(255,255,255,0.2)",
-                  border:`1px solid rgba(255,255,255,0.3)`, color:"white" }}>
-                  {showCardForm?"✕":"+ Add"}
+            <div style={{ background:"linear-gradient(160deg,#c2410c 0%,#9333ea 55%,#1e1b4b 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(147,51,234,0.3)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(147,51,234,0.3)` }}>
+
+              {/* Header */}
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <div style={{ fontSize:11, color:"rgba(255,255,255,0.8)", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>My Cards</div>
+                <button onClick={()=>setShowCardForm(!showCardForm)} style={{ fontSize:11, padding:"3px 10px", borderRadius:7, fontWeight:700, background:"rgba(255,255,255,0.15)", border:`1px solid rgba(255,255,255,0.3)`, color:"white" }}>
+                  {showCardForm?"✕":"+ Add Card"}
                 </button>
               </div>
 
+              {/* Add Card Form */}
               {showCardForm&&(
-                <div className="fu" style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:10, padding:11, marginBottom:11 }}>
+                <div className="fu" style={{ background:"rgba(0,0,0,0.35)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:10, padding:11 }}>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
                     <input value={newCard.name} onChange={e=>setNewCard({...newCard,name:e.target.value})} placeholder="Card name"
                       style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.number} onChange={e=>setNewCard({...newCard,number:e.target.value})} placeholder="Last 4 digits"
                       style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                   </div>
-                  <div style={{ display:"flex", gap:6, marginBottom:6 }}>
+                  <div style={{ display:"flex", gap:6 }}>
                     <input value={newCard.balance} onChange={e=>setNewCard({...newCard,balance:e.target.value})} placeholder="Balance" type="number"
                       style={{ flex:1, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
-                      style={{ width:90, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 6px", color:T.text, fontSize:11 }}>
+                      style={{ width:80, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
                       <option value={T.accent}>Purple</option>
                       <option value={T.pink}>Pink</option>
                       <option value="#1e40af">Blue</option>
                       <option value="#065f46">Green</option>
                       <option value="#7c2d12">Red</option>
                     </select>
-                    <button onClick={addCard} disabled={saving} style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+                    <button onClick={addCard} disabled={saving} style={{ padding:"7px 12px", background:"rgba(255,255,255,0.25)", borderRadius:7, color:"white", fontSize:12, fontWeight:700, border:"1px solid rgba(255,255,255,0.3)", opacity:saving?0.6:1 }}>Save</button>
                   </div>
                 </div>
               )}
 
-              {/* Card tabs */}
               {loading.cards?<Spinner/>:(
                 <>
-                  <div style={{ display:"flex", gap:6, marginBottom:10 }}>
+                  {/* Card list rows — like Finova */}
+                  <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                     {cards.map((c,i)=>(
-                      <button key={c.id} onClick={()=>setSelectedCard(i)} style={{ flex:1, padding:"5px 4px", borderRadius:8, fontSize:11, fontWeight:600,
-                        background:selectedCard===i?"rgba(255,255,255,0.2)":"rgba(0,0,0,0.25)",
-                        border:`1px solid ${selectedCard===i?"rgba(255,255,255,0.4)":"rgba(255,255,255,0.1)"}`,
-                        color:"white", transition:"all 0.15s" }}>
-                        ····{c.number}
-                      </button>
+                      <div key={c.id} onClick={()=>setSelectedCard(i)}
+                        style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                          padding:"9px 12px", borderRadius:10, cursor:"pointer", transition:"all 0.15s",
+                          background: selectedCard===i ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.2)",
+                          border:`1px solid ${selectedCard===i?"rgba(255,255,255,0.35)":"rgba(255,255,255,0.08)"}` }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+                          <div style={{ width:28, height:18, borderRadius:4, background:`linear-gradient(135deg,${c.color},${c.color}88)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800, color:"white", letterSpacing:0.5 }}>
+                            {c.type?.toUpperCase().slice(0,4)||"VISA"}
+                          </div>
+                          <span style={{ fontSize:13, fontWeight:600, color:"white" }}>{c.name}</span>
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                          <span style={{ fontSize:13, fontWeight:600, color:"rgba(255,255,255,0.9)" }}>${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}</span>
+                          <button onClick={e=>{e.stopPropagation();deleteCard(c.id);}} style={{ background:"rgba(255,255,255,0.1)", border:"none", color:"rgba(255,255,255,0.5)", width:18, height:18, borderRadius:4, fontSize:12, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+                        </div>
+                      </div>
                     ))}
                   </div>
 
+                  {/* Featured Card Preview */}
                   {activeCard&&(
-                    <div style={{ position:"relative", borderRadius:12, padding:"16px", marginBottom:10, overflow:"hidden",
-                      background:`linear-gradient(135deg,${activeCard.color}cc,${activeCard.color}44)`,
-                      border:`1px solid ${activeCard.color}55`, boxShadow:`0 0 24px ${activeCard.color}33` }}>
-                      <div style={{ position:"absolute", top:-20, right:-20, width:80, height:80, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }} />
-                      <div style={{ position:"absolute", bottom:-20, left:-10, width:60, height:60, borderRadius:"50%", background:"rgba(255,255,255,0.04)" }} />
-                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:16 }}>
-                        <div style={{ display:"flex", gap:3 }}>{[0,1].map(i=><div key={i} style={{ width:20,height:20,borderRadius:"50%",background:i===0?"rgba(255,255,255,0.6)":"rgba(255,255,255,0.3)" }}/>)}</div>
-                        <div style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.8)", textTransform:"uppercase" }}>{activeCard.type}</div>
+                    <div style={{ position:"relative", borderRadius:14, padding:"18px 16px", overflow:"hidden",
+                      background:`linear-gradient(135deg, #1a1a3e 0%, #2d1b5e 50%, #1a1a3e 100%)`,
+                      border:`1px solid rgba(255,255,255,0.1)`,
+                      boxShadow:`inset 0 1px 0 rgba(255,255,255,0.08)` }}>
+                      {/* Decorative circles */}
+                      <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.15)", pointerEvents:"none" }} />
+                      <div style={{ position:"absolute", bottom:-20, left:-20, width:70, height:70, borderRadius:"50%", background:"rgba(236,72,153,0.08)", pointerEvents:"none" }} />
+
+                      {/* Card top row */}
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
+                        <div style={{ display:"flex", gap:-6 }}>
+                          <div style={{ width:26, height:26, borderRadius:"50%", background:"rgba(255,200,50,0.7)" }} />
+                          <div style={{ width:26, height:26, borderRadius:"50%", background:"rgba(255,100,50,0.5)", marginLeft:-10 }} />
+                        </div>
+                        {/* Chip icon */}
+                        <div style={{ width:36, height:26, borderRadius:4, background:"rgba(255,255,255,0.12)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
+                            {[...Array(4)].map((_,i)=><div key={i} style={{ width:7, height:5, background:"rgba(255,255,255,0.3)", borderRadius:1 }}/>)}
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ fontFamily:"monospace", fontSize:12, letterSpacing:"2px", color:"rgba(255,255,255,0.7)", marginBottom:10 }}>•••• •••• •••• {activeCard.number}</div>
+
+                      {/* Card number */}
+                      <div style={{ fontFamily:"monospace", fontSize:13, letterSpacing:"3px", color:"rgba(255,255,255,0.7)", marginBottom:14 }}>
+                        •••• •••• •••• {activeCard.number}
+                      </div>
+
+                      {/* Balance + name + type */}
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end" }}>
-                        <div><div style={{ fontSize:9, color:"rgba(255,255,255,0.5)", marginBottom:2 }}>Available Balance</div>
-                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:"white", letterSpacing:"0.5px" }}>${parseFloat(activeCard.balance).toLocaleString("en-US",{minimumFractionDigits:2})}</div></div>
-                        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-                          <div style={{ fontSize:9, color:"rgba(255,255,255,0.5)" }}>{activeCard.name}</div>
-                          <button onClick={()=>deleteCard(activeCard.id)} style={{ background:"rgba(255,255,255,0.15)", border:"none", color:"white", width:22, height:22, borderRadius:6, fontSize:12, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+                        <div>
+                          <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", marginBottom:3, letterSpacing:1 }}>AVAILABLE BALANCE</div>
+                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:"white", letterSpacing:"1px", lineHeight:1 }}>
+                            ${parseFloat(activeCard.balance).toLocaleString("en-US",{minimumFractionDigits:2})}
+                          </div>
+                          <div style={{ fontSize:10, color:T.green, marginTop:3, display:"flex", alignItems:"center", gap:3 }}>
+                            <span>▲</span> 4.12%
+                          </div>
+                        </div>
+                        <div style={{ textAlign:"right" }}>
+                          <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", marginBottom:2 }}>Card Holder</div>
+                          <div style={{ fontSize:12, fontWeight:600, color:"white" }}>Marty Dickerson</div>
+                          <div style={{ fontStyle:"italic", fontWeight:900, fontSize:16, color:"white", letterSpacing:"-0.5px", marginTop:3 }}>
+                            {activeCard.type?.toUpperCase()||"VISA"}
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Balance + income/expense mini */}
+                  {/* Request + Send Money buttons */}
                   <div style={{ display:"flex", gap:8 }}>
-                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)` }}>
-                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:2 }}>Balance</div>
-                      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:"white" }}>${balance.toLocaleString("en-US",{minimumFractionDigits:0})}</div>
-                      <button onClick={()=>setEditBalance(!editBalance)} style={{ fontSize:9, color:"rgba(255,255,255,0.5)", background:"none", border:"none", padding:0, marginTop:2, cursor:"pointer" }}>✎ Edit</button>
-                      {editBalance&&<div style={{ marginTop:6 }}><input type="number" defaultValue={baseBalance} id="balanceInput" style={{ width:"100%",background:"rgba(0,0,0,0.4)",border:`1px solid rgba(255,255,255,0.3)`,borderRadius:6,padding:"5px 7px",color:"white",fontSize:11,marginBottom:5 }}/><div style={{ display:"flex",gap:4 }}><button onClick={()=>setEditBalance(false)} style={{ flex:1,padding:"4px",background:"rgba(0,0,0,0.3)",borderRadius:5,color:"rgba(255,255,255,0.6)",fontSize:10,border:"none" }}>✕</button><button onClick={()=>{const v=parseFloat(document.getElementById("balanceInput").value);if(!isNaN(v)){setBaseBalance(v);}setEditBalance(false);}} style={{ flex:1,padding:"4px",background:"rgba(255,255,255,0.2)",borderRadius:5,color:"white",fontSize:10,fontWeight:700,border:"none" }}>✓</button></div></div>}
-                    </div>
-                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)` }}>
-                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:3 }}>Spending</div>
-                      <PieChart width={50} height={50}>
-                        <Pie data={SPEND_DATA} cx={25} cy={25} innerRadius={14} outerRadius={22} dataKey="value" paddingAngle={2} strokeWidth={0}>
-                          {SPEND_DATA.map((e,i)=><Cell key={i} fill={e.color}/>)}
-                        </Pie>
-                      </PieChart>
-                    </div>
+                    <button style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"10px", borderRadius:10,
+                      background:"rgba(255,255,255,0.1)", border:`1px solid rgba(255,255,255,0.2)`, color:"white", fontSize:12, fontWeight:600, cursor:"pointer", transition:"all 0.15s" }}
+                      onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.18)"}
+                      onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.1)"}>
+                      <span style={{ fontSize:14 }}>↙</span> Request
+                    </button>
+                    <button style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:7, padding:"10px", borderRadius:10,
+                      background:`linear-gradient(135deg,${T.pink},#f97316)`, border:"none", color:"white", fontSize:12, fontWeight:700, cursor:"pointer",
+                      boxShadow:`0 4px 16px rgba(236,72,153,0.4)`, transition:"all 0.15s" }}>
+                      <span style={{ fontSize:14 }}>↗</span> Send Money
+                    </button>
                   </div>
                 </>
               )}
             </div>
+
           </div>
 
           {/* ROW 2: Tasks | Goals | Calendar | Finance */}
