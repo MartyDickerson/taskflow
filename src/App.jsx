@@ -168,7 +168,7 @@ const getWeatherIcon = (condition) => {
   return "🌤️";
 };
 
-function WeatherWidget() {
+function WeatherWidget({ compact = false }) {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -219,6 +219,32 @@ function WeatherWidget() {
   }, []);
 
   if (loading) return <Spinner />;
+
+  if (compact) return (
+    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ fontSize:32, lineHeight:1 }}>{getWeatherIcon(weather.condition)}</div>
+        <div>
+          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:"1px", lineHeight:1 }}>
+            {weather.temp}°<span style={{ fontSize:14, color:T.muted }}>F</span>
+          </div>
+          <div style={{ fontSize:11, color:T.muted }}>{weather.condition}</div>
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:5 }}>
+        {weather.forecast.map((d,i)=>(
+          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center",
+            gap:3, padding:"6px 4px", borderRadius:8,
+            background: i===0 ? T.orangeDim : T.raised,
+            border:`1px solid ${i===0 ? T.orange+"44" : T.border2}` }}>
+            <div style={{ fontSize:9, fontWeight:700, color:i===0?T.orange:T.muted, textTransform:"uppercase" }}>{d.day}</div>
+            <div style={{ fontSize:14 }}>{getWeatherIcon(d.condition)}</div>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:13, color:T.text }}>{d.high}°</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", gap:16, alignItems:"center" }}>
@@ -394,7 +420,7 @@ export default function Dashboard() {
   const pColor   = p => p==="high" ? T.red : p==="medium" ? T.yellow : T.faint;
 
   return (
-    <div style={{ display:"flex", flexDirection:"column", height:"100vh", background:T.bg,
+    <div style={{ display:"flex", height:"100vh", background:T.bg,
       fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap');
@@ -414,9 +440,6 @@ export default function Dashboard() {
         .fu{animation:fadeUp 0.3s ease}
         .pulse{animation:pulse 2s infinite}
       `}</style>
-
-      {/* ── TOP SECTION: Sidebar + Main ── */}
-      <div style={{ display:"flex", flex:1, overflow:"hidden" }}>
 
       {/* Toast */}
       {toast && (
@@ -527,11 +550,11 @@ export default function Dashboard() {
         <div style={{ flex:1, overflow:"auto", padding:"18px 22px 0 22px", display:"flex", flexDirection:"column", gap:14 }}>
 
           {/* ── ROW 1 ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto auto", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"200px 280px 1fr 190px 190px", gap:14, alignItems:"stretch" }}>
 
             {/* Completion Ring */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 20px",
-              border:`1px solid ${T.border}`, display:"flex", flexDirection:"column", width:210 }}>
+              border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
                 textTransform:"uppercase", marginBottom:12 }}>Task Completion</div>
               {loading.tasks ? <Spinner /> : (
@@ -566,42 +589,51 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Weekly Bar */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"18px 20px", border:`1px solid ${T.border}` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+            {/* Weekly Bar — smaller */}
+            <div style={{ background:T.surface, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.border}` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                 <div>
-                  <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px",
-                    textTransform:"uppercase", marginBottom:4 }}>Weekly Activity</div>
-                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"1px" }}>
-                    {done} of {tasks.length} tasks done
+                  <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:"1px",
+                    textTransform:"uppercase", marginBottom:3 }}>Weekly Activity</div>
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, letterSpacing:"1px" }}>
+                    {done}/{tasks.length} done
                   </div>
                 </div>
-                <Pill color={T.green}>{pct}% complete</Pill>
+                <Pill color={T.green}>{pct}%</Pill>
               </div>
               {(() => {
                 const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-                // May 18 2026 is a Monday = index 0
                 const todayIdx = 0;
                 const weekBars = dayNames.map((day, i) => ({
                   day,
                   done: i === todayIdx ? done : i < todayIdx ? Math.floor(Math.random() * 5) + 2 : 0,
-                  total: i === todayIdx ? tasks.length : i < todayIdx ? Math.floor(Math.random() * 3) + 5 : 0,
                   isToday: i === todayIdx,
                 }));
                 return (
-                  <ResponsiveContainer width="100%" height={110}>
-                    <BarChart data={weekBars} barSize={18} margin={{top:4,right:4,left:-24,bottom:0}}>
-                      <XAxis dataKey="day" tick={{fill:T.faint,fontSize:11,fontFamily:"'Plus Jakarta Sans'"}}
-                        axisLine={false} tickLine={false}/>
-                      <YAxis tick={{fill:T.faint,fontSize:10}} axisLine={false} tickLine={false}/>
+                  <ResponsiveContainer width="100%" height={88}>
+                    <BarChart data={weekBars} barSize={14} margin={{top:2,right:2,left:-28,bottom:0}}>
+                      <XAxis dataKey="day" tick={{fill:T.faint,fontSize:10}} axisLine={false} tickLine={false}/>
+                      <YAxis tick={{fill:T.faint,fontSize:9}} axisLine={false} tickLine={false}/>
                       <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(255,255,255,0.03)"}}/>
-                      <Bar dataKey="done" radius={[5,5,0,0]}>
-                        {weekBars.map((e,i)=><Cell key={i} fill={e.isToday ? T.orange : e.done > 0 ? T.orange+"66" : T.faint}/>)}
+                      <Bar dataKey="done" radius={[4,4,0,0]}>
+                        {weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.orange:e.done>0?T.orange+"55":T.faint}/>)}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 );
               })()}
+            </div>
+
+            {/* Weather — inline in ROW 1 */}
+            <div style={{ background:T.surface, borderRadius:14, padding:"14px 16px",
+              border:`1px solid ${T.border}`, overflow:"hidden" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
+                  Weather · Atlanta
+                </div>
+                <Pill color={T.yellow}>Live</Pill>
+              </div>
+              <WeatherWidget compact />
             </div>
 
             {/* Balance */}
@@ -911,19 +943,6 @@ export default function Dashboard() {
 
       </div> {/* end TOP SECTION */}
 
-      {/* ── WEATHER BAR — pinned at bottom ── */}
-      <div style={{ background:T.surface, borderTop:`1px solid ${T.border}`,
-        padding:"16px 24px", flexShrink:0 }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-          <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>
-            Weather · Atlanta, GA
-          </div>
-          <Pill color={T.yellow}>Live Forecast</Pill>
-        </div>
-        <WeatherWidget />
-      </div>
-
-      
 
       {/* Edit Goal Modal */}
       {editGoal && (
