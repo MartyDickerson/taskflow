@@ -162,13 +162,14 @@ function WeatherWidget({ compact=false }) {
       {/* 5-day forecast */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:4 }}>
         {weather.forecast.map((d,i)=>(
-          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:2, padding:"6px 3px", borderRadius:9,
+          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"8px 4px", borderRadius:9,
             background:i===0?T.accentDim:T.raised,
             border:`1px solid ${i===0?T.accent+"55":T.border2}`,
             boxShadow:i===0?`0 0 10px ${T.accentGlow}`:"none" }}>
             <div style={{ fontSize:8, fontWeight:800, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
-            <div style={{ fontSize:16 }}>{getWIcon(d.condition)}</div>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:14, color:T.text, lineHeight:1 }}>{d.high}°</div>
+            <div style={{ fontSize:18 }}>{getWIcon(d.condition)}</div>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:15, color:T.text, lineHeight:1 }}>{d.high}°</div>
+            <div style={{ fontSize:9, color:i===0?T.accentLight:T.muted, textAlign:"center", lineHeight:1.3, paddingTop:1 }}>{d.condition}</div>
             <div style={{ fontSize:8, color:d.rain>50?T.accentLight:T.faint }}>💧{d.rain}%</div>
           </div>
         ))}
