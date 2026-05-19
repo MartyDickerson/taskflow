@@ -153,7 +153,7 @@ function WeatherWidget({ compact=false }) {
           wind: Math.round(data.hourly.windspeed_10m[h] || 8),
         }));
         const forecast = data.daily.time.map((date, i) => ({
-          day: i===0?"Today":days[new Date(date).getDay()],
+          day: days[new Date(date).getDay()],
           high: Math.round(data.daily.temperature_2m_max[i]),
           low: Math.round(data.daily.temperature_2m_min[i]),
           rain: data.daily.precipitation_probability_max[i],
@@ -175,7 +175,7 @@ function WeatherWidget({ compact=false }) {
         setWeather({
           temp:77, high:88, low:63, condition:"Clear sky", wind:7, humidity:49, precip:2,
           hourly:[{label:"Now",temp:77,precip:2,wind:7},{label:"1 AM",temp:73,precip:5,wind:6},{label:"4 AM",temp:68,precip:8,wind:5},{label:"7 AM",temp:67,precip:10,wind:5},{label:"10 AM",temp:79,precip:15,wind:8},{label:"1 PM",temp:91,precip:20,wind:10},{label:"4 PM",temp:92,precip:30,wind:12},{label:"7 PM",temp:84,precip:25,wind:9}],
-          forecast:[{day:"Today",high:88,low:63,rain:2,condition:"Clear sky"},{day:"Tue",high:90,low:65,rain:7,condition:"Partly cloudy"},{day:"Wed",high:94,low:69,rain:13,condition:"Partly cloudy"},{day:"Thu",high:95,low:70,rain:57,condition:"Rain"},{day:"Fri",high:77,low:65,rain:72,condition:"Rain"},{day:"Sat",high:78,low:64,rain:30,condition:"Partly cloudy"},{day:"Sun",high:87,low:67,rain:20,condition:"Partly cloudy"}],
+          forecast:[{day:"Mon",high:88,low:63,rain:2,condition:"Clear sky"},{day:"Tue",high:90,low:65,rain:7,condition:"Partly cloudy"},{day:"Wed",high:94,low:69,rain:13,condition:"Partly cloudy"},{day:"Thu",high:95,low:70,rain:57,condition:"Rain"},{day:"Fri",high:77,low:65,rain:72,condition:"Rain"},{day:"Sat",high:78,low:64,rain:30,condition:"Partly cloudy"},{day:"Sun",high:87,low:67,rain:20,condition:"Partly cloudy"}],
         });
         setLoading(false);
       });
