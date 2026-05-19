@@ -929,7 +929,7 @@ export default function Dashboard() {
               {loading.txns?<Spinner/>:(
                 <div style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:4 }}>
-                    {[{l:"Income",v:`$${income.toFixed(0)}`,c:T.green,i:"⬆"},{l:"Spent",v:`$${expenses.toFixed(0)}`,c:T.red,i:"⬇"}].map(s=>(
+                    {[{l:"Income",v:`$${income.toFixed(2)}`,c:T.green,i:"⬆"},{l:"Spent",v:`$${expenses.toFixed(2)}`,c:T.red,i:"⬇"}].map(s=>(
                       <div key={s.l} style={{ padding:"9px 11px", background:T.raised, borderRadius:9, border:`1px solid ${T.border2}` }}>
                         <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:3 }}><span style={{ fontSize:11, color:s.c }}>{s.i}</span><span style={{ fontSize:10, color:T.muted }}>{s.l}</span></div>
                         <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, color:s.c }}>{s.v}</div>
