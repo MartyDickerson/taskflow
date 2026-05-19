@@ -540,7 +540,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflow:"auto", padding:"18px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div style={{ flex:1, overflow:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ROW 1: Completion | Weekly | Weather | My Cards */}
           <div style={{ display:"grid", gridTemplateColumns:"190px 1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
