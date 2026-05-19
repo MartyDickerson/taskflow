@@ -260,7 +260,10 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
       }).catch(()=>setLoading(false));
   };
 
-  useEffect(()=>{ fetchWeather(loc.lat, loc.lon); }, [loc.lat, loc.lon]);
+  useEffect(()=>{
+    fetchWeather(loc.lat, loc.lon);
+    if(onLocChange) onLocChange(loc.name.split(",")[0]);
+  }, [loc.lat, loc.lon]);
 
   const searchLocation = async () => {
     if (!locInput.trim()) return;
