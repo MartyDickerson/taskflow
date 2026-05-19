@@ -556,27 +556,27 @@ export default function Dashboard() {
             </div>
 
             {/* MY CARDS */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
+            <div style={{ background:"linear-gradient(135deg, #c2410c 0%, #9333ea 50%, #1e1b4b 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(147,51,234,0.3)`, display:"flex", flexDirection:"column", boxShadow:`0 8px 32px rgba(147,51,234,0.25)` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>My Cards</div>
+                <div style={{ fontSize:10, color:"rgba(255,255,255,0.7)", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>My Cards</div>
                 <button onClick={()=>setShowCardForm(!showCardForm)} style={{ fontSize:11, padding:"3px 10px", borderRadius:7, fontWeight:700,
-                  background:showCardForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-                  border:showCardForm?`1px solid ${T.accent}44`:"none", color:"white" }}>
+                  background:showCardForm?"rgba(0,0,0,0.3)":"rgba(255,255,255,0.2)",
+                  border:`1px solid rgba(255,255,255,0.3)`, color:"white" }}>
                   {showCardForm?"✕":"+ Add"}
                 </button>
               </div>
 
               {showCardForm&&(
-                <div className="fu" style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:11, marginBottom:11 }}>
+                <div className="fu" style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:10, padding:11, marginBottom:11 }}>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
                     <input value={newCard.name} onChange={e=>setNewCard({...newCard,name:e.target.value})} placeholder="Card name"
-                      style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }} />
+                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.number} onChange={e=>setNewCard({...newCard,number:e.target.value})} placeholder="Last 4 digits"
-                      style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }} />
+                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                   </div>
                   <div style={{ display:"flex", gap:6, marginBottom:6 }}>
                     <input value={newCard.balance} onChange={e=>setNewCard({...newCard,balance:e.target.value})} placeholder="Balance" type="number"
-                      style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }} />
+                      style={{ flex:1, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
                       style={{ width:90, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 6px", color:T.text, fontSize:11 }}>
                       <option value={T.accent}>Purple</option>
@@ -596,9 +596,9 @@ export default function Dashboard() {
                   <div style={{ display:"flex", gap:6, marginBottom:10 }}>
                     {cards.map((c,i)=>(
                       <button key={c.id} onClick={()=>setSelectedCard(i)} style={{ flex:1, padding:"5px 4px", borderRadius:8, fontSize:11, fontWeight:600,
-                        background:selectedCard===i?`${c.color}33`:"transparent",
-                        border:`1px solid ${selectedCard===i?c.color+"66":T.border2}`,
-                        color:selectedCard===i?T.text:T.muted, transition:"all 0.15s" }}>
+                        background:selectedCard===i?"rgba(255,255,255,0.2)":"rgba(0,0,0,0.25)",
+                        border:`1px solid ${selectedCard===i?"rgba(255,255,255,0.4)":"rgba(255,255,255,0.1)"}`,
+                        color:"white", transition:"all 0.15s" }}>
                         ····{c.number}
                       </button>
                     ))}
@@ -628,14 +628,14 @@ export default function Dashboard() {
 
                   {/* Balance + income/expense mini */}
                   <div style={{ display:"flex", gap:8 }}>
-                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:T.raised, border:`1px solid ${T.border2}` }}>
-                      <div style={{ fontSize:10, color:T.muted, marginBottom:2 }}>Balance</div>
-                      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16 }}>${balance.toLocaleString("en-US",{minimumFractionDigits:0})}</div>
-                      <button onClick={()=>setEditBalance(!editBalance)} style={{ fontSize:9, color:T.accentLight, background:"none", border:"none", padding:0, marginTop:2 }}>✎ Edit</button>
-                      {editBalance&&<div style={{ marginTop:6 }}><input type="number" defaultValue={baseBalance} id="balanceInput" style={{ width:"100%",background:T.card,border:`1px solid ${T.accent}`,borderRadius:6,padding:"5px 7px",color:T.text,fontSize:11,marginBottom:5 }}/><div style={{ display:"flex",gap:4 }}><button onClick={()=>setEditBalance(false)} style={{ flex:1,padding:"4px",background:T.faint,borderRadius:5,color:T.muted,fontSize:10 }}>✕</button><button onClick={()=>{const v=parseFloat(document.getElementById("balanceInput").value);if(!isNaN(v)){setBaseBalance(v);showToast("Balance updated ✓");}setEditBalance(false);}} style={{ flex:1,padding:"4px",background:T.accent,borderRadius:5,color:"white",fontSize:10,fontWeight:700 }}>✓</button></div></div>}
+                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)` }}>
+                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:2 }}>Balance</div>
+                      <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:"white" }}>${balance.toLocaleString("en-US",{minimumFractionDigits:0})}</div>
+                      <button onClick={()=>setEditBalance(!editBalance)} style={{ fontSize:9, color:"rgba(255,255,255,0.5)", background:"none", border:"none", padding:0, marginTop:2, cursor:"pointer" }}>✎ Edit</button>
+                      {editBalance&&<div style={{ marginTop:6 }}><input type="number" defaultValue={baseBalance} id="balanceInput" style={{ width:"100%",background:"rgba(0,0,0,0.4)",border:`1px solid rgba(255,255,255,0.3)`,borderRadius:6,padding:"5px 7px",color:"white",fontSize:11,marginBottom:5 }}/><div style={{ display:"flex",gap:4 }}><button onClick={()=>setEditBalance(false)} style={{ flex:1,padding:"4px",background:"rgba(0,0,0,0.3)",borderRadius:5,color:"rgba(255,255,255,0.6)",fontSize:10,border:"none" }}>✕</button><button onClick={()=>{const v=parseFloat(document.getElementById("balanceInput").value);if(!isNaN(v)){setBaseBalance(v);}setEditBalance(false);}} style={{ flex:1,padding:"4px",background:"rgba(255,255,255,0.2)",borderRadius:5,color:"white",fontSize:10,fontWeight:700,border:"none" }}>✓</button></div></div>}
                     </div>
-                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:T.raised, border:`1px solid ${T.border2}` }}>
-                      <div style={{ fontSize:10, color:T.muted, marginBottom:3 }}>Spending</div>
+                    <div style={{ flex:1, padding:"9px 10px", borderRadius:9, background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.15)` }}>
+                      <div style={{ fontSize:10, color:"rgba(255,255,255,0.6)", marginBottom:3 }}>Spending</div>
                       <PieChart width={50} height={50}>
                         <Pie data={SPEND_DATA} cx={25} cy={25} innerRadius={14} outerRadius={22} dataKey="value" paddingAngle={2} strokeWidth={0}>
                           {SPEND_DATA.map((e,i)=><Cell key={i} fill={e.color}/>)}
