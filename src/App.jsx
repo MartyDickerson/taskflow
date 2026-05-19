@@ -146,22 +146,29 @@ function WeatherWidget({ compact=false }) {
   }, []);
   if (loading) return <Spinner />;
   if (compact) return (
-    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-        <div style={{ fontSize:32, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
-        <div>
-          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:"1px", lineHeight:1 }}>{weather.temp}°<span style={{ fontSize:14, color:T.muted }}>F</span></div>
-          <div style={{ fontSize:11, color:T.muted }}>{weather.condition}</div>
-          <div style={{ fontSize:10, color:T.faint, marginTop:1 }}>📍 Alpharetta, GA</div>
+    <div style={{ display:"flex", gap:12, alignItems:"flex-start" }}>
+      {/* Current conditions */}
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, flexShrink:0, paddingRight:12, borderRight:`1px solid ${T.border2}` }}>
+        <div style={{ fontSize:36, lineHeight:1 }}>{getWIcon(weather.condition)}</div>
+        <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:32, letterSpacing:"1px", lineHeight:1, color:T.text }}>{weather.temp}°<span style={{ fontSize:14, color:T.muted }}>F</span></div>
+        <div style={{ fontSize:10, color:T.muted, textAlign:"center" }}>{weather.condition}</div>
+        <div style={{ fontSize:9, color:T.faint }}>📍 Alpharetta</div>
+        <div style={{ display:"flex", gap:8, marginTop:4 }}>
+          <div style={{ textAlign:"center" }}><div style={{ fontSize:9, color:T.muted }}>💨</div><div style={{ fontSize:10, fontWeight:600 }}>{weather.wind}mph</div></div>
+          <div style={{ textAlign:"center" }}><div style={{ fontSize:9, color:T.muted }}>💧</div><div style={{ fontSize:10, fontWeight:600 }}>{weather.humidity}%</div></div>
         </div>
       </div>
-      <div style={{ display:"flex", gap:4 }}>
+      {/* 5-day forecast grid */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:5, flex:1 }}>
         {weather.forecast.map((d,i)=>(
-          <div key={i} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"6px 3px", borderRadius:8,
-            background:i===0?T.accentDim:T.raised, border:`1px solid ${i===0?T.accent+"44":T.border2}` }}>
-            <div style={{ fontSize:9, fontWeight:700, color:i===0?T.accentLight:T.muted, textTransform:"uppercase" }}>{d.day}</div>
-            <div style={{ fontSize:14 }}>{getWIcon(d.condition)}</div>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:13, color:T.text }}>{d.high}°</div>
+          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"8px 4px", borderRadius:10,
+            background:i===0?T.accentDim:T.raised,
+            border:`1px solid ${i===0?T.accent+"55":T.border2}`,
+            boxShadow:i===0?`0 0 12px ${T.accentGlow}`:"none" }}>
+            <div style={{ fontSize:9, fontWeight:800, color:i===0?T.accentLight:T.muted, textTransform:"uppercase", letterSpacing:0.5 }}>{d.day}</div>
+            <div style={{ fontSize:20 }}>{getWIcon(d.condition)}</div>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:T.text, lineHeight:1 }}>{d.high}°</div>
+            <div style={{ fontSize:9, color:d.rain>50?T.accentLight:T.faint }}>💧{d.rain}%</div>
           </div>
         ))}
       </div>
@@ -362,10 +369,10 @@ export default function Dashboard() {
             </div>
 
             {/* Weekly Bar */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.border}` }}>
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div><div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:3 }}>Weekly Activity</div>
-                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, letterSpacing:"1px" }}>{done}/{tasks.length} done</div></div>
+                <div><div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:3 }}>Weekly Activity</div>
+                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, letterSpacing:"1px", color:T.text }}>{done}/{tasks.length} DONE</div></div>
                 <Pill color={T.green}>{pct}%</Pill>
               </div>
               {(()=>{ const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],todayIdx=0,weekBars=dayNames.map((day,i)=>({day,done:i===todayIdx?done:i<todayIdx?Math.floor(Math.random()*5)+2:0,isToday:i===todayIdx}));
@@ -374,9 +381,9 @@ export default function Dashboard() {
             </div>
 
             {/* Weather */}
-            <div style={{ background:T.surface, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.border}`, overflow:"hidden" }}>
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · Alpharetta</div>
+                <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · Alpharetta</div>
                 <Pill color={T.yellow}>Live</Pill>
               </div>
               <WeatherWidget compact />
