@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import avatar from "./assets/avatar.jpg";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
