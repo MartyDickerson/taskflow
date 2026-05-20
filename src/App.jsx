@@ -927,7 +927,6 @@ export default function Dashboard() {
                               <div style={{ textAlign:"right" }}>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
                                 <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
-                                <CardLogo type={c.type||c.name} />
                               </div>
                             </div>
                           </div>
