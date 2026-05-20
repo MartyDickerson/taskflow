@@ -252,29 +252,42 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
   const fetchWeather = (lat, lon) => {
     setLoading(true);
     const wmo={0:"Clear sky",1:"Mainly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",51:"Light drizzle",61:"Light rain",63:"Rain",80:"Rain showers",95:"Thunderstorm"};
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=7`)
+    const bust = Date.now();
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m,precipitation_probability&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&hourly=temperature_2m,precipitation_probability,windspeed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=7&timeformat=iso8601&_=${bust}`)
       .then(r=>r.json()).then(data=>{
         const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        const now=new Date(), h=now.getHours();
-        const hourLabels=["Now","1 AM","4 AM","7 AM","10 AM","1 PM","4 PM","7 PM"];
-        const hourIndices=[h,1,4,7,10,13,16,19];
-        const hourly=hourIndices.map((idx,i)=>({ label:hourLabels[i], temp:Math.round(data.hourly.temperature_2m[idx]||75), precip:data.hourly.precipitation_probability[idx]||0, wind:Math.round(data.hourly.windspeed_10m[idx]||8) }));
+        const now=new Date();
+        const currentHour=now.getHours();
+        // Build 8 slots: Now + every 3 hours forward, correctly indexed into hourly array
+        const offsets=[0,3,6,9,12,15,18,21];
+        const slots=offsets.map(offset=>{
+          const totalHour=currentHour+offset;
+          const idx=Math.min(totalHour, data.hourly.temperature_2m.length-1);
+          const h=totalHour%24;
+          const label=offset===0?"Now":(() => { const d=new Date(now); d.setHours(h,0,0,0); return d.toLocaleTimeString([],{hour:"numeric",hour12:true}); })();
+          return { label, temp:Math.round(data.hourly.temperature_2m[idx]??75), precip:data.hourly.precipitation_probability[idx]??0, wind:Math.round(data.hourly.windspeed_10m[idx]??8) };
+        });
         const forecast=data.daily.time.map((dateStr,i)=>{
           const [y,m,d]=dateStr.split("-").map(Number);
           return { day:DAYS[new Date(y,m-1,d).getDay()], high:Math.round(data.daily.temperature_2m_max[i]), low:Math.round(data.daily.temperature_2m_min[i]), rain:data.daily.precipitation_probability_max[i], condition:wmo[data.daily.weathercode[i]]||"Clear" };
         });
-        setWeather({ temp:Math.round(data.current.temperature_2m), high:Math.round(data.daily.temperature_2m_max[0]), low:Math.round(data.daily.temperature_2m_min[0]), condition:wmo[data.current.weathercode]||"Clear sky", wind:Math.round(data.current.windspeed_10m), humidity:data.current.relativehumidity_2m, precip:data.current.precipitation_probability||0, hourly, forecast });
+        setWeather({ temp:Math.round(data.current.temperature_2m), high:Math.round(data.daily.temperature_2m_max[0]), low:Math.round(data.daily.temperature_2m_min[0]), condition:wmo[data.current.weathercode]||"Clear sky", wind:Math.round(data.current.windspeed_10m), humidity:data.current.relativehumidity_2m, precip:data.current.precipitation_probability||0, hourly:slots, forecast, lastUpdated:new Date() });
         setLoading(false);
       }).catch(()=>setLoading(false));
   };
 
-  // On mount: load saved location from localStorage FIRST, then fetch weather
+  // On mount: load saved location, fetch weather immediately, then auto-refresh every 15 min
   useEffect(()=>{
     const saved = loadLoc();
     const activeLoc = saved || DEFAULT_LOC;
     setLoc(activeLoc);
     if(onLocChange) onLocChange(activeLoc.name.split(",")[0]);
     fetchWeather(activeLoc.lat, activeLoc.lon);
+    const interval = setInterval(()=>{
+      const currentLoc = loadLoc() || DEFAULT_LOC;
+      fetchWeather(currentLoc.lat, currentLoc.lon);
+    }, 15 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const searchLocation = async () => {
