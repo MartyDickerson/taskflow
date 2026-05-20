@@ -1133,9 +1133,7 @@ export default function Dashboard() {
                     { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:10000, color:T.accent },
                     { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316" },
                     { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:128,   color:"#38bdf8" },
-                    { key:"workouts",  label:"Workouts", icon:"💪", unit:"sets",  max:20,    color:T.green },
                     { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:12,    color:"#a78bfa" },
-                    { key:"weight",    label:"Weight",   icon:"⚖️", unit:"lbs",   max:400,   color:"#fb923c" },
                   ].map(m=>(
                     <div key={m.key}>
                       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
