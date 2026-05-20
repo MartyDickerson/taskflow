@@ -700,10 +700,35 @@ export default function Dashboard() {
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
         {/* Header */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)` }}>
           <div>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:"2px", lineHeight:1 }}>Dashboard</div>
-            <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{loading.tasks?"Loading...":`${tasks.filter(t=>!t.done).length} tasks remaining · ${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}`}</div>
+            {/* Greeting */}
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"2px", lineHeight:1, background:`linear-gradient(135deg,${T.text},${T.accentLight})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} Marty! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
+              </div>
+            </div>
+            <div style={{ fontSize:11, color:T.muted }}>
+              {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})} · {tasks.filter(t=>!t.done).length} tasks remaining
+            </div>
+          </div>
+
+          {/* Daily quote */}
+          <div style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:"flex", alignItems:"center", gap:10 }}>
+            <div style={{ fontSize:20, flexShrink:0 }}>💬</div>
+            <div>
+              <div style={{ fontSize:11, color:T.text, fontStyle:"italic", lineHeight:1.5 }}>
+                "{[
+                  "The secret of getting ahead is getting started.",
+                  "Small steps every day lead to big results.",
+                  "It always seems impossible until it's done.",
+                  "Don't watch the clock. Do what it does — keep going.",
+                  "Success is the sum of small efforts repeated daily.",
+                  "Push yourself, because no one else will do it for you.",
+                  "Great things never come from comfort zones.",
+                ][new Date().getDay()]}"
+              </div>
+            </div>
           </div>
         </div>
 
