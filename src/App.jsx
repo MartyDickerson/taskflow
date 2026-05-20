@@ -523,6 +523,8 @@ export default function Dashboard() {
               placeholder="Book title" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
             <input value={newBook.author} onChange={e=>setNewBook({...newBook,author:e.target.value})}
               placeholder="Author" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
+            <input value={newBook.cover_image||""} onChange={e=>setNewBook({...newBook,cover_image:e.target.value})}
+              placeholder="Cover image URL (optional)" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
               <input type="number" value={newBook.pages_total} onChange={e=>setNewBook({...newBook,pages_total:parseInt(e.target.value)||0})}
                 placeholder="Total pages" style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
@@ -581,8 +583,15 @@ export default function Dashboard() {
                 onMouseEnter={e=>e.currentTarget.querySelector(".book-del").style.opacity="1"}
                 onMouseLeave={e=>e.currentTarget.querySelector(".book-del").style.opacity="0"}>
                 <div style={{ display:"flex", gap:9, alignItems:"flex-start" }}>
-                  {/* Book spine */}
-                  <div style={{ width:8, flexShrink:0, alignSelf:"stretch", borderRadius:3, background:b.cover_color, boxShadow:`0 0 8px ${b.cover_color}66`, minHeight:40 }} />
+                  {/* Book cover image or colored spine */}
+                  {b.cover_image ? (
+                    <div style={{ width:44, height:60, borderRadius:5, overflow:"hidden", flexShrink:0, boxShadow:`0 4px 12px rgba(0,0,0,0.4)`, border:`1px solid ${T.border2}` }}>
+                      <img src={b.cover_image} style={{ width:"100%", height:"100%", objectFit:"cover" }} alt={b.title}
+                        onError={e=>{ e.target.style.display="none"; e.target.parentNode.style.background=b.cover_color; }} />
+                    </div>
+                  ) : (
+                    <div style={{ width:10, flexShrink:0, alignSelf:"stretch", borderRadius:3, background:b.cover_color, boxShadow:`0 0 8px ${b.cover_color}66`, minHeight:40 }} />
+                  )}
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontSize:12, fontWeight:700, color:isDone?T.muted:T.text, textDecoration:isDone?"line-through":"none",
                       overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginBottom:2 }}>{b.title}</div>
