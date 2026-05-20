@@ -400,7 +400,9 @@ export default function Dashboard() {
   const [showTxnForm, setShowTxnForm] = useState(false);
   const [showGoalForm,setShowGoalForm]= useState(false);
   const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#7c3aed" });
-  const [fitnessLog,  setFitnessLog]  = useState(null);
+  const [fitnessGoals, setFitnessGoals] = useState({ steps:10000, calories:2500, water_oz:128, sleep_hrs:12 });
+  const [editingGoal,  setEditingGoal]  = useState(null);
+  const [fitnessLog,   setFitnessLog]   = useState(null);
   const [books,       setBooks]       = useState([]);
   const [showBookForm,setShowBookForm]= useState(false);
   const [newBook,     setNewBook]     = useState({ title:"", author:"", pages_total:0, pages_read:0, cover_color:"#7c3aed" });
@@ -1129,10 +1131,10 @@ export default function Dashboard() {
               </div>
               {!fitnessLog ? <Spinner/> : (()=>{
                 const metrics = [
-                  { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:10000, color:T.accent },
-                  { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316" },
-                  { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:128,   color:"#38bdf8" },
-                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:12,    color:"#a78bfa" },
+                  { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:fitnessGoals.steps,    color:T.accent },
+                  { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:fitnessGoals.calories,  color:"#f97316" },
+                  { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:fitnessGoals.water_oz,  color:"#38bdf8" },
+                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#a78bfa" },
                 ];
                 const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
                 // Build donut segments
@@ -1182,12 +1184,27 @@ export default function Dashboard() {
                                   <div style={{ width:8, height:8, borderRadius:"50%", background:m.color, boxShadow:`0 0 6px ${m.color}` }} />
                                   <span style={{ fontSize:11, color:T.text }}>{m.label}</span>
                                 </div>
-                                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                                <div style={{ display:"flex", alignItems:"center", gap:4 }}>
                                   <input type="number" value={val}
                                     onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
                                     style={{ width:52, textAlign:"center", background:T.raised, border:`1px solid ${T.border2}`,
                                       borderRadius:5, padding:"2px 4px", color:T.text, fontSize:11, fontWeight:700 }} />
-                                  <span style={{ fontSize:9, color:T.muted, width:28 }}>/ {m.max}</span>
+                                  {editingGoal===m.key ? (
+                                    <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                                      <span style={{ fontSize:9, color:T.muted }}>/</span>
+                                      <input type="number" defaultValue={m.max} autoFocus
+                                        onBlur={e=>{ const v=parseInt(e.target.value)||m.max; setFitnessGoals(g=>({...g,[m.key]:v})); setEditingGoal(null); showToast("Goal updated ✓"); }}
+                                        onKeyDown={e=>{ if(e.key==="Enter"){ e.target.blur(); } if(e.key==="Escape") setEditingGoal(null); }}
+                                        style={{ width:46, textAlign:"center", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:5, padding:"2px 4px", color:T.accentLight, fontSize:11, fontWeight:700 }} />
+                                    </div>
+                                  ) : (
+                                    <div style={{ display:"flex", alignItems:"center", gap:2 }}>
+                                      <span style={{ fontSize:9, color:T.muted }}>/ {m.max}</span>
+                                      <button onClick={()=>setEditingGoal(m.key)}
+                                        style={{ background:"none", border:"none", color:T.muted, fontSize:9, padding:"0 2px", cursor:"pointer", opacity:0.6 }}
+                                        title="Edit goal">✎</button>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
