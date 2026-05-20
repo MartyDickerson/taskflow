@@ -474,7 +474,7 @@ export default function Dashboard() {
   return (
     <div style={{ display:"flex", height:"100vh", background:T.bg, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
         input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
@@ -705,7 +705,7 @@ export default function Dashboard() {
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
               <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"2px", lineHeight:1, background:`linear-gradient(135deg,${T.text},${T.accentLight})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} Marty! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
+              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} <span style={{ fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", fontWeight:300, fontSize:30 }}>Marty</span>! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
               </div>
             </div>
             <div style={{ fontSize:11, color:T.muted }}>
