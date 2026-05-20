@@ -387,6 +387,27 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
 }
 
 
+
+const CardLogo = ({ type }) => {
+  const t = (type||"").toLowerCase();
+  if(t.includes("mastercard")) return (
+    <div style={{ display:"flex", alignItems:"center" }}>
+      <div style={{ width:20, height:20, borderRadius:"50%", background:"#eb001b", opacity:0.9 }}/>
+      <div style={{ width:20, height:20, borderRadius:"50%", background:"#f79e1b", opacity:0.9, marginLeft:-10 }}/>
+    </div>
+  );
+  if(t.includes("amex")||t.includes("american")) return (
+    <div style={{ background:"#007bc1", borderRadius:4, padding:"2px 6px", fontSize:9, fontWeight:800, color:"white", letterSpacing:0.5 }}>AMEX</div>
+  );
+  if(t.includes("discover")) return (
+    <div style={{ background:"linear-gradient(135deg,#ff6600,#ff9900)", borderRadius:4, padding:"2px 6px", fontSize:9, fontWeight:800, color:"white" }}>DISCOVER</div>
+  );
+  // Default: Visa
+  return (
+    <div style={{ fontFamily:"serif", fontStyle:"italic", fontWeight:900, fontSize:20, color:"white", letterSpacing:"-1px" }}>VISA</div>
+  );
+};
+
 export default function Dashboard() {
   const [tasks,       setTasks]       = useState([]);
   const [goals,       setGoals]       = useState([]);
@@ -881,10 +902,7 @@ export default function Dashboard() {
                           <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.18)", pointerEvents:"none" }} />
                           <div style={{ padding:"14px", position:"relative", zIndex:1 }}>
                             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                              <div style={{ display:"flex" }}>
-                                <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,200,50,0.75)" }} />
-                                <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,100,50,0.55)", marginLeft:-9 }} />
-                              </div>
+                              <div><CardLogo type={c.type||c.name} /></div>
                               <div style={{ width:32, height:22, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
                                   {[...Array(4)].map((_,k)=><div key={k} style={{ width:6,height:4,background:"rgba(255,255,255,0.35)",borderRadius:1 }}/>)}
@@ -901,7 +919,7 @@ export default function Dashboard() {
                               <div style={{ textAlign:"right" }}>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
                                 <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
-                                <div style={{ fontStyle:"italic", fontWeight:900, fontSize:13, color:"white" }}>{c.type?.toUpperCase()||"VISA"}</div>
+                                <CardLogo type={c.type||c.name} />
                               </div>
                             </div>
                           </div>
