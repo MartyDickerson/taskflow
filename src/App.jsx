@@ -404,6 +404,7 @@ export default function Dashboard() {
   const [books,       setBooks]       = useState([]);
   const [showBookForm,setShowBookForm]= useState(false);
   const [newBook,     setNewBook]     = useState({ title:"", author:"", pages_total:0, pages_read:0, cover_color:"#7c3aed" });
+  const [editBookId,  setEditBookId]  = useState(null);
   const [showCardForm,setShowCardForm]= useState(false);
   const [showPayForm, setShowPayForm] = useState(false);
   const [payForm,     setPayForm]     = useState({ name:"", amount:"" });
@@ -600,31 +601,79 @@ export default function Dashboard() {
                     <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:4 }}>
                       <div style={{ height:"100%", width:`${pct}%`, background:b.cover_color, borderRadius:4, transition:"width 0.5s" }} />
                     </div>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
                       <span style={{ fontSize:9, color:T.muted }}>{b.pages_read} / {b.pages_total} pages</span>
                       <span style={{ fontSize:9, fontWeight:700, color:b.cover_color }}>{pct}%</span>
                     </div>
-                    {/* Update pages */}
-                    <div style={{ display:"flex", gap:4, marginTop:6 }}>
-                      <input type="number" defaultValue={b.pages_read}
-                        onBlur={async e=>{
-                          const val = parseInt(e.target.value)||0;
-                          const newStatus = val>= b.pages_total && b.pages_total>0 ? "done" : "reading";
-                          setBooks(bs=>bs.map(x=>x.id===b.id?{...x,pages_read:val,status:newStatus}:x));
-                          await supabase.from("books").update({pages_read:val,status:newStatus}).eq("id",b.id);
-                          showToast("Progress updated ✓");
-                        }}
-                        style={{ flex:1, background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"4px 6px", color:T.text, fontSize:10, textAlign:"center" }} />
-                      <span style={{ fontSize:10, color:T.muted, paddingTop:3 }}>pg</span>
-                    </div>
+
+                    {/* Edit mode toggle */}
+                    {editBookId===b.id ? (
+                      <div className="fu">
+                        <div style={{ fontSize:9, color:T.muted, marginBottom:4, fontWeight:600 }}>EDIT BOOK</div>
+                        <input defaultValue={b.title} id={`edit-title-${b.id}`}
+                          placeholder="Title" style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"5px 7px", color:T.text, fontSize:10, marginBottom:4 }} />
+                        <input defaultValue={b.author} id={`edit-author-${b.id}`}
+                          placeholder="Author" style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"5px 7px", color:T.text, fontSize:10, marginBottom:4 }} />
+                        <input defaultValue={b.cover_image||""} id={`edit-img-${b.id}`}
+                          placeholder="Cover image URL" style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"5px 7px", color:T.text, fontSize:10, marginBottom:4 }} />
+                        <div style={{ display:"flex", flexDirection:"column", gap:4, marginBottom:6 }}>
+                          <div>
+                            <div style={{ fontSize:9, color:T.muted, marginBottom:2 }}>Total Pages</div>
+                            <input type="number" defaultValue={b.pages_total} id={`edit-total-${b.id}`}
+                              style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"5px 7px", color:T.text, fontSize:10 }} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize:9, color:T.muted, marginBottom:2 }}>Current Page</div>
+                            <input type="number" defaultValue={b.pages_read} id={`edit-read-${b.id}`}
+                              style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"5px 7px", color:T.text, fontSize:10 }} />
+                          </div>
+                        </div>
+                        <div style={{ display:"flex", gap:4 }}>
+                          <button onClick={()=>setEditBookId(null)}
+                            style={{ flex:1, padding:"5px", background:T.faint, borderRadius:6, color:T.muted, fontSize:10, border:"none" }}>Cancel</button>
+                          <button onClick={async()=>{
+                            const title  = document.getElementById(`edit-title-${b.id}`).value;
+                            const author = document.getElementById(`edit-author-${b.id}`).value;
+                            const img    = document.getElementById(`edit-img-${b.id}`).value;
+                            const total  = parseInt(document.getElementById(`edit-total-${b.id}`).value)||0;
+                            const read   = parseInt(document.getElementById(`edit-read-${b.id}`).value)||0;
+                            const newStatus = read >= total && total > 0 ? "done" : "reading";
+                            const updated = { title, author, cover_image:img, pages_total:total, pages_read:read, status:newStatus };
+                            setBooks(bs=>bs.map(x=>x.id===b.id?{...x,...updated}:x));
+                            await supabase.from("books").update(updated).eq("id",b.id);
+                            setEditBookId(null); showToast("Book updated ✓");
+                          }} style={{ flex:2, padding:"5px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:6, color:"white", fontSize:10, fontWeight:700, border:"none" }}>Save</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+                        <div>
+                          <div style={{ fontSize:9, color:T.muted, marginBottom:2 }}>Current Page</div>
+                          <input type="number" defaultValue={b.pages_read}
+                            onBlur={async e=>{
+                              const val = parseInt(e.target.value)||0;
+                              const newStatus = val >= b.pages_total && b.pages_total > 0 ? "done" : "reading";
+                              setBooks(bs=>bs.map(x=>x.id===b.id?{...x,pages_read:val,status:newStatus}:x));
+                              await supabase.from("books").update({pages_read:val,status:newStatus}).eq("id",b.id);
+                              showToast("Progress updated ✓");
+                            }}
+                            style={{ width:"100%", background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"4px 6px", color:T.text, fontSize:10, textAlign:"center" }} />
+                        </div>
+                        <div style={{ fontSize:9, color:T.muted }}>of {b.pages_total} total pages</div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                {/* Delete */}
-                <button className="book-del" onClick={async()=>{
-                  setBooks(bs=>bs.filter(x=>x.id!==b.id));
-                  await supabase.from("books").delete().eq("id",b.id);
-                  showToast("Book removed");
-                }} style={{ position:"absolute", top:6, right:6, background:"none", color:T.red, fontSize:13, opacity:0, transition:"opacity 0.15s", padding:"2px 4px", borderRadius:4 }}>×</button>
+                {/* Edit + Delete buttons */}
+                <div style={{ position:"absolute", top:6, right:6, display:"flex", gap:4 }}>
+                  <button className="book-del" onClick={()=>setEditBookId(editBookId===b.id?null:b.id)}
+                    style={{ background:T.accentDim, border:`1px solid ${T.accent}44`, color:T.accentLight, fontSize:10, opacity:0, transition:"opacity 0.15s", padding:"2px 6px", borderRadius:4 }}>✎</button>
+                  <button className="book-del" onClick={async()=>{
+                    setBooks(bs=>bs.filter(x=>x.id!==b.id));
+                    await supabase.from("books").delete().eq("id",b.id);
+                    showToast("Book removed");
+                  }} style={{ background:"none", color:T.red, fontSize:13, opacity:0, transition:"opacity 0.15s", padding:"2px 4px", borderRadius:4 }}>×</button>
+                </div>
               </div>
             );
           })}
