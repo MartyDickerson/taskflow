@@ -525,11 +525,11 @@ export default function Dashboard() {
               placeholder="Author" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
             <input value={newBook.cover_image||""} onChange={e=>setNewBook({...newBook,cover_image:e.target.value})}
               placeholder="Cover image URL (optional)" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+            <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:6 }}>
               <input type="number" value={newBook.pages_total} onChange={e=>setNewBook({...newBook,pages_total:parseInt(e.target.value)||0})}
-                placeholder="Total pages" style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
+                placeholder="Total pages" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
               <input type="number" value={newBook.pages_read} onChange={e=>setNewBook({...newBook,pages_read:parseInt(e.target.value)||0})}
-                placeholder="Pages read" style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
+                placeholder="Pages read so far" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
             </div>
             <div style={{ display:"flex", gap:6 }}>
               <select value={newBook.cover_color} onChange={e=>setNewBook({...newBook,cover_color:e.target.value})}
