@@ -412,9 +412,7 @@ const CardLogo = ({ type }) => {
   );
   if(t.includes("navy")||t.includes("nfcu")||t.includes("navyfederal")) return (
     <div style={{ display:"flex", alignItems:"center", gap:5 }}>
-      <div style={{ width:20, height:20, borderRadius:"50%", background:"linear-gradient(135deg,#002868,#BF0A30)", border:"2px solid rgba(255,255,255,0.4)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-        <div style={{ fontSize:8, color:"white", fontWeight:900, lineHeight:1 }}>★</div>
-      </div>
+      <div style={{ width:20, height:20, borderRadius:"50%", background:"linear-gradient(135deg,#002868,#BF0A30)", border:"2px solid rgba(255,255,255,0.4)", flexShrink:0 }} />
       <div style={{ display:"flex", flexDirection:"column", lineHeight:1 }}>
         <span style={{ fontSize:7, fontWeight:800, color:"white", letterSpacing:"0.5px" }}>NAVY FEDERAL</span>
         <span style={{ fontSize:6, color:"rgba(255,255,255,0.7)", letterSpacing:"0.3px" }}>CREDIT UNION</span>
