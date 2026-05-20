@@ -1159,18 +1159,18 @@ export default function Dashboard() {
                   {/* Daily motivation */}
                   {(()=>{
                     const motivations = [
-                      { img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80", quote:"Push harder than yesterday.", day:0 },
-                      { img:"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80", quote:"Your body can do it. It's your mind you need to convince.", day:1 },
-                      { img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80", quote:"Sweat now. Shine later.", day:2 },
-                      { img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80", quote:"No pain, no gain. Train insane or remain the same.", day:3 },
-                      { img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80", quote:"Believe in yourself and all that you are.", day:4 },
-                      { img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80", quote:"The only bad workout is the one that didn't happen.", day:5 },
-                      { img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80", quote:"Make yourself proud.", day:6 },
+                      { img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80", quote:"Push harder than yesterday." },
+                      { img:"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80", quote:"Your body can do it. It's your mind you need to convince." },
+                      { img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80", quote:"Sweat now. Shine later." },
+                      { img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80", quote:"No pain, no gain." },
+                      { img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80", quote:"Believe in yourself and all that you are." },
+                      { img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80", quote:"The only bad workout is the one that didn't happen." },
+                      { img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80", quote:"Make yourself proud." },
                     ];
                     const m = motivations[new Date().getDay()];
                     return (
                       <div style={{ marginTop:8, borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:120 }}>
-                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0 }} alt="motivation" />
+                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0, filter:"saturate(1.5) brightness(1.1)" }} alt="motivation" />
                         <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1))",
                           display:"flex", alignItems:"flex-end", padding:"14px 14px" }}>
                           <div style={{ fontSize:13, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{m.quote}"</div>
