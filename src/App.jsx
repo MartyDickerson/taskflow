@@ -709,7 +709,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div style={{ fontSize:11, color:T.muted }}>
-              {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})} · {tasks.filter(t=>!t.done).length} tasks remaining
+              {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}
             </div>
           </div>
 
