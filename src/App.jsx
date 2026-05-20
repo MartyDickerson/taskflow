@@ -1137,8 +1137,7 @@ export default function Dashboard() {
                   { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#a78bfa" },
                 ];
                 const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
-                // Build donut segments
-                const size=120, r=44, cx=60, cy=60, circ=2*Math.PI*r;
+                const size=110, r=40, cx=55, cy=55, circ=2*Math.PI*r;
                 let offset=0;
                 const segments = metrics.map(m=>{
                   const pct=Math.min(((fitnessLog[m.key]||0)/m.max),1);
@@ -1151,64 +1150,57 @@ export default function Dashboard() {
                 return (
                   <div style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
                     {/* Top: donut + metric list */}
-                    <div style={{ display:"flex", gap:14, alignItems:"center" }}>
-                      {/* Donut chart */}
+                    <div style={{ display:"flex", gap:12, alignItems:"center" }}>
+                      {/* Donut */}
                       <div style={{ position:"relative", flexShrink:0 }}>
                         <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
-                          {/* Background ring */}
-                          <circle cx={cx} cy={cy} r={r} fill="none" stroke={T.faint} strokeWidth={10}/>
+                          <circle cx={cx} cy={cy} r={r} fill="none" stroke={T.faint} strokeWidth={9}/>
                           {segments.map((s,i)=>(
                             <circle key={i} cx={cx} cy={cy} r={r} fill="none"
-                              stroke={s.color} strokeWidth={10}
+                              stroke={s.color} strokeWidth={9}
                               strokeDasharray={`${s.dash} ${s.gap}`}
                               strokeDashoffset={-s.offset}
-                              strokeLinecap="round"
-                              style={{ transition:"stroke-dasharray 0.6s ease" }}/>
+                              strokeLinecap="round"/>
                           ))}
                         </svg>
                         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:24, color:T.text, lineHeight:1 }}>{totalPct}%</div>
-                          <div style={{ fontSize:9, color:T.muted, textAlign:"center", lineHeight:1.3 }}>Goal<br/>Progress</div>
+                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.text, lineHeight:1 }}>{totalPct}%</div>
+                          <div style={{ fontSize:8, color:T.muted, textAlign:"center", lineHeight:1.3 }}>Goal<br/>Progress</div>
                         </div>
                       </div>
 
-                      {/* Metric rows */}
-                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                      {/* Metrics */}
+                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:7 }}>
                         {metrics.map(m=>{
-                          const val = fitnessLog[m.key]||0;
-                          const pct = Math.min(Math.round((val/m.max)*100),100);
+                          const val=fitnessLog[m.key]||0;
+                          const pct=Math.min(Math.round((val/m.max)*100),100);
                           return (
                             <div key={m.key}>
                               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
                                 <div style={{ display:"flex", alignItems:"center", gap:5 }}>
-                                  <div style={{ width:8, height:8, borderRadius:"50%", background:m.color, boxShadow:`0 0 6px ${m.color}` }} />
-                                  <span style={{ fontSize:11, color:T.text }}>{m.label}</span>
+                                  <div style={{ width:7, height:7, borderRadius:"50%", background:m.color, flexShrink:0 }}/>
+                                  <span style={{ fontSize:11, color:T.text, fontWeight:500 }}>{m.label}</span>
                                 </div>
-                                <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                                <div style={{ display:"flex", alignItems:"center", gap:3 }}>
                                   <input type="number" value={val}
                                     onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
-                                    style={{ width:52, textAlign:"center", background:T.raised, border:`1px solid ${T.border2}`,
-                                      borderRadius:5, padding:"2px 4px", color:T.text, fontSize:11, fontWeight:700 }} />
+                                    style={{ width:48, textAlign:"right", background:"transparent", border:"none",
+                                      color:T.text, fontSize:11, fontWeight:700, padding:0 }} />
+                                  <span style={{ fontSize:9, color:T.muted }}>/</span>
                                   {editingGoal===m.key ? (
-                                    <div style={{ display:"flex", alignItems:"center", gap:3 }}>
-                                      <span style={{ fontSize:9, color:T.muted }}>/</span>
-                                      <input type="number" defaultValue={m.max} autoFocus
-                                        onBlur={e=>{ const v=parseInt(e.target.value)||m.max; setFitnessGoals(g=>({...g,[m.key]:v})); setEditingGoal(null); showToast("Goal updated ✓"); }}
-                                        onKeyDown={e=>{ if(e.key==="Enter"){ e.target.blur(); } if(e.key==="Escape") setEditingGoal(null); }}
-                                        style={{ width:46, textAlign:"center", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:5, padding:"2px 4px", color:T.accentLight, fontSize:11, fontWeight:700 }} />
-                                    </div>
+                                    <input type="number" defaultValue={m.max} autoFocus
+                                      onBlur={e=>{ const v=parseInt(e.target.value)||m.max; setFitnessGoals(g=>({...g,[m.key]:v})); setEditingGoal(null); }}
+                                      onKeyDown={e=>{ if(e.key==="Enter") e.target.blur(); if(e.key==="Escape") setEditingGoal(null); }}
+                                      style={{ width:44, textAlign:"left", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:4, padding:"1px 4px", color:T.accentLight, fontSize:10, fontWeight:700 }} />
                                   ) : (
-                                    <div style={{ display:"flex", alignItems:"center", gap:2 }}>
-                                      <span style={{ fontSize:9, color:T.muted }}>/ {m.max}</span>
-                                      <button onClick={()=>setEditingGoal(m.key)}
-                                        style={{ background:"none", border:"none", color:T.muted, fontSize:9, padding:"0 2px", cursor:"pointer", opacity:0.6 }}
-                                        title="Edit goal">✎</button>
-                                    </div>
+                                    <span onClick={()=>setEditingGoal(m.key)}
+                                      style={{ fontSize:9, color:T.muted, cursor:"pointer", textDecoration:"underline dotted" }}
+                                      title="Click to edit goal">{m.max}</span>
                                   )}
                                 </div>
                               </div>
-                              <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
-                                <div style={{ height:"100%", width:`${pct}%`, background:m.color, borderRadius:4, boxShadow:`0 0 6px ${m.color}88`, transition:"width 0.5s ease" }} />
+                              <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
+                                <div style={{ height:"100%", width:`${pct}%`, background:m.color, borderRadius:3, transition:"width 0.5s ease" }} />
                               </div>
                             </div>
                           );
@@ -1217,19 +1209,19 @@ export default function Dashboard() {
                     </div>
 
                     {/* Status message */}
-                    <div style={{ padding:"8px 12px", borderRadius:9,
-                      background:totalPct>=75?`rgba(16,185,129,0.12)`:totalPct>=40?T.accentDim:`rgba(239,68,68,0.1)`,
-                      border:`1px solid ${totalPct>=75?T.green:totalPct>=40?T.accent:T.red}33`,
-                      display:"flex", alignItems:"center", gap:8 }}>
-                      <span style={{ fontSize:14 }}>{totalPct>=75?"✅":totalPct>=40?"💪":"🎯"}</span>
-                      <span style={{ fontSize:11, color:totalPct>=75?T.green:totalPct>=40?T.accentLight:T.muted, fontWeight:600 }}>
-                        {totalPct>=75?"Great job! You're on track to meet your goals."
+                    <div style={{ padding:"7px 11px", borderRadius:9,
+                      background:totalPct>=75?`rgba(16,185,129,0.12)`:totalPct>=40?T.accentDim:`rgba(239,68,68,0.08)`,
+                      border:`1px solid ${totalPct>=75?T.green+"44":totalPct>=40?T.accent+"44":T.red+"33"}`,
+                      display:"flex", alignItems:"center", gap:7 }}>
+                      <span style={{ fontSize:13 }}>{totalPct>=75?"✅":totalPct>=40?"💪":"🎯"}</span>
+                      <span style={{ fontSize:10, color:totalPct>=75?T.green:totalPct>=40?T.accentLight:T.muted, fontWeight:600, lineHeight:1.4 }}>
+                        {totalPct>=75?"Great job! You're on track."
                           :totalPct>=40?"Good progress! Keep pushing."
                           :"Log your activity to track your goals!"}
                       </span>
                     </div>
 
-                    {/* Daily motivation image */}
+                    {/* Motivation image */}
                     {(()=>{
                       const motivations=[
                         {img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80",quote:"Push harder than yesterday."},
@@ -1242,9 +1234,9 @@ export default function Dashboard() {
                       ];
                       const mv=motivations[new Date().getDay()];
                       return (
-                        <div style={{ borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:100 }}>
+                        <div style={{ borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:90 }}>
                           <img src={mv.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0, filter:"saturate(1.5) brightness(1.1)" }} alt="motivation"/>
-                          <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.1))", display:"flex", alignItems:"flex-end", padding:"12px 14px" }}>
+                          <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.05))", display:"flex", alignItems:"flex-end", padding:"12px 14px" }}>
                             <div style={{ fontSize:12, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{mv.quote}"</div>
                           </div>
                         </div>
