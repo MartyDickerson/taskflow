@@ -401,6 +401,9 @@ export default function Dashboard() {
   const [showGoalForm,setShowGoalForm]= useState(false);
   const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#7c3aed" });
   const [fitnessLog,  setFitnessLog]  = useState(null);
+  const [books,       setBooks]       = useState([]);
+  const [showBookForm,setShowBookForm]= useState(false);
+  const [newBook,     setNewBook]     = useState({ title:"", author:"", pages_total:0, pages_read:0, cover_color:"#7c3aed" });
   const [showCardForm,setShowCardForm]= useState(false);
   const [showPayForm, setShowPayForm] = useState(false);
   const [payForm,     setPayForm]     = useState({ name:"", amount:"" });
@@ -423,9 +426,11 @@ export default function Dashboard() {
       supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
       supabase.from("cards").select("*").order("created_at",{ascending:true}),
       supabase.from("fitness").select("*").eq("log_date",today).single(),
+      supabase.from("books").select("*").order("created_at",{ascending:false}),
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
     setFitnessLog(f || { steps:0, calories:0, water_oz:0, workouts:0, sleep_hrs:0, weight:0 });
+    setBooks(books_data?.data||[]);
     setLoading({ tasks:false, goals:false, txns:false, cards:false });
   }, []);
 
@@ -489,11 +494,11 @@ export default function Dashboard() {
         padding:"9px 18px",borderRadius:10,fontSize:13,fontWeight:700,
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
-      {/* SIDEBAR — Quick Stats Panel */}
-      <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:12 }}>
+      {/* SIDEBAR — Reading Tracker */}
+      <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto" }}>
 
         {/* Logo */}
-        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:8 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:4 }}>
           <div style={{ width:34, height:34, borderRadius:10, overflow:"hidden", border:`1.5px solid ${T.accent}`, boxShadow:`0 0 16px ${T.accentGlow}`, flexShrink:0 }}>
             <img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
           </div>
@@ -501,96 +506,123 @@ export default function Dashboard() {
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
         </div>
 
-        {/* Today's date */}
-        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
-          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:4 }}>Today</div>
-          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:T.text, letterSpacing:"0.5px" }}>
-            {new Date().toLocaleDateString("en-US",{weekday:"long"})}
-          </div>
-          <div style={{ fontSize:11, color:T.muted }}>
-            {new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}
-          </div>
+        {/* Reading Tracker Header */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📚 Reading</div>
+          <button onClick={()=>setShowBookForm(!showBookForm)} style={{ fontSize:10, padding:"3px 8px", borderRadius:6, fontWeight:700,
+            background:showBookForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+            border:showBookForm?`1px solid ${T.accent}44`:"none", color:showBookForm?T.accentLight:"white" }}>
+            {showBookForm?"✕":"+ Add"}
+          </button>
         </div>
 
-        {/* Task Stats */}
-        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
-          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Tasks</div>
-          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-            <div style={{ textAlign:"center" }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.green, lineHeight:1 }}>{done}</div>
-              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Done</div>
+        {/* Add Book Form */}
+        {showBookForm&&(
+          <div className="fu" style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:10 }}>
+            <input value={newBook.title} onChange={e=>setNewBook({...newBook,title:e.target.value})}
+              placeholder="Book title" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
+            <input value={newBook.author} onChange={e=>setNewBook({...newBook,author:e.target.value})}
+              placeholder="Author" style={{ width:"100%", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11, marginBottom:6 }} />
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+              <input type="number" value={newBook.pages_total} onChange={e=>setNewBook({...newBook,pages_total:parseInt(e.target.value)||0})}
+                placeholder="Total pages" style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
+              <input type="number" value={newBook.pages_read} onChange={e=>setNewBook({...newBook,pages_read:parseInt(e.target.value)||0})}
+                placeholder="Pages read" style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
             </div>
-            <div style={{ textAlign:"center" }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.red, lineHeight:1 }}>{tasks.filter(t=>!t.done).length}</div>
-              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Remaining</div>
-            </div>
-            <div style={{ textAlign:"center" }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.accentLight, lineHeight:1 }}>{pct}%</div>
-              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Complete</div>
+            <div style={{ display:"flex", gap:6 }}>
+              <select value={newBook.cover_color} onChange={e=>setNewBook({...newBook,cover_color:e.target.value})}
+                style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }}>
+                <option value="#7c3aed">🟣 Purple</option>
+                <option value="#10b981">🟢 Green</option>
+                <option value="#f59e0b">🟡 Yellow</option>
+                <option value="#ec4899">🩷 Pink</option>
+                <option value="#3b82f6">🔵 Blue</option>
+                <option value="#ef4444">🔴 Red</option>
+              </select>
+              <button onClick={async()=>{
+                if(!newBook.title.trim()) return;
+                setSaving(true);
+                const {data} = await supabase.from("books").insert({...newBook}).select().single();
+                if(data) setBooks(b=>[data,...b]);
+                setNewBook({title:"",author:"",pages_total:0,pages_read:0,cover_color:"#7c3aed"});
+                setShowBookForm(false); setSaving(false); showToast("Book added ✓");
+              }} disabled={saving} style={{ padding:"6px 10px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"white", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
             </div>
           </div>
-          <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
-            <div style={{ height:"100%", width:`${pct}%`, background:`linear-gradient(90deg,${T.accent},${T.green})`, borderRadius:4, transition:"width 0.5s" }} />
-          </div>
-        </div>
+        )}
 
-        {/* Finance Snapshot */}
-        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
-          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Finance</div>
+        {/* Stats bar */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6 }}>
           {[
-            { l:"Income",  v:`+$${income.toFixed(2)}`,  c:T.green },
-            { l:"Spent",   v:`-$${expenses.toFixed(2)}`, c:T.red },
-            { l:"Net",     v:`${income-expenses>=0?"+":"-"}$${Math.abs(income-expenses).toFixed(2)}`, c:income-expenses>=0?T.green:T.red },
+            { l:"Reading", v:books.filter(b=>b.status==="reading").length, c:T.accent },
+            { l:"Done",    v:books.filter(b=>b.status==="done").length,    c:T.green },
+            { l:"Total",   v:books.length,                                  c:T.muted },
           ].map(s=>(
-            <div key={s.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
-              <span style={{ fontSize:10, color:T.muted }}>{s.l}</span>
-              <span style={{ fontSize:12, fontWeight:700, color:s.c }}>{s.v}</span>
+            <div key={s.l} style={{ textAlign:"center", padding:"7px 4px", borderRadius:9, background:T.raised, border:`1px solid ${T.border2}` }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:s.c, lineHeight:1 }}>{s.v}</div>
+              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>{s.l}</div>
             </div>
           ))}
         </div>
 
-        {/* Goals Snapshot */}
-        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
-          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Goals</div>
-          {goals.slice(0,3).map(g=>(
-            <div key={g.id} style={{ marginBottom:7 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-                <span style={{ fontSize:10, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:"70%" }}>{g.text}</span>
-                <span style={{ fontSize:10, fontWeight:700, color:g.color }}>{g.progress}%</span>
-              </div>
-              <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
-                <div style={{ height:"100%", width:`${g.progress}%`, background:g.color, borderRadius:3 }} />
-              </div>
+        {/* Book list */}
+        <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+          {books.length===0&&(
+            <div style={{ textAlign:"center", padding:"20px 0", color:T.muted, fontSize:11 }}>
+              <div style={{ fontSize:28, marginBottom:8 }}>📖</div>
+              Add your first book!
             </div>
-          ))}
-          {goals.length===0&&<div style={{ fontSize:10, color:T.faint }}>No goals yet</div>}
-        </div>
-
-        {/* Fitness Snapshot */}
-        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
-          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Fitness Today</div>
-          {fitnessLog ? [
-            { icon:"👟", l:"Steps",    v:fitnessLog.steps||0,    max:10000 },
-            { icon:"🔥", l:"Calories", v:fitnessLog.calories||0, max:2500 },
-            { icon:"💧", l:"Water",    v:fitnessLog.water_oz||0, max:128 },
-          ].map(f=>(
-            <div key={f.l} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:5 }}>
-              <span style={{ fontSize:11 }}>{f.icon}</span>
-              <div style={{ flex:1 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
-                  <span style={{ fontSize:9, color:T.muted }}>{f.l}</span>
-                  <span style={{ fontSize:9, color:T.text, fontWeight:600 }}>{f.v}</span>
+          )}
+          {books.map(b=>{
+            const pct = b.pages_total>0 ? Math.min(Math.round((b.pages_read/b.pages_total)*100),100) : 0;
+            const isDone = b.status==="done";
+            return (
+              <div key={b.id} style={{ background:T.raised, borderRadius:11, padding:"10px 11px", border:`1px solid ${T.border2}`, position:"relative" }}
+                onMouseEnter={e=>e.currentTarget.querySelector(".book-del").style.opacity="1"}
+                onMouseLeave={e=>e.currentTarget.querySelector(".book-del").style.opacity="0"}>
+                <div style={{ display:"flex", gap:9, alignItems:"flex-start" }}>
+                  {/* Book spine */}
+                  <div style={{ width:8, flexShrink:0, alignSelf:"stretch", borderRadius:3, background:b.cover_color, boxShadow:`0 0 8px ${b.cover_color}66`, minHeight:40 }} />
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:isDone?T.muted:T.text, textDecoration:isDone?"line-through":"none",
+                      overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", marginBottom:2 }}>{b.title}</div>
+                    {b.author&&<div style={{ fontSize:10, color:T.muted, marginBottom:6 }}>{b.author}</div>}
+                    {/* Progress bar */}
+                    <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:4 }}>
+                      <div style={{ height:"100%", width:`${pct}%`, background:b.cover_color, borderRadius:4, transition:"width 0.5s" }} />
+                    </div>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <span style={{ fontSize:9, color:T.muted }}>{b.pages_read} / {b.pages_total} pages</span>
+                      <span style={{ fontSize:9, fontWeight:700, color:b.cover_color }}>{pct}%</span>
+                    </div>
+                    {/* Update pages */}
+                    <div style={{ display:"flex", gap:4, marginTop:6 }}>
+                      <input type="number" defaultValue={b.pages_read}
+                        onBlur={async e=>{
+                          const val = parseInt(e.target.value)||0;
+                          const newStatus = val>= b.pages_total && b.pages_total>0 ? "done" : "reading";
+                          setBooks(bs=>bs.map(x=>x.id===b.id?{...x,pages_read:val,status:newStatus}:x));
+                          await supabase.from("books").update({pages_read:val,status:newStatus}).eq("id",b.id);
+                          showToast("Progress updated ✓");
+                        }}
+                        style={{ flex:1, background:T.card, border:`1px solid ${T.border2}`, borderRadius:6, padding:"4px 6px", color:T.text, fontSize:10, textAlign:"center" }} />
+                      <span style={{ fontSize:10, color:T.muted, paddingTop:3 }}>pg</span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
-                  <div style={{ height:"100%", width:`${Math.min((f.v/f.max)*100,100)}%`, background:T.accent, borderRadius:3 }} />
-                </div>
+                {/* Delete */}
+                <button className="book-del" onClick={async()=>{
+                  setBooks(bs=>bs.filter(x=>x.id!==b.id));
+                  await supabase.from("books").delete().eq("id",b.id);
+                  showToast("Book removed");
+                }} style={{ position:"absolute", top:6, right:6, background:"none", color:T.red, fontSize:13, opacity:0, transition:"opacity 0.15s", padding:"2px 4px", borderRadius:4 }}>×</button>
               </div>
-            </div>
-          )) : <div style={{ fontSize:10, color:T.faint }}>No data yet</div>}
+            );
+          })}
         </div>
 
         {/* Profile */}
-        <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}`, marginTop:"auto" }}>
+        <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:7 }}>
             <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", border:`2px solid ${T.accent}`, flexShrink:0 }}>
               <img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
