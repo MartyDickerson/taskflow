@@ -938,6 +938,7 @@ export default function Dashboard() {
                               <div style={{ textAlign:"right" }}>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
                                 <div style={{ fontSize:11, fontWeight:600, color:"white" }}>Marty Dickerson</div>
+                                <div style={{ fontFamily:"serif", fontStyle:"italic", fontWeight:900, fontSize:14, color:"rgba(255,255,255,0.7)", letterSpacing:"-0.5px", marginTop:2 }}>VISA</div>
                               </div>
                             </div>
                           </div>
