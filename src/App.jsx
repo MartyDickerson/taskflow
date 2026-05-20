@@ -489,36 +489,112 @@ export default function Dashboard() {
         padding:"9px 18px",borderRadius:10,fontSize:13,fontWeight:700,
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
-      {/* SIDEBAR */}
-      <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:28 }}>
+      {/* SIDEBAR — Quick Stats Panel */}
+      <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:12 }}>
+
+        {/* Logo */}
+        <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:8 }}>
           <div style={{ width:34, height:34, borderRadius:10, overflow:"hidden", border:`1.5px solid ${T.accent}`, boxShadow:`0 0 16px ${T.accentGlow}`, flexShrink:0 }}>
             <img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
           </div>
           <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px" }}>TaskFlow</span>
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
         </div>
-        <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
-          <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"0 9px", marginBottom:6 }}>MAIN</div>
-          {NAV.slice(0,5).map(item=>{
-            const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollToSection(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
-              <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
-              <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
-            </div>;
-          })}
-          <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:"1.4px", textTransform:"uppercase", padding:"16px 9px 6px" }}>TOOLS</div>
-          {NAV.slice(5).map(item=>{
-            const active=activeNav===item;
-            return <div key={item} className="nb" onClick={()=>{ setActiveNav(item); scrollToSection(NAV_SCROLL[item]); }} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, cursor:"pointer", transition:"all 0.15s", marginBottom:2, background:active?T.accentDim:"transparent", borderLeft:active?`2.5px solid ${T.accent}`:"2.5px solid transparent" }}>
-              <span style={{ fontSize:14, color:active?T.accent:T.faint }}>{NAV_ICO[item]}</span>
-              <span style={{ fontSize:13, fontWeight:active?700:400, color:active?T.text:T.muted }}>{item}</span>
-            </div>;
-          })}
+
+        {/* Today's date */}
+        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:4 }}>Today</div>
+          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:T.text, letterSpacing:"0.5px" }}>
+            {new Date().toLocaleDateString("en-US",{weekday:"long"})}
+          </div>
+          <div style={{ fontSize:11, color:T.muted }}>
+            {new Date().toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}
+          </div>
         </div>
-        <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
+
+        {/* Task Stats */}
+        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Tasks</div>
+          <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.green, lineHeight:1 }}>{done}</div>
+              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Done</div>
+            </div>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.red, lineHeight:1 }}>{tasks.filter(t=>!t.done).length}</div>
+              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Remaining</div>
+            </div>
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.accentLight, lineHeight:1 }}>{pct}%</div>
+              <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>Complete</div>
+            </div>
+          </div>
+          <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
+            <div style={{ height:"100%", width:`${pct}%`, background:`linear-gradient(90deg,${T.accent},${T.green})`, borderRadius:4, transition:"width 0.5s" }} />
+          </div>
+        </div>
+
+        {/* Finance Snapshot */}
+        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Finance</div>
+          {[
+            { l:"Income",  v:`+$${income.toFixed(2)}`,  c:T.green },
+            { l:"Spent",   v:`-$${expenses.toFixed(2)}`, c:T.red },
+            { l:"Net",     v:`${income-expenses>=0?"+":"-"}$${Math.abs(income-expenses).toFixed(2)}`, c:income-expenses>=0?T.green:T.red },
+          ].map(s=>(
+            <div key={s.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
+              <span style={{ fontSize:10, color:T.muted }}>{s.l}</span>
+              <span style={{ fontSize:12, fontWeight:700, color:s.c }}>{s.v}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Goals Snapshot */}
+        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Goals</div>
+          {goals.slice(0,3).map(g=>(
+            <div key={g.id} style={{ marginBottom:7 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
+                <span style={{ fontSize:10, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:"70%" }}>{g.text}</span>
+                <span style={{ fontSize:10, fontWeight:700, color:g.color }}>{g.progress}%</span>
+              </div>
+              <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${g.progress}%`, background:g.color, borderRadius:3 }} />
+              </div>
+            </div>
+          ))}
+          {goals.length===0&&<div style={{ fontSize:10, color:T.faint }}>No goals yet</div>}
+        </div>
+
+        {/* Fitness Snapshot */}
+        <div style={{ padding:"10px 12px", borderRadius:11, background:T.raised, border:`1px solid ${T.border2}` }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase", marginBottom:8 }}>Fitness Today</div>
+          {fitnessLog ? [
+            { icon:"👟", l:"Steps",    v:fitnessLog.steps||0,    max:10000 },
+            { icon:"🔥", l:"Calories", v:fitnessLog.calories||0, max:2500 },
+            { icon:"💧", l:"Water",    v:fitnessLog.water_oz||0, max:128 },
+          ].map(f=>(
+            <div key={f.l} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:5 }}>
+              <span style={{ fontSize:11 }}>{f.icon}</span>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
+                  <span style={{ fontSize:9, color:T.muted }}>{f.l}</span>
+                  <span style={{ fontSize:9, color:T.text, fontWeight:600 }}>{f.v}</span>
+                </div>
+                <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
+                  <div style={{ height:"100%", width:`${Math.min((f.v/f.max)*100,100)}%`, background:T.accent, borderRadius:3 }} />
+                </div>
+              </div>
+            </div>
+          )) : <div style={{ fontSize:10, color:T.faint }}>No data yet</div>}
+        </div>
+
+        {/* Profile */}
+        <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}`, marginTop:"auto" }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:7 }}>
-            <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", border:`2px solid ${T.accent}`, flexShrink:0 }}><img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} /></div>
+            <div style={{ width:32, height:32, borderRadius:"50%", overflow:"hidden", border:`2px solid ${T.accent}`, flexShrink:0 }}>
+              <img src="https://i.imgur.com/AWWs5jM.png" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+            </div>
             <div><div style={{ fontSize:13, fontWeight:700 }}>Marty Dickerson</div><div style={{ fontSize:10, color:T.muted }}>Premium</div></div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:5 }}>
