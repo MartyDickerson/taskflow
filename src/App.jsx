@@ -402,6 +402,14 @@ const CardLogo = ({ type }) => {
   if(t.includes("discover")) return (
     <div style={{ background:"linear-gradient(135deg,#ff6600,#ff9900)", borderRadius:4, padding:"2px 6px", fontSize:9, fontWeight:800, color:"white" }}>DISCOVER</div>
   );
+  if(t.includes("gusto")) return (
+    <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+      <div style={{ width:18, height:18, borderRadius:"50%", background:"linear-gradient(135deg,#f45d48,#f97316)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ width:8, height:8, borderRadius:"50%", background:"white", opacity:0.9 }}/>
+      </div>
+      <span style={{ fontWeight:900, fontSize:13, color:"white", letterSpacing:"0.5px" }}>gusto</span>
+    </div>
+  );
   // Default: Visa
   return (
     <div style={{ fontFamily:"serif", fontStyle:"italic", fontWeight:900, fontSize:20, color:"white", letterSpacing:"-1px" }}>VISA</div>
@@ -897,7 +905,7 @@ export default function Dashboard() {
                       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                         {/* Card preview */}
                         <div style={{ borderRadius:14, overflow:"hidden", position:"relative",
-                          background:"linear-gradient(135deg,#2d1b5e 0%,#1a1a3e 60%,#0d0d1e 100%)",
+                          background:`linear-gradient(135deg,${c.color||"#2d1b5e"}cc 0%, #1a1a3e 60%,#0d0d1e 100%)`,
                           border:"1px solid rgba(255,255,255,0.12)", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
                           <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.18)", pointerEvents:"none" }} />
                           <div style={{ padding:"14px", position:"relative", zIndex:1 }}>
