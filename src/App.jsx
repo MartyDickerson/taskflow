@@ -705,13 +705,6 @@ export default function Dashboard() {
             <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, letterSpacing:"2px", lineHeight:1 }}>Dashboard</div>
             <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>{loading.tasks?"Loading...":`${tasks.filter(t=>!t.done).length} tasks remaining · ${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}`}</div>
           </div>
-          <div style={{ display:"flex", gap:9, alignItems:"center" }}>
-            <button style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 16px", borderRadius:9, fontSize:13, fontWeight:700, background:`linear-gradient(135deg,${T.accent},${T.pink})`, border:"none", color:"white", boxShadow:`0 0 16px ${T.accentGlow}` }}
-              onClick={()=>document.getElementById("newTaskInput")?.focus()}>+ New Task</button>
-            <div style={{ width:34, height:34, borderRadius:9, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", alignItems:"center", justifyContent:"center", position:"relative", cursor:"pointer" }}>
-              🔔<span style={{ position:"absolute", top:7, right:7, width:6, height:6, borderRadius:"50%", background:T.pink, border:`1.5px solid ${T.bg}` }} className="pulse" />
-            </div>
-          </div>
         </div>
 
         {/* Content */}
