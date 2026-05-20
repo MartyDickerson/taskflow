@@ -1183,7 +1183,7 @@ export default function Dashboard() {
                   { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:fitnessGoals.calories,  color:"#f97316" },
                   { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:fitnessGoals.water_oz,  color:"#38bdf8" },
                   { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#a78bfa" },
-                  { key:"tea_cups",  label:"Ginseng Tea", icon:"🍵", unit:"cups", max:fitnessGoals.tea_cups||3, color:"#86efac" },
+                  { key:"tea_cups",  label:"Ginseng Tea", icon:"🍵", unit:"8oz", max:fitnessGoals.tea_cups||3, color:"#86efac" },
                 ];
                 const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
                 const size=110, r=40, cx=55, cy=55, circ=2*Math.PI*r;
