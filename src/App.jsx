@@ -507,9 +507,9 @@ export default function Dashboard() {
   const activeCard = cards[selectedCard] || null;
 
   return (
-    <div style={{ display:"flex", height:"100vh", background:T.bg, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
+    <div style={{ display:"flex", height:"100vh", background:T.bg, fontFamily:"'Barlow Condensed',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Barlow+Condensed:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
         input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
