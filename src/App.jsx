@@ -420,7 +420,7 @@ export default function Dashboard() {
 
   const loadAll = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
-    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f }] = await Promise.all([
+    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f },{ data:bks }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
       supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
@@ -430,7 +430,7 @@ export default function Dashboard() {
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
     setFitnessLog(f || { steps:0, calories:0, water_oz:0, workouts:0, sleep_hrs:0, weight:0 });
-    setBooks(books_data?.data||[]);
+    setBooks(bks||[]);
     setLoading({ tasks:false, goals:false, txns:false, cards:false });
   }, []);
 
