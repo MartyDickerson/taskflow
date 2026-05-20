@@ -842,28 +842,26 @@ export default function Dashboard() {
               {/* Add Card Form */}
               {showCardForm&&(
                 <div className="fu" style={{ background:"rgba(0,0,0,0.35)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:10, padding:11 }}>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+                  <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                     <input value={newCard.name} onChange={e=>setNewCard({...newCard,name:e.target.value})} placeholder="Card name"
-                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                      style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.number} onChange={e=>setNewCard({...newCard,number:e.target.value})} placeholder="Last 4 digits"
-                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
-                  </div>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6, marginBottom:6 }}>
+                      style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.balance} onChange={e=>setNewCard({...newCard,balance:e.target.value})} placeholder="Balance" type="number"
-                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                      style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.spendLimit||""} onChange={e=>setNewCard({...newCard,spendLimit:e.target.value})} placeholder="Spend limit" type="number"
-                      style={{ background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
-                  </div>
-                  <div style={{ display:"flex", gap:6 }}>
-                    <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
-                      style={{ flex:1, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
-                      <option value={T.accent}>Purple</option>
-                      <option value={T.pink}>Pink</option>
-                      <option value="#1e40af">Blue</option>
-                      <option value="#065f46">Green</option>
-                      <option value="#7c2d12">Red</option>
-                    </select>
-                    <button onClick={addCard} disabled={saving} style={{ padding:"7px 12px", background:"rgba(255,255,255,0.25)", borderRadius:7, color:"white", fontSize:12, fontWeight:700, border:"1px solid rgba(255,255,255,0.3)", opacity:saving?0.6:1 }}>Save</button>
+                      style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                    <div style={{ display:"flex", gap:6 }}>
+                      <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
+                        style={{ flex:1, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
+                        <option value={T.accent}>Purple</option>
+                        <option value={T.pink}>Pink</option>
+                        <option value="#1e40af">Blue</option>
+                        <option value="#065f46">Green</option>
+                        <option value="#7c2d12">Red</option>
+                      </select>
+                      <button onClick={addCard} disabled={saving} style={{ padding:"7px 16px", background:"rgba(255,255,255,0.25)", borderRadius:7, color:"white", fontSize:12, fontWeight:700, border:"1px solid rgba(255,255,255,0.3)", opacity:saving?0.6:1 }}>Save</button>
+                    </div>
                   </div>
                 </div>
               )}
