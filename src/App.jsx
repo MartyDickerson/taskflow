@@ -1176,25 +1176,29 @@ export default function Dashboard() {
                           const pct=Math.min(Math.round((val/m.max)*100),100);
                           return (
                             <div key={m.key}>
-                              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
-                                <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                              <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", gap:6, marginBottom:3 }}>
+                                {/* Label */}
+                                <div style={{ display:"flex", alignItems:"center", gap:5, minWidth:60 }}>
                                   <div style={{ width:7, height:7, borderRadius:"50%", background:m.color, flexShrink:0 }}/>
                                   <span style={{ fontSize:11, color:T.text, fontWeight:500 }}>{m.label}</span>
                                 </div>
-                                <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                                {/* Empty spacer */}
+                                <div/>
+                                {/* Value / Goal — right aligned */}
+                                <div style={{ display:"flex", alignItems:"center", gap:2, justifyContent:"flex-end" }}>
                                   <input type="number" value={val}
                                     onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
-                                    style={{ width:48, textAlign:"right", background:"transparent", border:"none",
+                                    style={{ width:44, textAlign:"right", background:"transparent", border:"none",
                                       color:T.text, fontSize:11, fontWeight:700, padding:0 }} />
-                                  <span style={{ fontSize:9, color:T.muted }}>/</span>
+                                  <span style={{ fontSize:9, color:T.faint }}>/</span>
                                   {editingGoal===m.key ? (
                                     <input type="number" defaultValue={m.max} autoFocus
                                       onBlur={e=>{ const v=parseInt(e.target.value)||m.max; setFitnessGoals(g=>({...g,[m.key]:v})); setEditingGoal(null); }}
                                       onKeyDown={e=>{ if(e.key==="Enter") e.target.blur(); if(e.key==="Escape") setEditingGoal(null); }}
-                                      style={{ width:44, textAlign:"left", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:4, padding:"1px 4px", color:T.accentLight, fontSize:10, fontWeight:700 }} />
+                                      style={{ width:40, textAlign:"left", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:4, padding:"1px 4px", color:T.accentLight, fontSize:10, fontWeight:700 }} />
                                   ) : (
                                     <span onClick={()=>setEditingGoal(m.key)}
-                                      style={{ fontSize:9, color:T.muted, cursor:"pointer", textDecoration:"underline dotted" }}
+                                      style={{ fontSize:9, color:T.muted, cursor:"pointer", width:36, textAlign:"left" }}
                                       title="Click to edit goal">{m.max}</span>
                                   )}
                                 </div>
