@@ -1113,7 +1113,7 @@ export default function Dashboard() {
             {/* FITNESS TRACKER */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column", gap:8 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Fitness</div>
+                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Weekly Progress</div>
                 <button onClick={async()=>{
                   if(!fitnessLog) return;
                   setSaving(true);
@@ -1127,59 +1127,115 @@ export default function Dashboard() {
                   💾 Save
                 </button>
               </div>
-              {!fitnessLog ? <Spinner/> : (
-                <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1, minHeight:0 }}>
-                  {[
-                    { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:10000, color:T.accent },
-                    { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316" },
-                    { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:128,   color:"#38bdf8" },
-                    { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:12,    color:"#a78bfa" },
-                  ].map(m=>(
-                    <div key={m.key}>
-                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <span style={{ fontSize:13 }}>{m.icon}</span>
-                          <span style={{ fontSize:11, color:T.muted }}>{m.label}</span>
-                        </div>
-                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          <input type="number" value={fitnessLog[m.key]||0}
-                            onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
-                            style={{ width:60, textAlign:"center", background:T.raised, border:`1px solid ${T.border2}`,
-                              borderRadius:6, padding:"3px 6px", color:T.text, fontSize:12, fontWeight:700 }} />
-                          <span style={{ fontSize:9, color:T.muted, width:26 }}>{m.unit}</span>
+              {!fitnessLog ? <Spinner/> : (()=>{
+                const metrics = [
+                  { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:10000, color:T.accent },
+                  { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:2500,  color:"#f97316" },
+                  { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:128,   color:"#38bdf8" },
+                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:12,    color:"#a78bfa" },
+                ];
+                const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
+                // Build donut segments
+                const size=120, r=44, cx=60, cy=60, circ=2*Math.PI*r;
+                let offset=0;
+                const segments = metrics.map(m=>{
+                  const pct=Math.min(((fitnessLog[m.key]||0)/m.max),1);
+                  const dash=pct*(circ/metrics.length);
+                  const gap=circ-dash;
+                  const seg={color:m.color,dash,gap,offset,pct};
+                  offset+=circ/metrics.length;
+                  return seg;
+                });
+                return (
+                  <div style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
+                    {/* Top: donut + metric list */}
+                    <div style={{ display:"flex", gap:14, alignItems:"center" }}>
+                      {/* Donut chart */}
+                      <div style={{ position:"relative", flexShrink:0 }}>
+                        <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
+                          {/* Background ring */}
+                          <circle cx={cx} cy={cy} r={r} fill="none" stroke={T.faint} strokeWidth={10}/>
+                          {segments.map((s,i)=>(
+                            <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+                              stroke={s.color} strokeWidth={10}
+                              strokeDasharray={`${s.dash} ${s.gap}`}
+                              strokeDashoffset={-s.offset}
+                              strokeLinecap="round"
+                              style={{ transition:"stroke-dasharray 0.6s ease" }}/>
+                          ))}
+                        </svg>
+                        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:24, color:T.text, lineHeight:1 }}>{totalPct}%</div>
+                          <div style={{ fontSize:9, color:T.muted, textAlign:"center", lineHeight:1.3 }}>Goal<br/>Progress</div>
                         </div>
                       </div>
-                      <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
-                        <div style={{ height:"100%", width:`${Math.min(((fitnessLog[m.key]||0)/m.max)*100,100)}%`,
-                          background:m.color, borderRadius:4, boxShadow:`0 0 6px ${m.color}88`, transition:"width 0.5s ease" }} />
+
+                      {/* Metric rows */}
+                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:8 }}>
+                        {metrics.map(m=>{
+                          const val = fitnessLog[m.key]||0;
+                          const pct = Math.min(Math.round((val/m.max)*100),100);
+                          return (
+                            <div key={m.key}>
+                              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
+                                <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                                  <div style={{ width:8, height:8, borderRadius:"50%", background:m.color, boxShadow:`0 0 6px ${m.color}` }} />
+                                  <span style={{ fontSize:11, color:T.text }}>{m.label}</span>
+                                </div>
+                                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                                  <input type="number" value={val}
+                                    onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
+                                    style={{ width:52, textAlign:"center", background:T.raised, border:`1px solid ${T.border2}`,
+                                      borderRadius:5, padding:"2px 4px", color:T.text, fontSize:11, fontWeight:700 }} />
+                                  <span style={{ fontSize:9, color:T.muted, width:28 }}>/ {m.max}</span>
+                                </div>
+                              </div>
+                              <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
+                                <div style={{ height:"100%", width:`${pct}%`, background:m.color, borderRadius:4, boxShadow:`0 0 6px ${m.color}88`, transition:"width 0.5s ease" }} />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  ))}
 
-                  {/* Daily motivation */}
-                  {(()=>{
-                    const motivations = [
-                      { img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80", quote:"Push harder than yesterday." },
-                      { img:"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80", quote:"Your body can do it. It's your mind you need to convince." },
-                      { img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80", quote:"Sweat now. Shine later." },
-                      { img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80", quote:"No pain, no gain." },
-                      { img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80", quote:"Believe in yourself and all that you are." },
-                      { img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80", quote:"The only bad workout is the one that didn't happen." },
-                      { img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80", quote:"Make yourself proud." },
-                    ];
-                    const m = motivations[new Date().getDay()];
-                    return (
-                      <div style={{ marginTop:8, borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:120 }}>
-                        <img src={m.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0, filter:"saturate(1.5) brightness(1.1)" }} alt="motivation" />
-                        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1))",
-                          display:"flex", alignItems:"flex-end", padding:"14px 14px" }}>
-                          <div style={{ fontSize:13, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{m.quote}"</div>
+                    {/* Status message */}
+                    <div style={{ padding:"8px 12px", borderRadius:9,
+                      background:totalPct>=75?`rgba(16,185,129,0.12)`:totalPct>=40?T.accentDim:`rgba(239,68,68,0.1)`,
+                      border:`1px solid ${totalPct>=75?T.green:totalPct>=40?T.accent:T.red}33`,
+                      display:"flex", alignItems:"center", gap:8 }}>
+                      <span style={{ fontSize:14 }}>{totalPct>=75?"✅":totalPct>=40?"💪":"🎯"}</span>
+                      <span style={{ fontSize:11, color:totalPct>=75?T.green:totalPct>=40?T.accentLight:T.muted, fontWeight:600 }}>
+                        {totalPct>=75?"Great job! You're on track to meet your goals."
+                          :totalPct>=40?"Good progress! Keep pushing."
+                          :"Log your activity to track your goals!"}
+                      </span>
+                    </div>
+
+                    {/* Daily motivation image */}
+                    {(()=>{
+                      const motivations=[
+                        {img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80",quote:"Push harder than yesterday."},
+                        {img:"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80",quote:"Your body can do it."},
+                        {img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80",quote:"Sweat now. Shine later."},
+                        {img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80",quote:"No pain, no gain."},
+                        {img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80",quote:"Believe in yourself."},
+                        {img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80",quote:"The only bad workout is the one that didn't happen."},
+                        {img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80",quote:"Make yourself proud."},
+                      ];
+                      const mv=motivations[new Date().getDay()];
+                      return (
+                        <div style={{ borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:100 }}>
+                          <img src={mv.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0, filter:"saturate(1.5) brightness(1.1)" }} alt="motivation"/>
+                          <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.1))", display:"flex", alignItems:"flex-end", padding:"12px 14px" }}>
+                            <div style={{ fontSize:12, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{mv.quote}"</div>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
+                      );
+                    })()}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* FINANCE */}
