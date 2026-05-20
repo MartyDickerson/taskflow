@@ -740,7 +740,7 @@ export default function Dashboard() {
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
               <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"2px", lineHeight:1, background:`linear-gradient(135deg,${T.text},${T.accentLight})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} <span style={{ fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", fontWeight:300, fontSize:30, textTransform:"uppercase", letterSpacing:"3px" }}>Marty</span>! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
+              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} <span style={{ fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic", fontWeight:300, fontSize:30, letterSpacing:"3px" }}>Marty</span>! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
               </div>
             </div>
             <div style={{ fontSize:11, color:T.muted }}>
