@@ -512,7 +512,7 @@ export default function Dashboard() {
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Barlow+Condensed:wght@300;400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
-        input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
+        input,select,button{font-family:'Barlow Condensed',sans-serif}
         input::placeholder{color:#3a3a5a}input:focus,select:focus{outline:none}
         button{cursor:pointer;border:none;outline:none}
         .nb:hover{background:rgba(124,58,237,0.12)!important}
