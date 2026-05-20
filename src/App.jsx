@@ -953,9 +953,13 @@ export default function Dashboard() {
                   setSaving(true);
                   await supabase.from("fitness").upsert({...fitnessLog, log_date:new Date().toISOString().split("T")[0]});
                   setSaving(false); showToast("Fitness saved ✓");
-                }} style={{ fontSize:10, padding:"3px 9px", borderRadius:7, fontWeight:700,
-                  background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none",
-                  color:"white", opacity:saving?0.6:1 }}>💾 Save</button>
+                }} style={{ fontSize:11, padding:"5px 14px", borderRadius:8, fontWeight:700,
+                  background:`linear-gradient(135deg,${T.green},#059669)`,
+                  border:"none", color:"white", cursor:"pointer",
+                  boxShadow:`0 4px 12px rgba(16,185,129,0.35)`,
+                  opacity:saving?0.6:1, letterSpacing:"0.3px" }}>
+                  💾 Save
+                </button>
               </div>
               {!fitnessLog ? <Spinner/> : (
                 <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1, minHeight:0 }}>
