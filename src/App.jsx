@@ -588,8 +588,26 @@ function PomodoroTimer() {
   );
 }
 
+
+function timeAgo(ts) {
+  if(!ts) return "";
+  const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if(diff < 60)  return "Just now";
+  if(diff < 3600) return `${Math.floor(diff/60)} min ago`;
+  if(diff < 86400) {
+    const h = Math.floor(diff/3600);
+    return `${h} hr${h>1?"s":""} ago`;
+  }
+  const d = Math.floor(diff/86400);
+  if(d === 1) return "Yesterday";
+  if(d < 7) return `${d} days ago`;
+  return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+}
+
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tick, setTick] = useState(0);
+  useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),60000); return()=>clearInterval(t); },[]);
 
   const [tasks,       setTasks]       = useState([]);
   const [goals,       setGoals]       = useState([]);
@@ -1235,7 +1253,7 @@ export default function Dashboard() {
                                 const amt = -Math.abs(parseFloat(payForm.amount));
                                 const {data} = await supabase.from("transactions").insert({
                                   name:payForm.name, amount:amt, icon:"💳",
-                                  date_label:"Just now", type:"expense", card_id:c.id
+                                  date_label:"Just now", txn_at:new Date().toISOString(), type:"expense", card_id:c.id
                                 }).select().single();
                                 if(data) setTxns(tx=>[data,...tx.slice(0,5)]);
                                 // Update card spent
@@ -1631,7 +1649,7 @@ export default function Dashboard() {
                   }).map(tx=>{ const amt=Math.abs(parseFloat(tx.amount)),isIncome=tx.type==="income"; return (
                     <div key={tx.id} className="txn-row" style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 10px", borderRadius:10, transition:"background 0.13s", background:T.raised, border:`1px solid ${T.border}` }}>
                       <div style={{ width:29, height:29, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, flexShrink:0, background:isIncome?T.greenDim:T.redDim, color:isIncome?T.green:T.red }}>{tx.icon}</div>
-                      <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:12, fontWeight:600, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{tx.name}</div><div style={{ fontSize:10, color:T.muted }}>{tx.date_label}</div></div>
+                      <div style={{ flex:1, minWidth:0 }}><div style={{ fontSize:12, fontWeight:600, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{tx.name}</div><div style={{ fontSize:10, color:T.muted }}>{tx.txn_at ? timeAgo(tx.txn_at) : tx.date_label}</div></div>
                       <div style={{ fontSize:13, fontWeight:800, flexShrink:0, color:isIncome?T.green:T.red }}>{isIncome?"+":"-"}${amt.toFixed(2)}</div>
                       <button className="del" onClick={async()=>{ setTxns(ts=>ts.filter(t=>t.id!==tx.id)); await supabase.from("transactions").delete().eq("id",tx.id); showToast("Removed"); }}
                         style={{ background:"none", color:T.red, fontSize:14, padding:"0 3px", borderRadius:4, opacity:0, transition:"opacity 0.15s", flexShrink:0 }}>×</button>
