@@ -522,37 +522,6 @@ function DailyBibleChapter() {
 }
 
 
-    { ref:"Proverbs 3",     title:"Trust in the Lord",             verse:"Trust in the Lord with all your heart and lean not on your own understanding..." },
-    { ref:"Joshua 1",       title:"Be Strong and Courageous",      verse:"Be strong and courageous. Do not be afraid; do not be discouraged..." },
-    { ref:"Romans 8",       title:"Life Through the Spirit",       verse:"There is now no condemnation for those who are in Christ Jesus..." },
-    { ref:"Philippians 4",  title:"Peace and Contentment",         verse:"I can do all this through him who gives me strength..." },
-    { ref:"Isaiah 40",      title:"Comfort for God's People",      verse:"Those who hope in the Lord will renew their strength..." },
-    { ref:"Matthew 6",      title:"Seek First His Kingdom",        verse:"Seek first his kingdom and his righteousness, and all these things will be given to you..." },
-    { ref:"Psalm 23",       title:"The Lord is My Shepherd",       verse:"The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures..." },
-    { ref:"2 Timothy 1",    title:"Guard the Good Deposit",        verse:"For God has not given us a spirit of fear, but of power, love and self-discipline..." },
-    { ref:"Jeremiah 29",    title:"Plans to Give You Hope",        verse:"For I know the plans I have for you, declares the Lord, plans to prosper you..." },
-    { ref:"Psalm 91",       title:"Dwelling in the Shelter",       verse:"Whoever dwells in the shelter of the Most High will rest in the shadow of the Almighty..." },
-    { ref:"John 15",        title:"The Vine and the Branches",     verse:"I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit..." },
-    { ref:"Ephesians 6",    title:"The Armor of God",              verse:"Finally, be strong in the Lord and in his mighty power. Put on the full armor of God..." },
-    { ref:"Proverbs 31",    title:"The Virtuous Life",             verse:"Speak up for those who cannot speak for themselves, for the rights of all who are destitute..." },
-    { ref:"Romans 12",      title:"A Living Sacrifice",            verse:"Do not conform to the pattern of this world, but be transformed by the renewing of your mind..." },
-    { ref:"Psalm 46",       title:"God is Our Refuge",             verse:"God is our refuge and strength, an ever-present help in trouble..." },
-    { ref:"1 Corinthians 13", title:"The Way of Love",             verse:"Love is patient, love is kind. It does not envy, it does not boast, it is not proud..." },
-    { ref:"Deuteronomy 31", title:"Be Strong and Courageous",      verse:"The Lord himself goes before you and will be with you; he will never leave you nor forsake you..." },
-    { ref:"Psalm 27",       title:"The Lord is My Light",          verse:"The Lord is my light and my salvation — whom shall I fear? The Lord is the stronghold of my life..." },
-    { ref:"Hebrews 11",     title:"Faith in Action",               verse:"Now faith is confidence in what we hope for and assurance about what we do not see..." },
-    { ref:"James 1",        title:"Trials and Temptations",        verse:"Consider it pure joy whenever you face trials of many kinds, because the testing of your faith produces perseverance..." },
-    { ref:"Psalm 119:1-24", title:"Walking in God's Word",         verse:"Blessed are those whose ways are blameless, who walk according to the law of the Lord..." },
-    { ref:"Matthew 5",      title:"The Beatitudes",                verse:"Blessed are the poor in spirit, for theirs is the kingdom of heaven..." },
-    { ref:"Colossians 3",   title:"Rules for Holy Living",         verse:"Set your minds on things above, not on earthly things..." },
-    { ref:"Isaiah 41",      title:"Do Not Fear",                   verse:"So do not fear, for I am with you; do not be dismayed, for I am your God..." },
-    { ref:"Proverbs 4",     title:"Get Wisdom",                    verse:"The beginning of wisdom is this: Get wisdom. Though it cost all you have, get understanding..." },
-    { ref:"Psalm 34",       title:"Taste and See",                 verse:"Taste and see that the Lord is good; blessed is the one who takes refuge in him..." },
-    { ref:"John 14",        title:"Jesus Comforts His Disciples",  verse:"Do not let your hearts be troubled. You believe in God; believe also in me..." },
-    { ref:"Galatians 5",    title:"Life by the Spirit",            verse:"The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness..." },
-    { ref:"Psalm 37",       title:"Do Not Fret",                   verse:"Trust in the Lord and do good; dwell in the land and enjoy safe pasture. Delight yourself in the Lord..." },
-
-
 function PomodoroTimer() {
   const [pomState, setPomState] = useState("idle");
   const [pomSecs,  setPomSecs]  = useState(45*60);
