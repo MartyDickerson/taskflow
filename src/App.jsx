@@ -440,6 +440,8 @@ function PomodoroTimer() {
   const [pomSecs,  setPomSecs]  = useState(25*60);
   const [pomCount, setPomCount] = useState(0);
   const [task,     setTask]     = useState("");
+  const [customMin, setCustomMin] = useState(25);
+  const [editingTime, setEditingTime] = useState(false);
   const pomRef = useRef(null);
 
   useEffect(()=>{
@@ -449,7 +451,7 @@ function PomodoroTimer() {
         if(s<=1){
           clearInterval(pomRef.current);
           if(pomState==="work"){ setPomCount(c=>c+1); setPomState("break"); return 5*60; }
-          else { setPomState("idle"); return 25*60; }
+          else { setPomState("idle"); return customMin*60; }
         }
         return s-1;
       });
@@ -459,7 +461,7 @@ function PomodoroTimer() {
 
   const mins  = String(Math.floor(pomSecs/60)).padStart(2,"0");
   const secs  = String(pomSecs%60).padStart(2,"0");
-  const total = pomState==="work"?25*60:5*60;
+  const total = pomState==="work"?customMin*60:5*60;
   const pct   = pomState==="idle"?0:((total-pomSecs)/total)*100;
   const color = pomState==="break"?T.green:T.accent;
   const SIZE  = 160; const R = 68; const C = SIZE/2; const CIRC = 2*Math.PI*R;
@@ -486,7 +488,26 @@ function PomodoroTimer() {
               strokeLinecap="round" style={{ transition:"stroke-dasharray 1s linear", filter:`drop-shadow(0 0 8px ${color})` }}/>
           </svg>
           <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:42, color:T.text, lineHeight:1, letterSpacing:"2px" }}>{mins}:{secs}</div>
+            {/* Editable time display */}
+            {pomState==="idle"&&editingTime ? (
+              <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                <input type="number" value={customMin} min={1} max={120}
+                  onChange={e=>{ const v=Math.min(120,Math.max(1,parseInt(e.target.value)||1)); setCustomMin(v); setPomSecs(v*60); }}
+                  onBlur={()=>setEditingTime(false)}
+                  onKeyDown={e=>{ if(e.key==="Enter"||e.key==="Escape") setEditingTime(false); }}
+                  autoFocus
+                  style={{ width:52, textAlign:"center", background:"transparent", border:`1px solid ${T.accent}`, borderRadius:6,
+                    color:T.text, fontSize:28, fontWeight:800, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"2px", padding:"2px" }} />
+              </div>
+            ) : (
+              <div onClick={()=>pomState==="idle"&&setEditingTime(true)}
+                style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:42, color:T.text, lineHeight:1, letterSpacing:"2px",
+                  cursor:pomState==="idle"?"pointer":"default" }}
+                title={pomState==="idle"?"Click to edit time":""}>
+                {mins}:{secs}
+              </div>
+            )}
+            <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>min</div>
             <div style={{ fontSize:11, color:color, fontWeight:700, marginTop:4, letterSpacing:"2px" }}>
               {pomState==="idle"?"READY":pomState==="work"?"FOCUS":"BREAK"}
             </div>
@@ -508,23 +529,24 @@ function PomodoroTimer() {
       {/* Controls */}
       <div style={{ display:"flex", gap:8 }}>
         {pomState==="idle"?(
-          <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
+          <button onClick={()=>{ setPomSecs(customMin*60); setPomState("work"); }}
             style={{ flex:2, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
               background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
               boxShadow:`0 4px 14px ${T.accentGlow}` }}>▶ Start Focus</button>
         ):(
-          <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
+          <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(customMin*60); }}
             style={{ flex:1, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
               background:T.faint, border:`1px solid ${T.border2}`, color:T.muted }}>■ Stop</button>
         )}
-        <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); setPomCount(0); }}
+        <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(customMin*60); setPomCount(0); }}
           style={{ flex:1, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
             background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
       </div>
 
       {/* Status */}
       <div style={{ textAlign:"center", marginTop:10, fontSize:11, color:T.muted, fontStyle:"italic" }}>
-        {pomState==="work"?"Stay focused! You've got this 💪":pomState==="break"?"Take a breather ☕ You earned it!":"4 pomodoros = 1 long break"}
+        {pomState==="work"?"Stay focused! You've got this 💪":pomState==="break"?"Take a breather ☕ You earned it!":
+          <span>Tap the time to change duration <span style={{ color:T.accentLight }}>({customMin} min)</span></span>}
       </div>
     </div>
   );
