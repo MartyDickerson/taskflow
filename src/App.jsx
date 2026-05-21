@@ -786,16 +786,21 @@ export default function Dashboard() {
                 {/* Controls */}
                 <div style={{ display:"flex", gap:6, width:"100%" }}>
                   {pomState==="idle" ? (
-                    <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
-                      style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
-                        background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
-                        boxShadow:`0 0 10px ${T.accentGlow}` }}>▶ Start</button>
+                    <>
+                      <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
+                        style={{ flex:2, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
+                          background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
+                          boxShadow:`0 0 10px ${T.accentGlow}` }}>▶ Start</button>
+                      <button onClick={()=>{ setPomSecs(25*60); setPomCount(0); }}
+                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
+                          background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
+                    </>
                   ) : (
                     <>
-                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState(pomState==="work"?"idle":pomState); setPomState(s=>s==="work"?"idle":s); setPomState("idle"); setPomSecs(25*60); }}
+                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
                         style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
                           background:T.faint, border:`1px solid ${T.border2}`, color:T.muted }}>■ Stop</button>
-                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
+                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); setPomCount(0); }}
                         style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
                           background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
                     </>
