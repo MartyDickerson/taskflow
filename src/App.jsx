@@ -436,8 +436,12 @@ const CardLogo = ({ type }) => {
 
 export default function Dashboard() {
   const { w } = useWindowSize();
-  const isMd  = w < 1300;
-  const isSm  = w < 900;
+  const isXl  = w >= 1400;
+  const isLg  = w >= 1100 && w < 1400;
+  const isMd  = w >= 768  && w < 1100;
+  const isSm  = w < 768;
+  const isCompact = w < 1100;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [tasks,       setTasks]       = useState([]);
   const [goals,       setGoals]       = useState([]);
@@ -525,7 +529,7 @@ export default function Dashboard() {
   const activeCard = cards[selectedCard] || null;
 
   return (
-    <div style={{ display:"flex", height:"100vh", background:T.bg, flexWrap:"nowrap", fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
+    <div style={{ display:"flex", height:"100vh", background:T.bg, flexWrap:"nowrap", minWidth:0, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
@@ -553,7 +557,14 @@ export default function Dashboard() {
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
       {/* SIDEBAR — Reading Tracker */}
-      <div style={{ width:isSm?0:218, minWidth:isSm?0:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:isSm?"none":"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto" }}>
+      <div style={{ width:isCompact?(sidebarOpen?260:0):218, minWidth:isCompact?(sidebarOpen?260:0):218,
+          background:T.surface, borderRight:`1px solid ${T.border}`,
+          display:isCompact&&!sidebarOpen?"none":"flex",
+          flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto",
+          position:isCompact?"fixed":"relative", zIndex:isCompact?200:1,
+          top:0, left:0, height:"100vh",
+          boxShadow:isCompact&&sidebarOpen?`4px 0 20px rgba(0,0,0,0.5)`:"none",
+          transition:"width 0.25s ease" }}>
 
         {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:4 }}>
@@ -562,6 +573,7 @@ export default function Dashboard() {
           </div>
           <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px" }}>TaskFlow</span>
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
+          {isCompact&&<button onClick={()=>setSidebarOpen(false)} style={{ background:T.faint, border:"none", color:T.muted, width:24, height:24, borderRadius:6, fontSize:14, cursor:"pointer", marginLeft:4 }}>✕</button>}
         </div>
 
         {/* Reading Tracker Header */}
@@ -855,11 +867,12 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {isCompact&&sidebarOpen&&<div onClick={()=>setSidebarOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:199 }}/>}
       {/* MAIN */}
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
         {/* Header */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:isSm?"10px 14px":"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)` }}>
+        <div style={{ display:"flex", flexDirection:isSm?"column":"row", alignItems:isSm?"flex-start":"center", justifyContent:"space-between", gap:isSm?8:0, padding:isSm?"12px 16px":"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)`, position:"relative" }}>
           <div>
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
@@ -872,8 +885,10 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Hamburger menu on compact */}
+          {isCompact&&<button onClick={()=>setSidebarOpen(o=>!o)} style={{ position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", background:T.raised, border:`1px solid ${T.border2}`, color:T.muted, width:32, height:32, borderRadius:8, fontSize:16, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>☰</button>}
           {/* Daily quote */}
-          <div style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:"flex", alignItems:"center", gap:10 }}>
+          <div style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:isSm?"none":"flex", alignItems:"center", gap:10 }}>
             <div style={{ fontSize:20, flexShrink:0 }}>💬</div>
             <div>
               <div style={{ fontSize:11, color:T.text, fontStyle:"italic", lineHeight:1.5 }}>
@@ -892,10 +907,10 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:isSm?"12px 14px 24px":"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:isSm?"10px 12px 24px":isCompact?"14px 16px 28px":"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ── ROW 1: Weekly | Weather | My Cards ── */}
-          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isMd?"1fr 1fr":"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isCompact?"1fr 1fr":"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
 
             {/* Weekly Bar */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
@@ -1187,7 +1202,7 @@ export default function Dashboard() {
           </div>
 
           {/* ROW 2: Tasks | Goals | Calendar | Fitness | Finance */}
-          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isMd?"1fr 1fr":"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:isSm?"auto":380 }}>
+          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isCompact?"1fr 1fr":"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:isCompact?"auto":380 }}>
 
             {/* TO-DO */}
             <div id="section-tasks" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
