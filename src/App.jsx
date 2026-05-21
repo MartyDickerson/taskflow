@@ -488,7 +488,7 @@ function PomodoroTimer() {
           <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
             <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:42, color:T.text, lineHeight:1, letterSpacing:"2px" }}>{mins}:{secs}</div>
             <div style={{ fontSize:11, color:color, fontWeight:700, marginTop:4, letterSpacing:"2px" }}>
-              {pomState==="idle"?"READY TO FOCUS":pomState==="work"?"FOCUS TIME":"BREAK TIME"}
+              {pomState==="idle"?"READY":pomState==="work"?"FOCUS":"BREAK"}
             </div>
             {task&&pomState!=="idle"&&<div style={{ fontSize:10, color:T.muted, marginTop:4, textAlign:"center", maxWidth:120, lineHeight:1.3 }}>{task}</div>}
           </div>
@@ -1489,8 +1489,8 @@ export default function Dashboard() {
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:13 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Finance Tracker</div>
                 <div style={{ display:"flex", gap:6 }}>
-                  <label style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700, cursor:"pointer",
-                    background:"rgba(16,185,129,0.15)", border:`1px solid ${T.green}44`, color:T.green }}>
+                  <label style={{ fontSize:10, padding:"3px 8px", borderRadius:6, fontWeight:700, cursor:"pointer",
+                    background:"rgba(16,185,129,0.12)", border:`1px solid ${T.green}33`, color:T.green }}>
                     📥 Import CSV
                     <input type="file" accept=".csv" style={{ display:"none" }} onChange={async(e)=>{
                       const file = e.target.files[0];
