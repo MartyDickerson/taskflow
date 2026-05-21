@@ -758,7 +758,7 @@ export default function Dashboard() {
           const color = pomState==="break" ? T.green : T.accent;
 
           return (
-            <div style={{ padding:"12px", borderRadius:12, background:"linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))", border:`1px solid ${T.green}44` }}>
+            <div style={{ padding:"12px", borderRadius:12, background:"rgba(255,255,255,0.06)", border:`1px solid rgba(255,255,255,0.12)` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>
                   🍅 Focus Timer
