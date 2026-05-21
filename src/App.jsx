@@ -473,10 +473,10 @@ function DailyAffirmations() {
 
 function PomodoroTimer() {
   const [pomState, setPomState] = useState("idle");
-  const [pomSecs,  setPomSecs]  = useState(25*60);
+  const [pomSecs,  setPomSecs]  = useState(45*60);
   const [pomCount, setPomCount] = useState(0);
   const [task,     setTask]     = useState("");
-  const [customMin, setCustomMin] = useState(25);
+  const [customMin, setCustomMin] = useState(45);
   const [editingTime, setEditingTime] = useState(false);
   const pomRef = useRef(null);
 
