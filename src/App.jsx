@@ -890,6 +890,62 @@ export default function Dashboard() {
 
 
 
+        {/* Divider */}
+        <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
+
+        {/* Daily Affirmations */}
+        {(()=>{
+          const affirmations = [
+            "I am capable of achieving anything I set my mind to.",
+            "I grow stronger and wiser every single day.",
+            "I am focused, disciplined, and in control of my future.",
+            "My skills and knowledge are constantly expanding.",
+            "I embrace challenges as opportunities to grow.",
+            "I am building a life I am proud of, one day at a time.",
+            "I have the power to create positive change in my life.",
+            "I am resilient, resourceful, and ready for anything.",
+            "Every step I take brings me closer to my goals.",
+            "I am worthy of success and I pursue it relentlessly.",
+            "My hard work today is the foundation of my success tomorrow.",
+            "I trust the process and stay committed to my journey.",
+            "I am constantly leveling up — mentally, physically, and professionally.",
+            "I choose progress over perfection every single day.",
+          ];
+          const todayIdx = new Date().getDate() % affirmations.length;
+          const [affIdx, setAffIdx] = React.useState(todayIdx);
+
+          return (
+            <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,${T.accentDim},rgba(236,72,153,0.05))`, border:`1px solid ${T.accent}33` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>✨ Affirmation</div>
+                <div style={{ display:"flex", gap:4 }}>
+                  <button onClick={()=>setAffIdx(i=>(i-1+affirmations.length)%affirmations.length)}
+                    style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
+                  <button onClick={()=>setAffIdx(i=>(i+1)%affirmations.length)}
+                    style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
+                </div>
+              </div>
+
+              {/* Quote mark */}
+              <div style={{ fontSize:28, color:T.accent, lineHeight:0.8, marginBottom:6, fontFamily:"Georgia,serif" }}>"</div>
+
+              {/* Affirmation text */}
+              <div style={{ fontSize:12, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:10, minHeight:58 }}>
+                {affirmations[affIdx]}
+              </div>
+
+              {/* Dot indicators */}
+              <div style={{ display:"flex", justifyContent:"center", gap:4 }}>
+                {[...Array(5)].map((_,i)=>(
+                  <div key={i} style={{ width:5, height:5, borderRadius:"50%",
+                    background:i===affIdx%5?T.accentLight:T.faint,
+                    transition:"background 0.2s" }}/>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:7 }}>
