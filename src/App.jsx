@@ -851,6 +851,33 @@ export default function Dashboard() {
                         </div>
                       ))}
                     </div>
+
+                    {/* Weekly streak */}
+                    {(()=>{
+                      const streak = weekBars.filter((d,i)=>i<=todayIdx&&d.done>0).length;
+                      const streakMsg = streak===0?"Start your streak today! 💪"
+                        :streak===1?"1 day streak — great start! 🔥"
+                        :streak===2?"2 day streak — keep it up! 🔥"
+                        :streak===3?"3 day streak — you're on fire! 🔥"
+                        :streak>=4?`${streak} day streak — unstoppable! 🔥🔥`:"";
+                      return (
+                        <div style={{ marginTop:10, padding:"10px 14px", borderRadius:10,
+                          background:streak>0?`linear-gradient(135deg,rgba(124,58,237,0.15),rgba(236,72,153,0.08))`:"rgba(255,255,255,0.02)",
+                          border:`1px solid ${streak>0?T.accent+"33":T.border}`,
+                          display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:28, color:streak>0?T.accent:T.faint, lineHeight:1 }}>{streak}</div>
+                            <div>
+                              <div style={{ fontSize:11, fontWeight:700, color:streak>0?T.text:T.muted }}>Day Streak</div>
+                              <div style={{ fontSize:10, color:T.muted }}>This week</div>
+                            </div>
+                          </div>
+                          <div style={{ fontSize:11, color:streak>0?T.accentLight:T.muted, fontStyle:"italic", textAlign:"right", maxWidth:160 }}>
+                            {streakMsg}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })()}
