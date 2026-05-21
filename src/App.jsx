@@ -428,7 +428,100 @@ const CardLogo = ({ type }) => {
 
 function DailyBibleChapter() {
   const chapters = [
-    { ref:"Psalm 1",        title:"The Way of the Righteous",     verse:"Blessed is the one who does not walk in step with the wicked..." },
+    { ref:"Proverbs 1",   title:"The Beginning of Wisdom",          verse:"The fear of the Lord is the beginning of knowledge, but fools despise wisdom and instruction..." },
+    { ref:"Proverbs 2",   title:"Moral Benefits of Wisdom",         verse:"For the Lord gives wisdom; from his mouth come knowledge and understanding..." },
+    { ref:"Proverbs 3",   title:"Trust in the Lord",                verse:"Trust in the Lord with all your heart and lean not on your own understanding..." },
+    { ref:"Proverbs 4",   title:"Get Wisdom at Any Cost",           verse:"The beginning of wisdom is this: Get wisdom. Though it cost all you have, get understanding..." },
+    { ref:"Proverbs 5",   title:"Warning Against Adultery",         verse:"For your ways are in full view of the Lord, and he examines all your paths..." },
+    { ref:"Proverbs 6",   title:"Warnings Against Folly",           verse:"Go to the ant, you sluggard; consider its ways and be wise..." },
+    { ref:"Proverbs 7",   title:"Warning Against the Adulterous",   verse:"Keep my commands and you will live; guard my teachings as the apple of your eye..." },
+    { ref:"Proverbs 8",   title:"Wisdom's Call",                    verse:"Does not wisdom call out? Does not understanding raise her voice?..." },
+    { ref:"Proverbs 9",   title:"Invitations of Wisdom and Folly",  verse:"Wisdom has built her house; she has set up its seven pillars..." },
+    { ref:"Proverbs 10",  title:"Proverbs of Solomon",              verse:"A wise son brings joy to his father, but a foolish son grief to his mother..." },
+    { ref:"Proverbs 11",  title:"Righteousness and Wickedness",     verse:"Whoever trusts in their riches will fall, but the righteous will thrive like a green leaf..." },
+    { ref:"Proverbs 12",  title:"The Value of Righteousness",       verse:"The way of fools seems right to them, but the wise listen to advice..." },
+    { ref:"Proverbs 13",  title:"A Wise Son Heeds Instruction",     verse:"Walk with the wise and become wise, for a companion of fools suffers harm..." },
+    { ref:"Proverbs 14",  title:"The Wise Woman Builds",            verse:"There is a way that appears to be right, but in the end it leads to death..." },
+    { ref:"Proverbs 15",  title:"A Gentle Answer",                  verse:"A gentle answer turns away wrath, but a harsh word stirs up anger..." },
+    { ref:"Proverbs 16",  title:"To Humans Belong Plans",           verse:"Commit to the Lord whatever you do, and he will establish your plans..." },
+    { ref:"Proverbs 17",  title:"Better a Dry Crust",               verse:"A friend loves at all times, and a brother is born for a time of adversity..." },
+    { ref:"Proverbs 18",  title:"An Unfriendly Person",             verse:"The name of the Lord is a fortified tower; the righteous run to it and are safe..." },
+    { ref:"Proverbs 19",  title:"Better the Poor",                  verse:"Many are the plans in a person's heart, but it is the Lord's purpose that prevails..." },
+    { ref:"Proverbs 20",  title:"Wine is a Mocker",                 verse:"The glory of young men is their strength, gray hair the splendor of the old..." },
+    { ref:"Proverbs 21",  title:"The King's Heart",                 verse:"All a person's ways seem pure to them, but motives are weighed by the Lord..." },
+    { ref:"Proverbs 22",  title:"A Good Name",                      verse:"A good name is more desirable than great riches; to be esteemed is better than silver or gold..." },
+    { ref:"Proverbs 23",  title:"Sayings of the Wise",              verse:"Do not wear yourself out to get rich; do not trust your own cleverness..." },
+    { ref:"Proverbs 24",  title:"Further Sayings of the Wise",      verse:"Do not say, I'll do to them as they have done to me; I'll pay them back for what they did..." },
+    { ref:"Proverbs 25",  title:"More Proverbs of Solomon",         verse:"If your enemy is hungry, give him food to eat; if he is thirsty, give him water to drink..." },
+    { ref:"Proverbs 26",  title:"Honor Not Fitting for a Fool",     verse:"As iron sharpens iron, so one person sharpens another..." },
+    { ref:"Proverbs 27",  title:"Do Not Boast About Tomorrow",      verse:"As iron sharpens iron, so one person sharpens another..." },
+    { ref:"Proverbs 28",  title:"The Wicked Flee",                  verse:"The righteous are as bold as a lion. Whoever conceals their sins does not prosper..." },
+    { ref:"Proverbs 29",  title:"Whoever Remains Stiff-Necked",     verse:"Where there is no revelation, people cast off restraint; but blessed is the one who heeds wisdom's instruction..." },
+    { ref:"Proverbs 30",  title:"The Sayings of Agur",              verse:"Every word of God is flawless; he is a shield to those who take refuge in him..." },
+    { ref:"Proverbs 31",  title:"The Virtuous Wife",                verse:"Charm is deceptive, and beauty is fleeting; but a woman who fears the Lord is to be praised..." },
+    { ref:"Job 1",        title:"Job's Character and Wealth",       verse:"In the land of Uz there lived a man whose name was Job. This man was blameless and upright..." },
+    { ref:"Job 2",        title:"Job's Further Testing",            verse:"The Lord said to Satan, Have you considered my servant Job? There is no one on earth like him..." },
+    { ref:"Job 3",        title:"Job Speaks",                       verse:"After this, Job opened his mouth and cursed the day of his birth..." },
+    { ref:"Job 4",        title:"Eliphaz Speaks",                   verse:"Consider now: Who, being innocent, has ever perished? Where were the upright ever destroyed?..." },
+    { ref:"Job 8",        title:"Bildad Speaks",                    verse:"Does God pervert justice? Does the Almighty pervert what is right?..." },
+    { ref:"Job 11",       title:"Zophar Speaks",                    verse:"Can you fathom the mysteries of God? Can you probe the limits of the Almighty?..." },
+    { ref:"Job 19",       title:"Job's Reply — I Know My Redeemer", verse:"I know that my redeemer lives, and that in the end he will stand on the earth..." },
+    { ref:"Job 23",       title:"Job's Reply — Where is God?",      verse:"If only I knew where to find him; if only I could go to his dwelling!..." },
+    { ref:"Job 28",       title:"Where Can Wisdom Be Found?",       verse:"The fear of the Lord — that is wisdom, and to shun evil is understanding..." },
+    { ref:"Job 38",       title:"The Lord Speaks",                  verse:"Where were you when I laid the earth's foundation? Tell me, if you understand..." },
+    { ref:"Job 40",       title:"The Lord Challenges Job",          verse:"Will the one who contends with the Almighty correct him? Let him who accuses God answer him!..." },
+    { ref:"Job 42",       title:"Job's Restoration",                verse:"The Lord blessed the latter part of Job's life more than the former part..." },
+  ];
+
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  const todayChapter = chapters[dayOfYear % chapters.length];
+  const [viewing, setViewing] = useState(todayChapter);
+  const [idx, setIdx] = useState(dayOfYear % chapters.length);
+
+  const navigate = (dir) => {
+    const newIdx = (idx + dir + chapters.length) % chapters.length;
+    setIdx(newIdx);
+    setViewing(chapters[newIdx]);
+  };
+
+  const isToday = idx === dayOfYear % chapters.length;
+
+  return (
+    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,rgba(15,23,42,0.9),rgba(30,27,75,0.6))`, border:`1px solid ${T.accent}44` }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📖 Daily Reading</div>
+        <div style={{ display:"flex", gap:4 }}>
+          <button onClick={()=>navigate(-1)}
+            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
+          <button onClick={()=>{ setIdx(dayOfYear % chapters.length); setViewing(todayChapter); }}
+            style={{ background:isToday?T.accentDim:T.faint, border:`1px solid ${isToday?T.accent:T.border2}`, color:isToday?T.accentLight:T.muted, padding:"0 5px", height:20, borderRadius:5, fontSize:8, cursor:"pointer", fontWeight:700 }}>TODAY</button>
+          <button onClick={()=>navigate(1)}
+            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
+        </div>
+      </div>
+      <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"3px 10px", borderRadius:20,
+        background:T.accentDim, border:`1px solid ${T.accent}44`, marginBottom:8 }}>
+        <span style={{ fontSize:11, fontWeight:800, color:T.accentLight }}>{viewing.ref}</span>
+        {isToday&&<span style={{ fontSize:8, color:T.green, fontWeight:700 }}>● TODAY</span>}
+      </div>
+      <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:6 }}>{viewing.title}</div>
+      <div style={{ fontSize:11, color:T.muted, lineHeight:1.6, fontStyle:"italic", marginBottom:10 }}>
+        "{viewing.verse}"
+      </div>
+      <a href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(viewing.ref)}&version=NIV`}
+        target="_blank" rel="noopener noreferrer"
+        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6,
+          padding:"7px", borderRadius:8, width:"100%",
+          background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+          color:"white", fontSize:11, fontWeight:700, textDecoration:"none",
+          boxShadow:`0 4px 12px ${T.accentGlow}` }}>
+        📖 Read {viewing.ref} (NIV)
+      </a>
+    </div>
+  );
+}
+
+
     { ref:"Proverbs 3",     title:"Trust in the Lord",             verse:"Trust in the Lord with all your heart and lean not on your own understanding..." },
     { ref:"Joshua 1",       title:"Be Strong and Courageous",      verse:"Be strong and courageous. Do not be afraid; do not be discouraged..." },
     { ref:"Romans 8",       title:"Life Through the Spirit",       verse:"There is now no condemnation for those who are in Christ Jesus..." },
@@ -458,65 +551,7 @@ function DailyBibleChapter() {
     { ref:"John 14",        title:"Jesus Comforts His Disciples",  verse:"Do not let your hearts be troubled. You believe in God; believe also in me..." },
     { ref:"Galatians 5",    title:"Life by the Spirit",            verse:"The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness..." },
     { ref:"Psalm 37",       title:"Do Not Fret",                   verse:"Trust in the Lord and do good; dwell in the land and enjoy safe pasture. Delight yourself in the Lord..." },
-    { ref:"Lamentations 3", title:"Great is His Faithfulness",     verse:"Because of the Lord's great love we are not consumed, for his compassions never fail..." },
-  ];
 
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
-  const todayChapter = chapters[dayOfYear % chapters.length];
-  const [viewing, setViewing] = useState(todayChapter);
-  const [idx, setIdx] = useState(dayOfYear % chapters.length);
-
-  const navigate = (dir) => {
-    const newIdx = (idx + dir + chapters.length) % chapters.length;
-    setIdx(newIdx);
-    setViewing(chapters[newIdx]);
-  };
-
-  const isToday = viewing.ref === todayChapter.ref;
-
-  return (
-    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,rgba(15,23,42,0.9),rgba(30,27,75,0.6))`, border:`1px solid ${T.accent}44` }}>
-      {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📖 Daily Reading</div>
-        <div style={{ display:"flex", gap:4 }}>
-          <button onClick={()=>navigate(-1)}
-            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
-          <button onClick={()=>{ setIdx(dayOfYear % chapters.length); setViewing(todayChapter); }}
-            style={{ background:isToday?T.accentDim:T.faint, border:`1px solid ${isToday?T.accent:T.border2}`, color:isToday?T.accentLight:T.muted, padding:"0 5px", height:20, borderRadius:5, fontSize:8, cursor:"pointer", fontWeight:700 }}>TODAY</button>
-          <button onClick={()=>navigate(1)}
-            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
-        </div>
-      </div>
-
-      {/* Chapter reference badge */}
-      <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"3px 10px", borderRadius:20,
-        background:T.accentDim, border:`1px solid ${T.accent}44`, marginBottom:8 }}>
-        <span style={{ fontSize:11, fontWeight:800, color:T.accentLight }}>{viewing.ref}</span>
-        {isToday&&<span style={{ fontSize:8, color:T.green, fontWeight:700 }}>● TODAY</span>}
-      </div>
-
-      {/* Chapter title */}
-      <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:6 }}>{viewing.title}</div>
-
-      {/* Verse preview */}
-      <div style={{ fontSize:11, color:T.muted, lineHeight:1.6, fontStyle:"italic", marginBottom:10 }}>
-        "{viewing.verse}"
-      </div>
-
-      {/* Read button */}
-      <a href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(viewing.ref)}&version=NIV`}
-        target="_blank" rel="noopener noreferrer"
-        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6,
-          padding:"7px", borderRadius:8, width:"100%",
-          background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-          color:"white", fontSize:11, fontWeight:700, textDecoration:"none",
-          boxShadow:`0 4px 12px ${T.accentGlow}` }}>
-        📖 Read {viewing.ref} (NIV)
-      </a>
-    </div>
-  );
-}
 
 function PomodoroTimer() {
   const [pomState, setPomState] = useState("idle");
