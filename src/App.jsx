@@ -426,47 +426,94 @@ const CardLogo = ({ type }) => {
 
 
 
-function DailyAffirmations() {
-  const affirmations = [
-    "I am capable of achieving anything I set my mind to.",
-    "I grow stronger and wiser every single day.",
-    "I am focused, disciplined, and in control of my future.",
-    "My skills and knowledge are constantly expanding.",
-    "I embrace challenges as opportunities to grow.",
-    "I am building a life I am proud of, one day at a time.",
-    "I have the power to create positive change in my life.",
-    "I am resilient, resourceful, and ready for anything.",
-    "Every step I take brings me closer to my goals.",
-    "I am worthy of success and I pursue it relentlessly.",
-    "My hard work today is the foundation of my success tomorrow.",
-    "I trust the process and stay committed to my journey.",
-    "I am constantly leveling up — mentally, physically, and professionally.",
-    "I choose progress over perfection every single day.",
+function DailyBibleChapter() {
+  const chapters = [
+    { ref:"Psalm 1",        title:"The Way of the Righteous",     verse:"Blessed is the one who does not walk in step with the wicked..." },
+    { ref:"Proverbs 3",     title:"Trust in the Lord",             verse:"Trust in the Lord with all your heart and lean not on your own understanding..." },
+    { ref:"Joshua 1",       title:"Be Strong and Courageous",      verse:"Be strong and courageous. Do not be afraid; do not be discouraged..." },
+    { ref:"Romans 8",       title:"Life Through the Spirit",       verse:"There is now no condemnation for those who are in Christ Jesus..." },
+    { ref:"Philippians 4",  title:"Peace and Contentment",         verse:"I can do all this through him who gives me strength..." },
+    { ref:"Isaiah 40",      title:"Comfort for God's People",      verse:"Those who hope in the Lord will renew their strength..." },
+    { ref:"Matthew 6",      title:"Seek First His Kingdom",        verse:"Seek first his kingdom and his righteousness, and all these things will be given to you..." },
+    { ref:"Psalm 23",       title:"The Lord is My Shepherd",       verse:"The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures..." },
+    { ref:"2 Timothy 1",    title:"Guard the Good Deposit",        verse:"For God has not given us a spirit of fear, but of power, love and self-discipline..." },
+    { ref:"Jeremiah 29",    title:"Plans to Give You Hope",        verse:"For I know the plans I have for you, declares the Lord, plans to prosper you..." },
+    { ref:"Psalm 91",       title:"Dwelling in the Shelter",       verse:"Whoever dwells in the shelter of the Most High will rest in the shadow of the Almighty..." },
+    { ref:"John 15",        title:"The Vine and the Branches",     verse:"I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit..." },
+    { ref:"Ephesians 6",    title:"The Armor of God",              verse:"Finally, be strong in the Lord and in his mighty power. Put on the full armor of God..." },
+    { ref:"Proverbs 31",    title:"The Virtuous Life",             verse:"Speak up for those who cannot speak for themselves, for the rights of all who are destitute..." },
+    { ref:"Romans 12",      title:"A Living Sacrifice",            verse:"Do not conform to the pattern of this world, but be transformed by the renewing of your mind..." },
+    { ref:"Psalm 46",       title:"God is Our Refuge",             verse:"God is our refuge and strength, an ever-present help in trouble..." },
+    { ref:"1 Corinthians 13", title:"The Way of Love",             verse:"Love is patient, love is kind. It does not envy, it does not boast, it is not proud..." },
+    { ref:"Deuteronomy 31", title:"Be Strong and Courageous",      verse:"The Lord himself goes before you and will be with you; he will never leave you nor forsake you..." },
+    { ref:"Psalm 27",       title:"The Lord is My Light",          verse:"The Lord is my light and my salvation — whom shall I fear? The Lord is the stronghold of my life..." },
+    { ref:"Hebrews 11",     title:"Faith in Action",               verse:"Now faith is confidence in what we hope for and assurance about what we do not see..." },
+    { ref:"James 1",        title:"Trials and Temptations",        verse:"Consider it pure joy whenever you face trials of many kinds, because the testing of your faith produces perseverance..." },
+    { ref:"Psalm 119:1-24", title:"Walking in God's Word",         verse:"Blessed are those whose ways are blameless, who walk according to the law of the Lord..." },
+    { ref:"Matthew 5",      title:"The Beatitudes",                verse:"Blessed are the poor in spirit, for theirs is the kingdom of heaven..." },
+    { ref:"Colossians 3",   title:"Rules for Holy Living",         verse:"Set your minds on things above, not on earthly things..." },
+    { ref:"Isaiah 41",      title:"Do Not Fear",                   verse:"So do not fear, for I am with you; do not be dismayed, for I am your God..." },
+    { ref:"Proverbs 4",     title:"Get Wisdom",                    verse:"The beginning of wisdom is this: Get wisdom. Though it cost all you have, get understanding..." },
+    { ref:"Psalm 34",       title:"Taste and See",                 verse:"Taste and see that the Lord is good; blessed is the one who takes refuge in him..." },
+    { ref:"John 14",        title:"Jesus Comforts His Disciples",  verse:"Do not let your hearts be troubled. You believe in God; believe also in me..." },
+    { ref:"Galatians 5",    title:"Life by the Spirit",            verse:"The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness..." },
+    { ref:"Psalm 37",       title:"Do Not Fret",                   verse:"Trust in the Lord and do good; dwell in the land and enjoy safe pasture. Delight yourself in the Lord..." },
+    { ref:"Lamentations 3", title:"Great is His Faithfulness",     verse:"Because of the Lord's great love we are not consumed, for his compassions never fail..." },
   ];
-  const todayIdx = new Date().getDate() % affirmations.length;
-  const [affIdx, setAffIdx] = useState(todayIdx);
+
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  const todayChapter = chapters[dayOfYear % chapters.length];
+  const [viewing, setViewing] = useState(todayChapter);
+  const [idx, setIdx] = useState(dayOfYear % chapters.length);
+
+  const navigate = (dir) => {
+    const newIdx = (idx + dir + chapters.length) % chapters.length;
+    setIdx(newIdx);
+    setViewing(chapters[newIdx]);
+  };
+
+  const isToday = viewing.ref === todayChapter.ref;
 
   return (
-    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,${T.accentDim},rgba(236,72,153,0.05))`, border:`1px solid ${T.accent}33` }}>
+    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,rgba(15,23,42,0.9),rgba(30,27,75,0.6))`, border:`1px solid ${T.accent}44` }}>
+      {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>✨ Affirmation</div>
+        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📖 Daily Reading</div>
         <div style={{ display:"flex", gap:4 }}>
-          <button onClick={()=>setAffIdx(i=>(i-1+affirmations.length)%affirmations.length)}
+          <button onClick={()=>navigate(-1)}
             style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
-          <button onClick={()=>setAffIdx(i=>(i+1)%affirmations.length)}
+          <button onClick={()=>{ setIdx(dayOfYear % chapters.length); setViewing(todayChapter); }}
+            style={{ background:isToday?T.accentDim:T.faint, border:`1px solid ${isToday?T.accent:T.border2}`, color:isToday?T.accentLight:T.muted, padding:"0 5px", height:20, borderRadius:5, fontSize:8, cursor:"pointer", fontWeight:700 }}>TODAY</button>
+          <button onClick={()=>navigate(1)}
             style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
         </div>
       </div>
-      <div style={{ fontSize:28, color:T.accent, lineHeight:0.8, marginBottom:6, fontFamily:"Georgia,serif" }}>"</div>
-      <div style={{ fontSize:12, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:10, minHeight:58 }}>
-        {affirmations[affIdx]}
+
+      {/* Chapter reference badge */}
+      <div style={{ display:"inline-flex", alignItems:"center", gap:6, padding:"3px 10px", borderRadius:20,
+        background:T.accentDim, border:`1px solid ${T.accent}44`, marginBottom:8 }}>
+        <span style={{ fontSize:11, fontWeight:800, color:T.accentLight }}>{viewing.ref}</span>
+        {isToday&&<span style={{ fontSize:8, color:T.green, fontWeight:700 }}>● TODAY</span>}
       </div>
-      <div style={{ display:"flex", justifyContent:"center", gap:4 }}>
-        {[...Array(5)].map((_,i)=>(
-          <div key={i} style={{ width:5, height:5, borderRadius:"50%",
-            background:i===affIdx%5?T.accentLight:T.faint, transition:"background 0.2s" }}/>
-        ))}
+
+      {/* Chapter title */}
+      <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:6 }}>{viewing.title}</div>
+
+      {/* Verse preview */}
+      <div style={{ fontSize:11, color:T.muted, lineHeight:1.6, fontStyle:"italic", marginBottom:10 }}>
+        "{viewing.verse}"
       </div>
+
+      {/* Read button */}
+      <a href={`https://www.biblegateway.com/passage/?search=${encodeURIComponent(viewing.ref)}&version=NIV`}
+        target="_blank" rel="noopener noreferrer"
+        style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6,
+          padding:"7px", borderRadius:8, width:"100%",
+          background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+          color:"white", fontSize:11, fontWeight:700, textDecoration:"none",
+          boxShadow:`0 4px 12px ${T.accentGlow}` }}>
+        📖 Read {viewing.ref} (NIV)
+      </a>
     </div>
   );
 }
@@ -942,7 +989,7 @@ export default function Dashboard() {
         <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
 
         {/* Daily Affirmations */}
-        <DailyAffirmations />
+        <DailyBibleChapter />
 
 
         {/* Profile */}
