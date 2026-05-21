@@ -720,6 +720,9 @@ export default function Dashboard() {
         </div>
 
 
+        {/* Divider */}
+        <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
+
         {/* Pomodoro Timer */}
         {(()=>{
           const [pomState, setPomState] = React.useState("idle"); // idle | work | break
