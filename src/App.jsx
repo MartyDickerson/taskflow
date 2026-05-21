@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
@@ -717,6 +718,102 @@ export default function Dashboard() {
             );
           })}
         </div>
+
+
+        {/* Pomodoro Timer */}
+        {(()=>{
+          const [pomState, setPomState] = React.useState("idle"); // idle | work | break
+          const [pomSecs,  setPomSecs]  = React.useState(25*60);
+          const [pomCount, setPomCount] = React.useState(0);
+          const pomRef = React.useRef(null);
+
+          React.useEffect(()=>{
+            if(pomState==="idle") return;
+            pomRef.current = setInterval(()=>{
+              setPomSecs(s=>{
+                if(s<=1){
+                  clearInterval(pomRef.current);
+                  if(pomState==="work"){
+                    setPomCount(c=>c+1);
+                    setPomState("break");
+                    return 5*60;
+                  } else {
+                    setPomState("idle");
+                    return 25*60;
+                  }
+                }
+                return s-1;
+              });
+            },1000);
+            return ()=>clearInterval(pomRef.current);
+          },[pomState]);
+
+          const mins = String(Math.floor(pomSecs/60)).padStart(2,"0");
+          const secs = String(pomSecs%60).padStart(2,"0");
+          const pct  = pomState==="work" ? ((25*60-pomSecs)/(25*60))*100
+                     : pomState==="break" ? ((5*60-pomSecs)/(5*60))*100 : 0;
+          const color = pomState==="break" ? T.green : T.accent;
+
+          return (
+            <div style={{ padding:"12px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>
+                  🍅 Focus Timer
+                </div>
+                {pomCount>0&&<div style={{ fontSize:10, color:T.accentLight, fontWeight:700 }}>🔥 {pomCount} done</div>}
+              </div>
+
+              {/* Circular timer */}
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+                <div style={{ position:"relative", width:90, height:90 }}>
+                  <svg width={90} height={90} style={{ transform:"rotate(-90deg)" }}>
+                    <circle cx={45} cy={45} r={38} fill="none" stroke={T.faint} strokeWidth={6}/>
+                    <circle cx={45} cy={45} r={38} fill="none" stroke={color} strokeWidth={6}
+                      strokeDasharray={`${(pct/100)*(2*Math.PI*38)} ${2*Math.PI*38}`}
+                      strokeLinecap="round" style={{ transition:"stroke-dasharray 1s linear" }}/>
+                  </svg>
+                  <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+                    <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:T.text, lineHeight:1 }}>{mins}:{secs}</div>
+                    <div style={{ fontSize:8, color:color, fontWeight:600, marginTop:1 }}>
+                      {pomState==="idle"?"READY":pomState==="work"?"FOCUS":"BREAK"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Controls */}
+                <div style={{ display:"flex", gap:6, width:"100%" }}>
+                  {pomState==="idle" ? (
+                    <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
+                      style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
+                        background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
+                        boxShadow:`0 0 10px ${T.accentGlow}` }}>▶ Start</button>
+                  ) : (
+                    <>
+                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState(pomState==="work"?"idle":pomState); setPomState(s=>s==="work"?"idle":s); setPomState("idle"); setPomSecs(25*60); }}
+                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
+                          background:T.faint, border:`1px solid ${T.border2}`, color:T.muted }}>■ Stop</button>
+                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
+                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
+                          background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
+                    </>
+                  )}
+                </div>
+
+                {/* Session dots */}
+                <div style={{ display:"flex", gap:5 }}>
+                  {[...Array(4)].map((_,i)=>(
+                    <div key={i} style={{ width:8, height:8, borderRadius:"50%",
+                      background: i<pomCount%4 ? T.accent : T.faint,
+                      boxShadow: i<pomCount%4 ? `0 0 6px ${T.accentGlow}` : "none" }} />
+                  ))}
+                </div>
+                <div style={{ fontSize:9, color:T.muted }}>
+                  {pomState==="work"?"Stay focused!":pomState==="break"?"Take a breather ☕":"4 sessions = long break"}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
