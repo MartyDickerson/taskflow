@@ -434,6 +434,102 @@ const CardLogo = ({ type }) => {
   );
 };
 
+
+function PomodoroTimer() {
+  const [pomState, setPomState] = useState("idle");
+  const [pomSecs,  setPomSecs]  = useState(25*60);
+  const [pomCount, setPomCount] = useState(0);
+  const [task,     setTask]     = useState("");
+  const pomRef = useRef(null);
+
+  useEffect(()=>{
+    if(pomState==="idle") return;
+    pomRef.current = setInterval(()=>{
+      setPomSecs(s=>{
+        if(s<=1){
+          clearInterval(pomRef.current);
+          if(pomState==="work"){ setPomCount(c=>c+1); setPomState("break"); return 5*60; }
+          else { setPomState("idle"); return 25*60; }
+        }
+        return s-1;
+      });
+    },1000);
+    return ()=>clearInterval(pomRef.current);
+  },[pomState]);
+
+  const mins  = String(Math.floor(pomSecs/60)).padStart(2,"0");
+  const secs  = String(pomSecs%60).padStart(2,"0");
+  const total = pomState==="work"?25*60:5*60;
+  const pct   = pomState==="idle"?0:((total-pomSecs)/total)*100;
+  const color = pomState==="break"?T.green:T.accent;
+  const SIZE  = 160; const R = 68; const C = SIZE/2; const CIRC = 2*Math.PI*R;
+
+  return (
+    <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"18px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}`, display:"flex", flexDirection:"column", height:"100%" }}>
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🍅 Focus Timer</div>
+        {pomCount>0&&<div style={{ fontSize:11, color:T.accentLight, fontWeight:700 }}>🔥 {pomCount} session{pomCount!==1?"s":""}</div>}
+      </div>
+
+      {/* Task input */}
+      <input value={task} onChange={e=>setTask(e.target.value)} placeholder="What are you working on?"
+        style={{ background:T.raised, border:`1px solid ${T.border2}`, borderRadius:8, padding:"8px 12px", color:T.text, fontSize:12, marginBottom:16, width:"100%" }} />
+
+      {/* Big donut */}
+      <div style={{ display:"flex", justifyContent:"center", marginBottom:16 }}>
+        <div style={{ position:"relative", width:SIZE, height:SIZE }}>
+          <svg width={SIZE} height={SIZE} style={{ transform:"rotate(-90deg)" }}>
+            <circle cx={C} cy={C} r={R} fill="none" stroke={T.faint} strokeWidth={10}/>
+            <circle cx={C} cy={C} r={R} fill="none" stroke={color} strokeWidth={10}
+              strokeDasharray={`${(pct/100)*CIRC} ${CIRC}`}
+              strokeLinecap="round" style={{ transition:"stroke-dasharray 1s linear", filter:`drop-shadow(0 0 8px ${color})` }}/>
+          </svg>
+          <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:42, color:T.text, lineHeight:1, letterSpacing:"2px" }}>{mins}:{secs}</div>
+            <div style={{ fontSize:11, color:color, fontWeight:700, marginTop:4, letterSpacing:"2px" }}>
+              {pomState==="idle"?"READY TO FOCUS":pomState==="work"?"FOCUS TIME":"BREAK TIME"}
+            </div>
+            {task&&pomState!=="idle"&&<div style={{ fontSize:10, color:T.muted, marginTop:4, textAlign:"center", maxWidth:120, lineHeight:1.3 }}>{task}</div>}
+          </div>
+        </div>
+      </div>
+
+      {/* Session dots */}
+      <div style={{ display:"flex", justifyContent:"center", gap:8, marginBottom:16 }}>
+        {[...Array(4)].map((_,i)=>(
+          <div key={i} style={{ width:10, height:10, borderRadius:"50%",
+            background:i<pomCount%4?color:T.faint,
+            boxShadow:i<pomCount%4?`0 0 8px ${color}88`:"none",
+            transition:"all 0.3s" }}/>
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div style={{ display:"flex", gap:8 }}>
+        {pomState==="idle"?(
+          <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
+            style={{ flex:2, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
+              background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
+              boxShadow:`0 4px 14px ${T.accentGlow}` }}>▶ Start Focus</button>
+        ):(
+          <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
+            style={{ flex:1, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
+              background:T.faint, border:`1px solid ${T.border2}`, color:T.muted }}>■ Stop</button>
+        )}
+        <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); setPomCount(0); }}
+          style={{ flex:1, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
+            background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
+      </div>
+
+      {/* Status */}
+      <div style={{ textAlign:"center", marginTop:10, fontSize:11, color:T.muted, fontStyle:"italic" }}>
+        {pomState==="work"?"Stay focused! You've got this 💪":pomState==="break"?"Take a breather ☕ You earned it!":"4 pomodoros = 1 long break"}
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { w } = useWindowSize();
   const isXl  = w >= 1400;
@@ -548,7 +644,7 @@ export default function Dashboard() {
         .tf-sidebar{width:218px;flex-shrink:0;transition:transform 0.25s ease,width 0.25s ease}
         .tf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
         .tf-content{flex:1;overflow-y:auto;padding:18px 22px 32px}
-        .tf-row1{display:grid;grid-template-columns:1fr 1fr 280px;gap:14px;align-items:stretch}
+        .tf-row1{display:grid;grid-template-columns:1fr 220px 1fr 280px;gap:14px;align-items:stretch}
         .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px}
         .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
@@ -770,109 +866,6 @@ export default function Dashboard() {
         </div>
 
 
-        {/* Divider */}
-        <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
-
-        {/* Pomodoro Timer */}
-        {(()=>{
-          const [pomState, setPomState] = React.useState("idle"); // idle | work | break
-          const [pomSecs,  setPomSecs]  = React.useState(25*60);
-          const [pomCount, setPomCount] = React.useState(0);
-          const pomRef = React.useRef(null);
-
-          React.useEffect(()=>{
-            if(pomState==="idle") return;
-            pomRef.current = setInterval(()=>{
-              setPomSecs(s=>{
-                if(s<=1){
-                  clearInterval(pomRef.current);
-                  if(pomState==="work"){
-                    setPomCount(c=>c+1);
-                    setPomState("break");
-                    return 5*60;
-                  } else {
-                    setPomState("idle");
-                    return 25*60;
-                  }
-                }
-                return s-1;
-              });
-            },1000);
-            return ()=>clearInterval(pomRef.current);
-          },[pomState]);
-
-          const mins = String(Math.floor(pomSecs/60)).padStart(2,"0");
-          const secs = String(pomSecs%60).padStart(2,"0");
-          const pct  = pomState==="work" ? ((25*60-pomSecs)/(25*60))*100
-                     : pomState==="break" ? ((5*60-pomSecs)/(5*60))*100 : 0;
-          const color = pomState==="break" ? T.green : T.accent;
-
-          return (
-            <div style={{ padding:"12px", borderRadius:12, background:"rgba(255,255,255,0.06)", border:`1px solid rgba(255,255,255,0.12)` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>
-                  🍅 Focus Timer
-                </div>
-                {pomCount>0&&<div style={{ fontSize:10, color:T.accentLight, fontWeight:700 }}>🔥 {pomCount} done</div>}
-              </div>
-
-              {/* Circular timer */}
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
-                <div style={{ position:"relative", width:90, height:90 }}>
-                  <svg width={90} height={90} style={{ transform:"rotate(-90deg)" }}>
-                    <circle cx={45} cy={45} r={38} fill="none" stroke={T.faint} strokeWidth={6}/>
-                    <circle cx={45} cy={45} r={38} fill="none" stroke={color} strokeWidth={6}
-                      strokeDasharray={`${(pct/100)*(2*Math.PI*38)} ${2*Math.PI*38}`}
-                      strokeLinecap="round" style={{ transition:"stroke-dasharray 1s linear" }}/>
-                  </svg>
-                  <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-                    <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:T.text, lineHeight:1 }}>{mins}:{secs}</div>
-                    <div style={{ fontSize:8, color:color, fontWeight:600, marginTop:1 }}>
-                      {pomState==="idle"?"READY":pomState==="work"?"FOCUS":"BREAK"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Controls */}
-                <div style={{ display:"flex", gap:6, width:"100%" }}>
-                  {pomState==="idle" ? (
-                    <>
-                      <button onClick={()=>{ setPomSecs(25*60); setPomState("work"); }}
-                        style={{ flex:2, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
-                          background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
-                          boxShadow:`0 0 10px ${T.accentGlow}` }}>▶ Start</button>
-                      <button onClick={()=>{ setPomSecs(25*60); setPomCount(0); }}
-                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
-                          background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); }}
-                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
-                          background:T.faint, border:`1px solid ${T.border2}`, color:T.muted }}>■ Stop</button>
-                      <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(25*60); setPomCount(0); }}
-                        style={{ flex:1, padding:"7px", borderRadius:8, fontWeight:700, fontSize:11,
-                          background:T.raised, border:`1px solid ${T.border2}`, color:T.muted }}>↺ Reset</button>
-                    </>
-                  )}
-                </div>
-
-                {/* Session dots */}
-                <div style={{ display:"flex", gap:5 }}>
-                  {[...Array(4)].map((_,i)=>(
-                    <div key={i} style={{ width:8, height:8, borderRadius:"50%",
-                      background: i<pomCount%4 ? T.accent : T.faint,
-                      boxShadow: i<pomCount%4 ? `0 0 6px ${T.accentGlow}` : "none" }} />
-                  ))}
-                </div>
-                <div style={{ fontSize:9, color:T.muted }}>
-                  {pomState==="work"?"Stay focused!":pomState==="break"?"Take a breather ☕":"4 sessions = long break"}
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:9, marginBottom:7 }}>
@@ -1040,6 +1033,9 @@ export default function Dashboard() {
                 );
               })()}
             </div>
+
+            {/* Focus Timer */}
+            <PomodoroTimer />
 
             {/* Weather */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
