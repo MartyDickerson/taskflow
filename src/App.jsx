@@ -458,19 +458,19 @@ export default function Dashboard() {
 
   const loadAll = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
-    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f },{ data:bks },{ data:fgoals }] = await Promise.all([
+    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f },{ data:bks }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
       supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
       supabase.from("cards").select("*").order("created_at",{ascending:true}),
       supabase.from("fitness").select("*").eq("log_date",today).single(),
       supabase.from("books").select("*").order("created_at",{ascending:false}),
-      supabase.from("settings").select("value").eq("key","fitness_goals").single(),
     ]);
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
     setFitnessLog(f || { steps:0, calories:0, water_oz:0, workouts:0, sleep_hrs:0, weight:0, tea_cups:0 });
     setBooks(bks||[]);
-    if(fgoals?.value){ try{ setFitnessGoals(JSON.parse(fgoals.value)); }catch(e){} }
+    // Load fitness goals from localStorage
+    try{ const saved=localStorage.getItem("taskflow_fitness_goals"); if(saved) setFitnessGoals(JSON.parse(saved)); }catch(e){}
     setLoading({ tasks:false, goals:false, txns:false, cards:false });
   }, []);
 
@@ -1245,7 +1245,7 @@ export default function Dashboard() {
                                   {editingGoal===m.key ? (
                                     <input type="number" defaultValue={m.max} autoFocus
                                       onBlur={e=>{ const v=parseInt(e.target.value)||m.max; const updated={...fitnessGoals,[m.key]:v}; setFitnessGoals(updated); setEditingGoal(null);
-                                        supabase.from("settings").upsert({key:"fitness_goals",value:JSON.stringify(updated),updated_at:new Date().toISOString()}); }}
+                                        try{ localStorage.setItem("taskflow_fitness_goals",JSON.stringify(updated)); }catch(e){}; }}
                                       onKeyDown={e=>{ if(e.key==="Enter") e.target.blur(); if(e.key==="Escape") setEditingGoal(null); }}
                                       style={{ width:40, textAlign:"left", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:4, padding:"1px 4px", color:T.accentLight, fontSize:10, fontWeight:700 }} />
                                   ) : (
