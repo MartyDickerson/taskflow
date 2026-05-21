@@ -529,23 +529,51 @@ export default function Dashboard() {
   const activeCard = cards[selectedCard] || null;
 
   return (
-    <div style={{ display:"flex", height:"100vh", background:T.bg, flexWrap:"nowrap", minWidth:0, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
+    <div className="tf-app" style={{ background:T.bg, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, fontSize:13 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');        *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:2px}
-        input,select,button{font-family:'Plus Jakarta Sans',sans-serif}
+        html,body,#root{height:100%;width:100%}
+        input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
         input::placeholder{color:#3a3a5a}input:focus,select:focus{outline:none}
         button{cursor:pointer;border:none;outline:none}
         .nb:hover{background:rgba(124,58,237,0.12)!important}
         .task-row:hover{background:rgba(124,58,237,0.06)!important}
         .task-row:hover .del{opacity:1!important}
         .txn-row:hover{background:rgba(255,255,255,0.03)!important}
-        @media(max-width:1300px){ body{font-size:12px} }
-        @media(max-width:900px){ body{font-size:11px} input,select,button{font-size:10px!important} }
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+        .tf-app{display:flex;height:100vh;overflow:hidden}
+        .tf-sidebar{width:218px;flex-shrink:0;transition:transform 0.25s ease,width 0.25s ease}
+        .tf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+        .tf-content{flex:1;overflow-y:auto;padding:18px 22px 32px}
+        .tf-row1{display:grid;grid-template-columns:1fr 1fr 280px;gap:14px;align-items:stretch}
+        .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px}
+        .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+        .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
+        @media(max-width:1280px){
+          .tf-row2{grid-template-columns:repeat(3,1fr)}
+        }
+        @media(max-width:1100px){
+          .tf-sidebar{position:fixed;top:0;left:0;height:100vh;z-index:200;transform:translateX(-100%)}
+          .tf-sidebar.open{transform:translateX(0)}
+          .tf-row1{grid-template-columns:1fr 1fr}
+          .tf-row2{grid-template-columns:repeat(2,1fr)}
+          .tf-hamburger{display:flex}
+          .tf-content{padding:14px 16px 28px}
+          .tf-overlay.open{display:block}
+        }
+        @media(max-width:768px){
+          .tf-row1{grid-template-columns:1fr}
+          .tf-row2{grid-template-columns:1fr}
+          .tf-content{padding:10px 12px 24px}
+          .tf-quote{display:none}
+          .tf-header{flex-direction:column;align-items:flex-start;gap:8px}
+        }
+        @media(min-width:1600px){
+          .tf-content{padding:20px 28px 36px}
+        }to{opacity:1;transform:translateY(0)}}
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
         .fu{animation:fadeUp 0.3s ease}
         .pulse{animation:pulse 2s infinite}
@@ -557,14 +585,7 @@ export default function Dashboard() {
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
       {/* SIDEBAR — Reading Tracker */}
-      <div style={{ width:isCompact?(sidebarOpen?260:0):218, minWidth:isCompact?(sidebarOpen?260:0):218,
-          background:T.surface, borderRight:`1px solid ${T.border}`,
-          display:isCompact&&!sidebarOpen?"none":"flex",
-          flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto",
-          position:isCompact?"fixed":"relative", zIndex:isCompact?200:1,
-          top:0, left:0, height:"100vh",
-          boxShadow:isCompact&&sidebarOpen?`4px 0 20px rgba(0,0,0,0.5)`:"none",
-          transition:"width 0.25s ease" }}>
+      <div className={`tf-sidebar${sidebarOpen?" open":""}`} style={{ background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", gap:10, overflowY:"auto", boxShadow:sidebarOpen?`4px 0 20px rgba(0,0,0,0.5)`:undefined }}>
 
         {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:4 }}>
@@ -867,12 +888,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {isCompact&&sidebarOpen&&<div onClick={()=>setSidebarOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:199 }}/>}
+      <div className={`tf-overlay${sidebarOpen?" open":""}`} onClick={()=>setSidebarOpen(false)}/>
       {/* MAIN */}
-      <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+      <div className="tf-main">
 
         {/* Header */}
-        <div style={{ display:"flex", flexDirection:isSm?"column":"row", alignItems:isSm?"flex-start":"center", justifyContent:"space-between", gap:isSm?8:0, padding:isSm?"12px 16px":"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)`, position:"relative" }}>
+        <div className="tf-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)`, gap:12 }}>
           <div>
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
@@ -886,9 +907,9 @@ export default function Dashboard() {
           </div>
 
           {/* Hamburger menu on compact */}
-          {isCompact&&<button onClick={()=>setSidebarOpen(o=>!o)} style={{ position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", background:T.raised, border:`1px solid ${T.border2}`, color:T.muted, width:32, height:32, borderRadius:8, fontSize:16, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>☰</button>}
+          <button className="tf-hamburger" onClick={()=>setSidebarOpen(o=>!o)}>☰</button>
           {/* Daily quote */}
-          <div style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:isSm?"none":"flex", alignItems:"center", gap:10 }}>
+          <div className="tf-quote" style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ fontSize:20, flexShrink:0 }}>💬</div>
             <div>
               <div style={{ fontSize:11, color:T.text, fontStyle:"italic", lineHeight:1.5 }}>
@@ -907,10 +928,10 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:isSm?"10px 12px 24px":isCompact?"14px 16px 28px":"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div ref={contentRef} className="tf-content" style={{ display:"flex", flexDirection:"column", gap:14 }}>
 
           {/* ── ROW 1: Weekly | Weather | My Cards ── */}
-          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isCompact?"1fr 1fr":"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
+          <div className="tf-row1" style={{ alignItems:"stretch" }}>
 
             {/* Weekly Bar */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
@@ -1202,7 +1223,7 @@ export default function Dashboard() {
           </div>
 
           {/* ROW 2: Tasks | Goals | Calendar | Fitness | Finance */}
-          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isCompact?"1fr 1fr":"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:isCompact?"auto":380 }}>
+          <div className="tf-row2" style={{ minHeight:380 }}>
 
             {/* TO-DO */}
             <div id="section-tasks" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
