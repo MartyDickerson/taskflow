@@ -458,7 +458,7 @@ export default function Dashboard() {
 
   const loadAll = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
-    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f },{ data:bks },fg] = await Promise.all([
+    const [{ data:t },{ data:g },{ data:tx },{ data:c },{ data:f },{ data:bks },{ data:fgoals }] = await Promise.all([
       supabase.from("tasks").select("*").order("created_at",{ascending:true}),
       supabase.from("goals").select("*").order("created_at",{ascending:true}),
       supabase.from("transactions").select("*").order("type",{ascending:false}).limit(6),
@@ -470,7 +470,7 @@ export default function Dashboard() {
     setTasks(t||[]); setGoals(g||[]); setTxns(tx||[]); setCards(c||[]);
     setFitnessLog(f || { steps:0, calories:0, water_oz:0, workouts:0, sleep_hrs:0, weight:0, tea_cups:0 });
     setBooks(bks||[]);
-    if(fg?.data?.value){ try{ setFitnessGoals(JSON.parse(fg.data.value)); }catch(e){} }
+    if(fgoals?.value){ try{ setFitnessGoals(JSON.parse(fgoals.value)); }catch(e){} }
     setLoading({ tasks:false, goals:false, txns:false, cards:false });
   }, []);
 
