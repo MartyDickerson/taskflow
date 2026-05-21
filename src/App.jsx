@@ -234,6 +234,17 @@ function Calendar() {
 }
 
 
+
+function useWindowSize() {
+  const [size, setSize] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  React.useEffect(()=>{
+    const fn = () => setSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  },[]);
+  return size;
+}
+
 function WeatherWidget({ compact=false, onLocChange=null }) {
   const [weather, setWeather]       = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -424,6 +435,10 @@ const CardLogo = ({ type }) => {
 };
 
 export default function Dashboard() {
+  const { w } = useWindowSize();
+  const isMd  = w < 1300;
+  const isSm  = w < 900;
+
   const [tasks,       setTasks]       = useState([]);
   const [goals,       setGoals]       = useState([]);
   const [txns,        setTxns]        = useState([]);
@@ -510,7 +525,7 @@ export default function Dashboard() {
   const activeCard = cards[selectedCard] || null;
 
   return (
-    <div style={{ display:"flex", height:"100vh", background:T.bg, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
+    <div style={{ display:"flex", height:"100vh", background:T.bg, flexWrap:"nowrap", fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, overflow:"hidden", fontSize:13 }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#2a2a4a transparent}
@@ -522,6 +537,8 @@ export default function Dashboard() {
         .task-row:hover{background:rgba(124,58,237,0.06)!important}
         .task-row:hover .del{opacity:1!important}
         .txn-row:hover{background:rgba(255,255,255,0.03)!important}
+        @media(max-width:1300px){ body{font-size:12px} }
+        @media(max-width:900px){ body{font-size:11px} input,select,button{font-size:10px!important} }
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -536,7 +553,7 @@ export default function Dashboard() {
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
       {/* SIDEBAR — Reading Tracker */}
-      <div style={{ width:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto" }}>
+      <div style={{ width:isSm?0:218, minWidth:isSm?0:218, background:T.surface, borderRight:`1px solid ${T.border}`, display:isSm?"none":"flex", flexDirection:"column", padding:"20px 13px", flexShrink:0, gap:10, overflowY:"auto" }}>
 
         {/* Logo */}
         <div style={{ display:"flex", alignItems:"center", gap:10, padding:"0 8px", marginBottom:4 }}>
@@ -842,7 +859,7 @@ export default function Dashboard() {
       <div style={{ flex:1, display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
         {/* Header */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)` }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:isSm?"10px 14px":"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)` }}>
           <div>
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
@@ -875,10 +892,10 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
+        <div ref={contentRef} style={{ flex:1, overflowY:"auto", padding:isSm?"12px 14px 24px":"18px 22px 32px 22px", display:"flex", flexDirection:"column", gap:14, minWidth:0 }}>
 
           {/* ── ROW 1: Weekly | Weather | My Cards ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
+          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isMd?"1fr 1fr":"1fr 1fr 280px", gap:14, alignItems:"stretch" }}>
 
             {/* Weekly Bar */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
@@ -1170,7 +1187,7 @@ export default function Dashboard() {
           </div>
 
           {/* ROW 2: Tasks | Goals | Calendar | Fitness | Finance */}
-          <div style={{ display:"grid", gridTemplateColumns:"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:380 }}>
+          <div style={{ display:"grid", gridTemplateColumns:isSm?"1fr":isMd?"1fr 1fr":"1.1fr 0.9fr 0.8fr 0.8fr 0.9fr", gap:14, minHeight:isSm?"auto":380 }}>
 
             {/* TO-DO */}
             <div id="section-tasks" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
