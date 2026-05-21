@@ -235,16 +235,6 @@ function Calendar() {
 
 
 
-function useWindowSize() {
-  const [size, setSize] = React.useState({ w: window.innerWidth, h: window.innerHeight });
-  React.useEffect(()=>{
-    const fn = () => setSize({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", fn);
-    return () => window.removeEventListener("resize", fn);
-  },[]);
-  return size;
-}
-
 function WeatherWidget({ compact=false, onLocChange=null }) {
   const [weather, setWeather]       = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -435,6 +425,52 @@ const CardLogo = ({ type }) => {
 };
 
 
+
+function DailyAffirmations() {
+  const affirmations = [
+    "I am capable of achieving anything I set my mind to.",
+    "I grow stronger and wiser every single day.",
+    "I am focused, disciplined, and in control of my future.",
+    "My skills and knowledge are constantly expanding.",
+    "I embrace challenges as opportunities to grow.",
+    "I am building a life I am proud of, one day at a time.",
+    "I have the power to create positive change in my life.",
+    "I am resilient, resourceful, and ready for anything.",
+    "Every step I take brings me closer to my goals.",
+    "I am worthy of success and I pursue it relentlessly.",
+    "My hard work today is the foundation of my success tomorrow.",
+    "I trust the process and stay committed to my journey.",
+    "I am constantly leveling up — mentally, physically, and professionally.",
+    "I choose progress over perfection every single day.",
+  ];
+  const todayIdx = new Date().getDate() % affirmations.length;
+  const [affIdx, setAffIdx] = useState(todayIdx);
+
+  return (
+    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,${T.accentDim},rgba(236,72,153,0.05))`, border:`1px solid ${T.accent}33` }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>✨ Affirmation</div>
+        <div style={{ display:"flex", gap:4 }}>
+          <button onClick={()=>setAffIdx(i=>(i-1+affirmations.length)%affirmations.length)}
+            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
+          <button onClick={()=>setAffIdx(i=>(i+1)%affirmations.length)}
+            style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
+        </div>
+      </div>
+      <div style={{ fontSize:28, color:T.accent, lineHeight:0.8, marginBottom:6, fontFamily:"Georgia,serif" }}>"</div>
+      <div style={{ fontSize:12, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:10, minHeight:58 }}>
+        {affirmations[affIdx]}
+      </div>
+      <div style={{ display:"flex", justifyContent:"center", gap:4 }}>
+        {[...Array(5)].map((_,i)=>(
+          <div key={i} style={{ width:5, height:5, borderRadius:"50%",
+            background:i===affIdx%5?T.accentLight:T.faint, transition:"background 0.2s" }}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PomodoroTimer() {
   const [pomState, setPomState] = useState("idle");
   const [pomSecs,  setPomSecs]  = useState(25*60);
@@ -553,12 +589,6 @@ function PomodoroTimer() {
 }
 
 export default function Dashboard() {
-  const { w } = useWindowSize();
-  const isXl  = w >= 1400;
-  const isLg  = w >= 1100 && w < 1400;
-  const isMd  = w >= 768  && w < 1100;
-  const isSm  = w < 768;
-  const isCompact = w < 1100;
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [tasks,       setTasks]       = useState([]);
@@ -712,7 +742,7 @@ export default function Dashboard() {
           </div>
           <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px" }}>TaskFlow</span>
           <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, marginLeft:"auto", boxShadow:`0 0 6px ${T.green}` }} />
-          {isCompact&&<button onClick={()=>setSidebarOpen(false)} style={{ background:T.faint, border:"none", color:T.muted, width:24, height:24, borderRadius:6, fontSize:14, cursor:"pointer", marginLeft:4 }}>✕</button>}
+          {sidebarOpen&&<button onClick={()=>setSidebarOpen(false)} style={{ background:T.faint, border:"none", color:T.muted, width:24, height:24, borderRadius:6, fontSize:14, cursor:"pointer", marginLeft:4 }}>✕</button>}
         </div>
 
         {/* Reading Tracker Header */}
@@ -894,57 +924,8 @@ export default function Dashboard() {
         <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
 
         {/* Daily Affirmations */}
-        {(()=>{
-          const affirmations = [
-            "I am capable of achieving anything I set my mind to.",
-            "I grow stronger and wiser every single day.",
-            "I am focused, disciplined, and in control of my future.",
-            "My skills and knowledge are constantly expanding.",
-            "I embrace challenges as opportunities to grow.",
-            "I am building a life I am proud of, one day at a time.",
-            "I have the power to create positive change in my life.",
-            "I am resilient, resourceful, and ready for anything.",
-            "Every step I take brings me closer to my goals.",
-            "I am worthy of success and I pursue it relentlessly.",
-            "My hard work today is the foundation of my success tomorrow.",
-            "I trust the process and stay committed to my journey.",
-            "I am constantly leveling up — mentally, physically, and professionally.",
-            "I choose progress over perfection every single day.",
-          ];
-          const todayIdx = new Date().getDate() % affirmations.length;
-          const [affIdx, setAffIdx] = React.useState(todayIdx);
+        <DailyAffirmations />
 
-          return (
-            <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,${T.accentDim},rgba(236,72,153,0.05))`, border:`1px solid ${T.accent}33` }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>✨ Affirmation</div>
-                <div style={{ display:"flex", gap:4 }}>
-                  <button onClick={()=>setAffIdx(i=>(i-1+affirmations.length)%affirmations.length)}
-                    style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>‹</button>
-                  <button onClick={()=>setAffIdx(i=>(i+1)%affirmations.length)}
-                    style={{ background:T.faint, border:`1px solid ${T.border2}`, color:T.muted, width:20, height:20, borderRadius:5, fontSize:10, cursor:"pointer" }}>›</button>
-                </div>
-              </div>
-
-              {/* Quote mark */}
-              <div style={{ fontSize:28, color:T.accent, lineHeight:0.8, marginBottom:6, fontFamily:"Georgia,serif" }}>"</div>
-
-              {/* Affirmation text */}
-              <div style={{ fontSize:12, color:T.text, lineHeight:1.6, fontStyle:"italic", marginBottom:10, minHeight:58 }}>
-                {affirmations[affIdx]}
-              </div>
-
-              {/* Dot indicators */}
-              <div style={{ display:"flex", justifyContent:"center", gap:4 }}>
-                {[...Array(5)].map((_,i)=>(
-                  <div key={i} style={{ width:5, height:5, borderRadius:"50%",
-                    background:i===affIdx%5?T.accentLight:T.faint,
-                    transition:"background 0.2s" }}/>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
 
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
