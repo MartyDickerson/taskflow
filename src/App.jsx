@@ -1478,9 +1478,9 @@ export default function Dashboard() {
                   await supabase.from("fitness").upsert({...fitnessLog, log_date:new Date().toISOString().split("T")[0]});
                   setSaving(false); showToast("Fitness saved ✓");
                 }} style={{ fontSize:11, padding:"5px 14px", borderRadius:8, fontWeight:700,
-                  background:`linear-gradient(135deg,${T.green},#059669)`,
+                  background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
                   border:"none", color:"white", cursor:"pointer",
-                  boxShadow:`0 4px 12px rgba(16,185,129,0.35)`,
+                  boxShadow:`0 4px 12px ${T.accentGlow}`,
                   opacity:saving?0.6:1, letterSpacing:"0.3px" }}>
                   💾 Save
                 </button>
