@@ -760,7 +760,7 @@ export default function Dashboard() {
         .tf-sidebar{width:clamp(200px,16vw,260px);flex-shrink:0;transition:transform 0.25s ease,width 0.25s ease}
         .tf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
         .tf-content{flex:1;overflow-y:auto;padding:clamp(14px,1.5vw,24px) clamp(16px,2vw,32px) 32px}
-        .tf-row1{display:grid;grid-template-columns:1.4fr 0.8fr 1.2fr 0.9fr;gap:14px;align-items:stretch}
+        .tf-row1{display:grid;grid-template-columns:1.4fr 0.8fr 1.2fr 0.9fr 0.85fr;gap:14px;align-items:stretch}
         .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px;min-height:380px}
         .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
@@ -785,7 +785,7 @@ export default function Dashboard() {
         }
         @media(min-width:1600px){
           .tf-content{padding:22px 32px 40px}
-          .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
+          .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr 0.8fr}
           .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
         }to{opacity:1;transform:translateY(0)}}
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
@@ -1189,6 +1189,25 @@ export default function Dashboard() {
 
             {/* Focus Timer */}
             <PomodoroTimer />
+
+            {/* Apple Music Player */}
+            <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}`, display:"flex", flexDirection:"column", overflow:"hidden" }}>
+              <div style={{ padding:"14px 14px 10px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
+                <a href="https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open in Apple Music ↗</a>
+              </div>
+              <div style={{ flex:1, minHeight:0 }}>
+                <iframe
+                  allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                  frameBorder="0"
+                  height="100%"
+                  style={{ width:"100%", minHeight:300, overflow:"hidden", borderRadius:"0 0 14px 14px", background:"transparent" }}
+                  sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+                  src="https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0?theme=dark"
+                />
+              </div>
+            </div>
 
             {/* Weather */}
             <div style={{ background:`linear-gradient(145deg,#14143a,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
