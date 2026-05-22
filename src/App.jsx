@@ -986,15 +986,11 @@ export default function Dashboard() {
           })}
         </div>
 
-
-
-
         {/* Divider */}
-        <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
+        <div style={{ height:1, background:T.border2, margin:"8px 0" }} />
 
-        {/* Daily Affirmations */}
+        {/* Daily Bible Reading */}
         <DailyBibleChapter />
-
 
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
