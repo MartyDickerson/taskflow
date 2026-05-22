@@ -699,6 +699,123 @@ function timeAgo(ts) {
   return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 }
 
+function HabitTracker() {
+  const [habits, setHabits]   = useState([]);
+  const [logs,   setLogs]     = useState({});
+  const [adding, setAdding]   = useState(false);
+  const [newHabit, setNewHabit] = useState({ name:"", icon:"✅", color:"#7c3aed" });
+  const today = new Date().toISOString().split("T")[0];
+
+  useEffect(()=>{
+    supabase.from("habits").select("*").order("sort_order").then(({data})=>setHabits(data||[]));
+    supabase.from("habit_logs").select("*").eq("log_date",today).then(({data})=>{
+      const map = {};
+      (data||[]).forEach(l=>{ map[l.habit_id]=l; });
+      setLogs(map);
+    });
+  },[]);
+
+  const toggle = async(habit) => {
+    const existing = logs[habit.id];
+    if(existing){
+      const newVal = !existing.completed;
+      setLogs(l=>({...l,[habit.id]:{...existing,completed:newVal}}));
+      await supabase.from("habit_logs").update({completed:newVal}).eq("id",existing.id);
+    } else {
+      const {data} = await supabase.from("habit_logs").insert({habit_id:habit.id,log_date:today,completed:true}).select().single();
+      if(data) setLogs(l=>({...l,[habit.id]:data}));
+    }
+  };
+
+  const addHabit = async() => {
+    if(!newHabit.name.trim()) return;
+    const {data} = await supabase.from("habits").insert({...newHabit,sort_order:habits.length+1}).select().single();
+    if(data) setHabits(h=>[...h,data]);
+    setNewHabit({name:"",icon:"✅",color:"#7c3aed"});
+    setAdding(false);
+  };
+
+  const deleteHabit = async(id) => {
+    setHabits(h=>h.filter(x=>x.id!==id));
+    await supabase.from("habits").delete().eq("id",id);
+  };
+
+  const done = habits.filter(h=>logs[h.id]?.completed).length;
+  const pct  = habits.length>0 ? Math.round((done/habits.length)*100) : 0;
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+      {/* Progress bar */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:2 }}>
+        <span style={{ fontSize:11, color:T.muted }}>{done}/{habits.length} completed</span>
+        <span style={{ fontSize:11, fontWeight:700, color:pct===100?T.green:T.accentLight }}>{pct}%</span>
+      </div>
+      <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:6 }}>
+        <div style={{ height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease",
+          background:pct===100?T.green:`linear-gradient(90deg,${T.accent},${T.accentB})` }}/>
+      </div>
+
+      {/* Habit list */}
+      {habits.map(h=>{
+        const completed = logs[h.id]?.completed;
+        return (
+          <div key={h.id} onClick={()=>toggle(h)}
+            style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:10, cursor:"pointer",
+              background:completed?`${h.color}15`:T.raised,
+              border:`1px solid ${completed?h.color+"44":T.border2}`,
+              transition:"all 0.2s" }}
+            onMouseEnter={e=>{ e.currentTarget.querySelector(".hdel").style.opacity="1"; }}
+            onMouseLeave={e=>{ e.currentTarget.querySelector(".hdel").style.opacity="0"; }}>
+            <div style={{ width:28, height:28, borderRadius:8, display:"flex", alignItems:"center", justifyContent:"center",
+              background:completed?h.color:T.faint, transition:"background 0.2s", flexShrink:0 }}>
+              <span style={{ fontSize:14 }}>{completed?"✓":h.icon}</span>
+            </div>
+            <span style={{ flex:1, fontSize:12, fontWeight:500, color:completed?T.muted:T.text,
+              textDecoration:completed?"line-through":"none" }}>{h.name}</span>
+            {completed&&<span style={{ fontSize:10, color:h.color, fontWeight:700 }}>Done!</span>}
+            <button className="hdel" onClick={e=>{e.stopPropagation();deleteHabit(h.id);}}
+              style={{ background:"none", color:T.red, fontSize:13, opacity:0, transition:"opacity 0.15s", padding:"0 4px" }}>×</button>
+          </div>
+        );
+      })}
+
+      {/* Add habit */}
+      {adding ? (
+        <div style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:10, padding:10 }}>
+          <div style={{ display:"flex", gap:6, marginBottom:6 }}>
+            <input value={newHabit.icon} onChange={e=>setNewHabit({...newHabit,icon:e.target.value})}
+              style={{ width:36, textAlign:"center", background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 4px", color:T.text, fontSize:14 }} />
+            <input value={newHabit.name} onChange={e=>setNewHabit({...newHabit,name:e.target.value})}
+              placeholder="Habit name" style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }} />
+          </div>
+          <div style={{ display:"flex", gap:6 }}>
+            {["#7c3aed","#10b981","#f59e0b","#ec4899","#38bdf8","#ef4444"].map(c=>(
+              <div key={c} onClick={()=>setNewHabit({...newHabit,color:c})}
+                style={{ width:20, height:20, borderRadius:"50%", background:c, cursor:"pointer",
+                  border:newHabit.color===c?"2px solid white":"2px solid transparent" }}/>
+            ))}
+            <button onClick={()=>setAdding(false)} style={{ marginLeft:"auto", background:T.faint, border:`1px solid ${T.border2}`, borderRadius:7, color:T.muted, fontSize:11, padding:"4px 10px" }}>Cancel</button>
+            <button onClick={addHabit} style={{ background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", borderRadius:7, color:"white", fontSize:11, fontWeight:700, padding:"4px 10px" }}>Add</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={()=>setAdding(true)} style={{ padding:"8px", borderRadius:10, background:T.faint,
+          border:`1px dashed ${T.border2}`, color:T.muted, fontSize:11, cursor:"pointer" }}>
+          + Add Habit
+        </button>
+      )}
+
+      {/* Completion message */}
+      {pct===100&&habits.length>0&&(
+        <div style={{ textAlign:"center", padding:"8px", borderRadius:10, background:`rgba(16,185,129,0.1)`,
+          border:`1px solid ${T.green}44`, fontSize:12, color:T.green, fontWeight:700 }}>
+          🎉 All habits done today!
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tick, setTick] = useState(0);
@@ -1084,22 +1201,30 @@ export default function Dashboard() {
 
           {/* Hamburger menu on compact */}
           <button className="tf-hamburger" onClick={()=>setSidebarOpen(o=>!o)}>☰</button>
-          {/* Daily quote */}
-          <div className="tf-quote" style={{ maxWidth:420, padding:"10px 16px", borderRadius:10, background:T.accentDim, border:`1px solid ${T.accent}33`, display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ fontSize:20, flexShrink:0 }}>💬</div>
-            <div>
-              <div style={{ fontSize:11, color:T.text, fontStyle:"italic", lineHeight:1.5 }}>
-                "{[
-                  "The secret of getting ahead is getting started.",
-                  "Small steps every day lead to big results.",
-                  "It always seems impossible until it's done.",
-                  "Don't watch the clock. Do what it does — keep going.",
-                  "Success is the sum of small efforts repeated daily.",
-                  "Push yourself, because no one else will do it for you.",
-                  "Great things never come from comfort zones.",
-                ][new Date().getDay()]}"
+          {/* SOC Threat of the Day */}
+          <div className="tf-quote" style={{ maxWidth:480, padding:"10px 16px", borderRadius:10, background:"rgba(239,68,68,0.08)", border:`1px solid rgba(239,68,68,0.25)`, display:"flex", alignItems:"center", gap:10 }}>
+            <div style={{ fontSize:18, flexShrink:0 }}>🛡️</div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:9, color:"#ef4444", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:3 }}>
+                SOC Threat · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}
+              </div>
+              <div style={{ fontSize:11, color:T.text, lineHeight:1.5, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                {[
+                  {t:"CVE-2026-45498 — MS Defender DoS zero-day added to CISA KEV. Patch by Jun 3.", s:"Critical"},
+                  {t:"CVE-2026-20182 — Cisco SD-WAN auth bypass exploited by UAT-8616. Apply patches now.", s:"Critical"},
+                  {t:"DirtyDecrypt PoC released for Linux kernel LPE (CVE-2026-31635). Update kernel immediately.", s:"High"},
+                  {t:"CVE-2026-20223 — Cisco Secure Workload CVSS 10.0 RCE. Patch immediately.", s:"Critical"},
+                  {t:"Exim Dead.Letter (CVE-2026-45185) — CVSS 9.8 RCE in GnuTLS builds. Update Exim now.", s:"Critical"},
+                  {t:"CISA KEV: CVE-2026-31431 Linux kernel LPE. 9-year-old flaw actively exploited in wild.", s:"High"},
+                  {t:"455 malicious Android apps with 183 C2 domains found. Review mobile device policies.", s:"Medium"},
+                ][new Date().getDay()].t}
+              </div>
+              <div style={{ fontSize:9, color:"#ef4444", marginTop:2, fontWeight:600 }}>
+                {["Critical","Critical","High","Critical","Critical","High","Medium"][new Date().getDay()]} Severity
               </div>
             </div>
+            <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer"
+              style={{ fontSize:9, color:"#ef4444", textDecoration:"none", fontWeight:700, flexShrink:0 }}>KEV ↗</a>
           </div>
         </div>
 
@@ -1552,13 +1677,13 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* CALENDAR */}
-            <div id="section-calendar" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, overflowY:"auto" }}>
-              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:12 }}>Calendar</div>
-              <Calendar />
+            {/* HABIT TRACKER */}
+            <div id="section-calendar" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
+              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:14 }}>✅ Daily Habits</div>
+              <HabitTracker />
             </div>
 
-            {/* FITNESS TRACKER */}
+                        {/* FITNESS TRACKER */}
             <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column", gap:8 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
                 <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Weekly Progress</div>
