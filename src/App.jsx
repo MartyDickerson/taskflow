@@ -1237,7 +1237,6 @@ export default function Dashboard() {
                               <div>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:2 }}>AVAILABLE BALANCE</div>
                                 <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:"white", lineHeight:1 }}>${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}</div>
-                                <div style={{ fontSize:10, color:T.green, marginTop:2 }}>▲ 4.12%</div>
                               </div>
                               <div style={{ textAlign:"right" }}>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
