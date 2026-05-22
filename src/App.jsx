@@ -816,7 +816,93 @@ function HabitTracker() {
   );
 }
 
-export default function Dashboard() {
+function HabitTracker() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const dateStr = today.toISOString().split("T")[0];
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const [habits, setHabits] = useState([]);
+  const [logs, setLogs] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>{
+    const load = async () => {
+      const { data: hData } = await supabase.from("habits").select("*").eq("day_of_week", dayOfWeek).order("sort_order");
+      setHabits(hData||[]);
+      if(hData?.length) {
+        const { data: lData } = await supabase.from("habit_logs").select("*").eq("log_date", dateStr).in("habit_id", hData.map(h=>h.id));
+        const logMap = {};
+        (lData||[]).forEach(l=>{ logMap[l.habit_id] = l.done; });
+        setLogs(logMap);
+      }
+      setLoading(false);
+    };
+    load();
+  },[]);
+
+  const toggle = async(habit) => {
+    const newDone = !logs[habit.id];
+    setLogs(l=>({...l,[habit.id]:newDone}));
+    await supabase.from("habit_logs").upsert({ habit_id:habit.id, log_date:dateStr, done:newDone },{ onConflict:"habit_id,log_date" });
+  };
+
+  const done = Object.values(logs).filter(Boolean).length;
+  const total = habits.length;
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", flex:1 }}>
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>✅ Daily Habits</div>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ fontSize:10, color:T.muted }}>{dayNames[dayOfWeek]}</span>
+          <span style={{ fontSize:11, fontWeight:700, color:pct===100?T.green:T.accentLight }}>{done}/{total}</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:14 }}>
+        <div style={{ height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease",
+          background:pct===100?T.green:`linear-gradient(90deg,${T.accent},${T.accentLight})`,
+          boxShadow:pct===100?`0 0 8px ${T.green}88`:`0 0 8px ${T.accentGlow}` }} />
+      </div>
+
+      {/* Habits list */}
+      {loading ? <Spinner/> : (
+        <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+          {habits.map(h=>{
+            const isDone = !!logs[h.id];
+            return (
+              <div key={h.id} onClick={()=>toggle(h)}
+                style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 12px", borderRadius:10, cursor:"pointer",
+                  background:isDone?T.greenDim:T.raised, border:`1px solid ${isDone?T.green+"44":T.border2}`,
+                  transition:"all 0.2s" }}>
+                {/* Checkbox */}
+                <div style={{ width:20, height:20, borderRadius:6, flexShrink:0,
+                  background:isDone?T.green:T.faint, border:`2px solid ${isDone?T.green:T.border2}`,
+                  display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s",
+                  boxShadow:isDone?`0 0 8px ${T.green}66`:"none" }}>
+                  {isDone&&<span style={{ fontSize:11, color:"white", fontWeight:900 }}>✓</span>}
+                </div>
+                <span style={{ fontSize:12 }}>{h.icon}</span>
+                <span style={{ fontSize:12, fontWeight:500, color:isDone?T.muted:T.text,
+                  textDecoration:isDone?"line-through":"none", flex:1 }}>{h.label}</span>
+              </div>
+            );
+          })}
+          {pct===100&&(
+            <div style={{ textAlign:"center", padding:"8px", fontSize:12, color:T.green, fontWeight:700 }}>
+              🎉 All done for today!
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tick, setTick] = useState(0);
   useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),60000); return()=>clearInterval(t); },[]);
@@ -1679,7 +1765,6 @@ export default function Dashboard() {
 
             {/* HABIT TRACKER */}
             <div id="section-calendar" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
-              <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:14 }}>✅ Daily Habits</div>
               <HabitTracker />
             </div>
 
