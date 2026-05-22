@@ -1098,17 +1098,45 @@ export default function Dashboard() {
 
                 return (
                   <div>
-                    <ResponsiveContainer width="100%" height={120}>
-                      <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
-                        <XAxis dataKey="day" tick={false} axisLine={false} tickLine={false} height={4}/>
-                        <YAxis tick={false} axisLine={false} tickLine={false} width={0}/>
-                        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3"/>
-                        <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
-                        <Bar dataKey="done" radius={[5,5,0,0]}>
-                          {weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {/* Animated gradient bars */}
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:6, marginBottom:8 }}>
+                      {weekBars.map((d,i)=>{
+                        const maxTasks = Math.max(...weekBars.map(b=>b.done), 1);
+                        const pct = (d.done / maxTasks) * 100;
+                        const gradients = [
+                          "linear-gradient(180deg,#a78bfa,#7c3aed)",
+                          "linear-gradient(180deg,#f472b6,#ec4899)",
+                          "linear-gradient(180deg,#60a5fa,#3b82f6)",
+                          "linear-gradient(180deg,#34d399,#10b981)",
+                          "linear-gradient(180deg,#fbbf24,#f59e0b)",
+                          "linear-gradient(180deg,#f87171,#ef4444)",
+                          "linear-gradient(180deg,#c084fc,#9333ea)",
+                        ];
+                        return (
+                          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+                            {/* Bar container */}
+                            <div style={{ width:"100%", height:80, background:T.faint, borderRadius:8, overflow:"hidden", position:"relative", display:"flex", alignItems:"flex-end" }}>
+                              <div style={{
+                                width:"100%",
+                                height:`${pct}%`,
+                                minHeight: d.done>0?"8px":"0",
+                                background: d.isToday ? `linear-gradient(180deg,#c4b5fd,#7c3aed)` : d.done>0 ? gradients[i] : "transparent",
+                                borderRadius:"6px 6px 0 0",
+                                boxShadow: d.done>0 ? `0 -4px 12px ${d.isToday?"rgba(124,58,237,0.6)":"rgba(255,255,255,0.15)"}` : "none",
+                                transition:"height 0.8s cubic-bezier(0.34,1.56,0.64,1)",
+                              }}/>
+                              {d.done>0&&(
+                                <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)",
+                                  fontFamily:"'Bebas Neue',sans-serif", fontSize:18, color:"white",
+                                  textShadow:"0 2px 8px rgba(0,0,0,0.5)", fontWeight:700 }}>
+                                  {d.done}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
 
                     {/* Per-day task summary */}
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:5, marginTop:8 }}>
