@@ -880,7 +880,7 @@ export default function Dashboard() {
               Add your first book!
             </div>
           )}
-          {books.slice(0,2).map(b=>{
+          {books.slice(0,1).map(b=>{
             const pct = b.pages_total>0 ? Math.min(Math.round((b.pages_read/b.pages_total)*100),100) : 0;
             const isDone = b.status==="done";
             return (
@@ -981,9 +981,9 @@ export default function Dashboard() {
               </div>
             );
           })}
-          {books.length>2&&(
+          {books.length>1&&(
             <div style={{ fontSize:10, color:T.muted, textAlign:"center", padding:"4px 0" }}>
-              +{books.length-2} more book{books.length-2>1?"s":""} in your list
+              +{books.length-1} more book{books.length-1>1?"s":""} in your list
             </div>
           )}
         </div>
