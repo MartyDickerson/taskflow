@@ -421,7 +421,53 @@ const CardLogo = ({ type }) => {
 
 
 
-function DailyBibleChapter() {
+function AppleMusicPlayer() {
+  const playlists = [
+    { label:"Chill Beats",   url:"https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0",   link:"https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" },
+    { label:"Chill House",   url:"https://embed.music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86", link:"https://music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86" },
+    { label:"Jazz Beats",    url:"https://embed.music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe",                       link:"https://music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe" },
+    { label:"Larry June",    url:"https://embed.music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb", link:"https://music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb" },
+  ];
+  const [active, setActive] = useState(0);
+
+  return (
+    <div style={{ borderRadius:12, overflow:"hidden", border:`1px solid ${T.accent}33`, background:T.raised }}>
+      {/* Header */}
+      <div style={{ padding:"10px 12px 8px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
+        <a href={playlists[active].link} target="_blank" rel="noopener noreferrer"
+          style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open ↗</a>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", gap:4, padding:"0 10px 8px", overflowX:"auto" }}>
+        {playlists.map((p,i)=>(
+          <button key={i} onClick={()=>setActive(i)}
+            style={{ padding:"4px 10px", borderRadius:20, fontSize:10, fontWeight:600, whiteSpace:"nowrap",
+              background:active===i?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.faint,
+              border:active===i?"none":`1px solid ${T.border2}`,
+              color:active===i?"white":T.muted, cursor:"pointer",
+              boxShadow:active===i?`0 2px 8px ${T.accentGlow}`:"none" }}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Embed */}
+      <iframe
+        key={active}
+        allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+        frameBorder="0"
+        height="200"
+        style={{ width:"100%", overflow:"hidden", background:"transparent", display:"block", borderRadius:"0 0 12px 12px" }}
+        sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+        src={playlists[active].url}
+      />
+    </div>
+  );
+}
+
+
   const chapters = [
     { ref:"Proverbs 1",   title:"The Beginning of Wisdom",          verse:"The fear of the Lord is the beginning of knowledge, but fools despise wisdom and instruction..." },
     { ref:"Proverbs 2",   title:"Moral Benefits of Wisdom",         verse:"For the Lord gives wisdom; from his mouth come knowledge and understanding..." },
@@ -997,22 +1043,8 @@ export default function Dashboard() {
         {/* Divider */}
         <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
 
-        {/* Apple Music Player */}
-        <div style={{ borderRadius:12, overflow:"hidden", border:`1px solid ${T.accent}33` }}>
-          <div style={{ padding:"10px 12px 8px", background:T.raised, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
-            <a href="https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" target="_blank" rel="noopener noreferrer"
-              style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open ↗</a>
-          </div>
-          <iframe
-            allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-            frameBorder="0"
-            height="200"
-            style={{ width:"100%", overflow:"hidden", background:"transparent", display:"block", borderRadius:"0 0 12px 12px" }}
-            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
-            src="https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0"
-          />
-        </div>
+        {/* Apple Music Player - Multi Playlist */}
+        <AppleMusicPlayer />
 
         {/* Profile */}
         <div style={{ padding:"12px 10px", borderRadius:12, background:T.raised, border:`1px solid ${T.border2}` }}>
