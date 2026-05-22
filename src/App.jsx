@@ -1068,25 +1068,44 @@ export default function Dashboard() {
               </div>
               {(()=>{
                 const dayNames=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-                const todayIdx=0;
 
-                // Build week dates starting Mon May 18
+                // Get real current week starting Monday
+                const now = new Date();
+                const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                const monday = new Date(now);
+                monday.setDate(now.getDate() + mondayOffset);
+                monday.setHours(0,0,0,0);
+
+                const todayIdx = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
                 const weekDates = dayNames.map((_,i)=>{
-                  const d = new Date(2026,4,18);
-                  d.setDate(d.getDate()+i);
+                  const d = new Date(monday);
+                  d.setDate(monday.getDate()+i);
                   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+                });
+
+                const weekDateLabels = dayNames.map((_,i)=>{
+                  const d = new Date(monday);
+                  d.setDate(monday.getDate()+i);
+                  return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
                 });
 
                 const weekBars = dayNames.map((day,i)=>{
                   const dayTasks = tasks.filter(t=>t.completed_date===weekDates[i]);
-                  return { day, done:dayTasks.length, isToday:i===todayIdx, taskNames:dayTasks.map(t=>t.text) };
+                  return { day, done:dayTasks.length, isToday:i===todayIdx, taskNames:dayTasks.map(t=>t.text), dateLabel:weekDateLabels[i] };
                 });
 
                 return (
                   <div>
                     <ResponsiveContainer width="100%" height={120}>
                       <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
-                        <XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/>
+                        <XAxis dataKey="day" tick={({x,y,payload,index})=>(
+                          <g transform={`translate(${x},${y})`}>
+                            <text x={0} y={0} dy={12} textAnchor="middle" fill={weekBars[index]?.isToday?T.accentLight:"#8b8bcc"} fontSize={12} fontWeight={600}>{payload.value}</text>
+                            <text x={0} y={0} dy={25} textAnchor="middle" fill={weekBars[index]?.isToday?T.accent:T.muted} fontSize={9}>{weekBars[index]?.dateLabel}</text>
+                          </g>
+                        )} height={36} axisLine={false} tickLine={false}/>
                         <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false} allowDecimals={false}/>
                         <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
                         <Bar dataKey="done" radius={[5,5,0,0]}>
@@ -1104,8 +1123,11 @@ export default function Dashboard() {
                           {d.done > 0 ? (
                             <>
                               <div style={{ fontSize:10, fontWeight:700, color:d.isToday?T.accentLight:T.muted,
-                                textTransform:"uppercase", letterSpacing:0.5, marginBottom:6 }}>
-                                {d.done} task{d.done!==1?"s":""}
+                                textTransform:"uppercase", letterSpacing:0.5, marginBottom:3 }}>
+                                {d.day}
+                              </div>
+                              <div style={{ fontSize:9, color:d.isToday?T.accent:T.faint, marginBottom:4 }}>
+                                {d.dateLabel}
                               </div>
                               <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
                                 {d.taskNames.slice(0,3).map((name,j)=>(
