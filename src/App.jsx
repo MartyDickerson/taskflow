@@ -423,10 +423,11 @@ const CardLogo = ({ type }) => {
 
 function AppleMusicPlayer() {
   const playlists = [
-    { label:"Chill Beats",   url:"https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0",   link:"https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" },
-    { label:"Chill House",   url:"https://embed.music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86", link:"https://music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86" },
-    { label:"Jazz Beats",    url:"https://embed.music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe",                       link:"https://music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe" },
-    { label:"Larry June",    url:"https://embed.music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb", link:"https://music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb" },
+    { label:"Chill Beats",   url:"https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0",             link:"https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" },
+    { label:"Chill House",   url:"https://embed.music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86",       link:"https://music.apple.com/us/playlist/chill-house-2026/pl.b4e64491abae4afeb3bac7bb16d2da86" },
+    { label:"Jazz Beats",    url:"https://embed.music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe",                                 link:"https://music.apple.com/us/playlist/jazz-beats/pl.u-b6jgFyaLMRe" },
+    { label:"Larry June",    url:"https://embed.music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb",   link:"https://music.apple.com/us/playlist/larry-june-essentials/pl.da5705816aeb4e6fb95049c26d08adeb" },
+    { label:"Jay-Z",         url:"https://embed.music.apple.com/us/playlist/jay-z-essentials/pl.4ec315df2bf04cc29dab9936fe18e107",        link:"https://music.apple.com/us/playlist/jaÿ-z-essentials/pl.4ec315df2bf04cc29dab9936fe18e107" },
   ];
   const [active, setActive] = useState(0);
 
@@ -468,6 +469,7 @@ function AppleMusicPlayer() {
 }
 
 
+function DailyBibleChapter() {
   const chapters = [
     { ref:"Proverbs 1",   title:"The Beginning of Wisdom",          verse:"The fear of the Lord is the beginning of knowledge, but fools despise wisdom and instruction..." },
     { ref:"Proverbs 2",   title:"Moral Benefits of Wisdom",         verse:"For the Lord gives wisdom; from his mouth come knowledge and understanding..." },
