@@ -761,12 +761,12 @@ export default function Dashboard() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-        .tf-app{display:flex;height:100vh;overflow:hidden}
-        .tf-sidebar{width:218px;flex-shrink:0;transition:transform 0.25s ease,width 0.25s ease}
+        .tf-app{display:flex;height:100vh;overflow:hidden;width:100vw}
+        .tf-sidebar{width:clamp(200px,16vw,260px);flex-shrink:0;transition:transform 0.25s ease,width 0.25s ease}
         .tf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-        .tf-content{flex:1;overflow-y:auto;padding:18px 22px 32px}
-        .tf-row1{display:grid;grid-template-columns:1fr 220px 1fr 280px;gap:14px;align-items:stretch}
-        .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px}
+        .tf-content{flex:1;overflow-y:auto;padding:clamp(14px,1.5vw,24px) clamp(16px,2vw,32px) 32px}
+        .tf-row1{display:grid;grid-template-columns:1.4fr 0.8fr 1.2fr 0.9fr;gap:14px;align-items:stretch}
+        .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px;min-height:380px}
         .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
         @media(max-width:1280px){
@@ -789,7 +789,9 @@ export default function Dashboard() {
           .tf-header{flex-direction:column;align-items:flex-start;gap:8px}
         }
         @media(min-width:1600px){
-          .tf-content{padding:20px 28px 36px}
+          .tf-content{padding:22px 32px 40px}
+          .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
+          .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
         }to{opacity:1;transform:translateY(0)}}
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
         .fu{animation:fadeUp 0.3s ease}
