@@ -432,9 +432,9 @@ function AppleMusicPlayer() {
   const [active, setActive] = useState(0);
 
   return (
-    <div style={{ borderRadius:12, overflow:"hidden", border:`1px solid ${T.accent}33`, background:T.raised }}>
+    <div style={{ borderRadius:12, overflow:"hidden", border:`1px solid ${T.accent}33`, background:"transparent" }}>
       {/* Header */}
-      <div style={{ padding:"10px 12px 8px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+      <div style={{ padding:"10px 12px 8px", display:"flex", justifyContent:"space-between", alignItems:"center", background:"transparent" }}>
         <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
         <a href={playlists[active].link} target="_blank" rel="noopener noreferrer"
           style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open ↗</a>
@@ -460,7 +460,8 @@ function AppleMusicPlayer() {
         allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
         frameBorder="0"
         height="200"
-        style={{ width:"100%", overflow:"hidden", background:"transparent", display:"block", borderRadius:"0 0 12px 12px" }}
+        style={{ width:"100%", overflow:"hidden", display:"block", borderRadius:"0 0 12px 12px",
+          filter:"invert(1) hue-rotate(180deg)", background:"transparent" }}
         sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
         src={playlists[active].url}
       />
