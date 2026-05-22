@@ -734,7 +734,7 @@ export default function Dashboard() {
   const addGoal     = async() => { if(!newGoal.text.trim()) return; setSaving(true); const{data}=await supabase.from("goals").insert({text:newGoal.text,progress:newGoal.progress,color:newGoal.color}).select().single(); if(data) setGoals(gs=>[...gs,data]); setNewGoal({text:"",progress:0,color:"#7c3aed"}); setShowGoalForm(false); setSaving(false); showToast("Goal added ✓"); };
   const deleteGoal  = async(id) => { setGoals(gs=>gs.filter(g=>g.id!==id)); await supabase.from("goals").delete().eq("id",id); showToast("Goal removed"); };
   const addTxn      = async() => { if(!newTxn.name.trim()||!newTxn.amount) return; setSaving(true); const amt=newTxn.type==="expense"?-Math.abs(parseFloat(newTxn.amount)):Math.abs(parseFloat(newTxn.amount)); const{data}=await supabase.from("transactions").insert({name:newTxn.name,amount:amt,icon:newTxn.icon,date_label:"Just now",type:newTxn.type}).select().single(); if(data) setTxns(tx=>[data,...tx.slice(0,5)]); setNewTxn({name:"",amount:"",type:"expense",icon:"💳"}); setShowTxnForm(false); setSaving(false); showToast("Transaction saved ✓"); };
-  const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color,spend_limit:parseFloat(newCard.spendLimit)||0,spent:0}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent,spendLimit:""}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
+  const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color,spend_limit:parseFloat(newCard.spendLimit)||0,spent:0,expiry:newCard.expiry||""}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent,spendLimit:"",expiry:""}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
   const deleteCard  = async(id) => { setCards(c=>c.filter(x=>x.id!==id)); await supabase.from("cards").delete().eq("id",id); showToast("Card removed"); };
 
   const done     = tasks.filter(t=>t.done).length;
@@ -1227,6 +1227,8 @@ export default function Dashboard() {
                       style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <input value={newCard.spendLimit||""} onChange={e=>setNewCard({...newCard,spendLimit:e.target.value})} placeholder="Spend limit" type="number"
                       style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
+                    <input value={newCard.expiry||""} onChange={e=>setNewCard({...newCard,expiry:e.target.value})} placeholder="Expiry date (MM/YY)"
+                      style={{ width:"100%", background:"rgba(0,0,0,0.3)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 9px", color:"white", fontSize:11 }} />
                     <div style={{ display:"flex", gap:6 }}>
                       <select value={newCard.color} onChange={e=>setNewCard({...newCard,color:e.target.value})}
                         style={{ flex:1, background:"rgba(0,0,0,0.4)", border:`1px solid rgba(255,255,255,0.2)`, borderRadius:7, padding:"7px 6px", color:"white", fontSize:11 }}>
@@ -1269,6 +1271,7 @@ export default function Dashboard() {
                               <div>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", letterSpacing:1, marginBottom:2 }}>AVAILABLE BALANCE</div>
                                 <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, color:"white", lineHeight:1 }}>${parseFloat(c.balance).toLocaleString("en-US",{minimumFractionDigits:2})}</div>
+                                {c.expiry&&<div style={{ fontSize:9, color:"rgba(255,255,255,0.5)", marginTop:3, letterSpacing:"0.5px" }}>VALID THRU {c.expiry}</div>}
                               </div>
                               <div style={{ textAlign:"right" }}>
                                 <div style={{ fontSize:8, color:"rgba(255,255,255,0.4)", marginBottom:1 }}>Card Holder</div>
