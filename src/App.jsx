@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area, LineChart, Line, CartesianGrid } from "recharts";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -1101,7 +1101,8 @@ export default function Dashboard() {
                     <ResponsiveContainer width="100%" height={120}>
                       <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
                         <XAxis dataKey="day" tick={false} axisLine={false} tickLine={false} height={4}/>
-                        <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false} allowDecimals={false}/>
+                        <YAxis tick={false} axisLine={false} tickLine={false} width={0}/>
+                        <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3"/>
                         <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
                         <Bar dataKey="done" radius={[5,5,0,0]}>
                           {weekBars.map((e,i)=><Cell key={i} fill={e.isToday?T.accent:e.done>0?T.accent+"66":T.faint}/>)}
