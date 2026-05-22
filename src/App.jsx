@@ -997,21 +997,20 @@ export default function Dashboard() {
         {/* Divider */}
         <div style={{ height:1, background:T.border2, margin:"4px 0" }} />
 
-        {/* Spotify Player */}
+        {/* Apple Music Player */}
         <div style={{ borderRadius:12, overflow:"hidden", border:`1px solid ${T.accent}33` }}>
           <div style={{ padding:"10px 12px 8px", background:T.raised, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
             <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
-            <a href="https://open.spotify.com/playlist/7fPWiFUsKowtOGhueF0AR9" target="_blank" rel="noopener noreferrer"
-              style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open in Spotify ↗</a>
+            <a href="https://music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0" target="_blank" rel="noopener noreferrer"
+              style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open ↗</a>
           </div>
           <iframe
-            src="https://open.spotify.com/embed/playlist/7fPWiFUsKowtOGhueF0AR9?utm_source=generator&theme=0"
-            width="100%"
-            height="200"
+            allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
             frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            style={{ display:"block", borderRadius:"0 0 12px 12px" }}
+            height="200"
+            style={{ width:"100%", overflow:"hidden", background:"transparent", display:"block", borderRadius:"0 0 12px 12px" }}
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+            src="https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0"
           />
         </div>
 
