@@ -405,12 +405,7 @@ const CardLogo = ({ type }) => {
     <div style={{ background:"linear-gradient(135deg,#ff6600,#ff9900)", borderRadius:4, padding:"2px 6px", fontSize:9, fontWeight:800, color:"white" }}>DISCOVER</div>
   );
   if(t.includes("gusto")) return (
-    <div style={{ display:"flex", alignItems:"center", gap:4 }}>
-      <div style={{ width:18, height:18, borderRadius:"50%", background:"linear-gradient(135deg,#f45d48,#f97316)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <div style={{ width:8, height:8, borderRadius:"50%", background:"white", opacity:0.9 }}/>
-      </div>
-      <span style={{ fontWeight:900, fontSize:13, color:"white", letterSpacing:"0.5px" }}>gusto</span>
-    </div>
+    <div style={{ fontWeight:900, fontSize:14, color:"white", letterSpacing:"1px", fontFamily:"sans-serif" }}>gusto</div>
   );
   if(t.includes("navy")||t.includes("nfcu")||t.includes("navyfederal")) return (
     <div style={{ display:"flex", flexDirection:"column", lineHeight:1.3 }}>
