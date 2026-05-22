@@ -1259,7 +1259,7 @@ export default function Dashboard() {
                           <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(124,58,237,0.18)", pointerEvents:"none" }} />
                           <div style={{ padding:"14px", position:"relative", zIndex:1 }}>
                             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-                              <div><CardLogo type={c.type||c.name} /></div>
+                              <div><CardLogo type={c.type||""} /></div>
                               <div style={{ width:32, height:22, borderRadius:4, background:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
                                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:2 }}>
                                   {[...Array(4)].map((_,k)=><div key={k} style={{ width:6,height:4,background:"rgba(255,255,255,0.35)",borderRadius:1 }}/>)}
