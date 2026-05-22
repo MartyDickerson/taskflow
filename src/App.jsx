@@ -1173,7 +1173,7 @@ export default function Dashboard() {
             </div>
 
             {/* MY CARDS */}
-            <div style={{ background:"linear-gradient(160deg,#c2410c 0%,#9333ea 55%,#1e1b4b 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(147,51,234,0.3)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(147,51,234,0.3)` }}>
+            <div style={{ background:"linear-gradient(160deg,#1a0533 0%,#6b0f52 50%,#1a0533 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(107,15,82,0.5)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(107,15,82,0.3)` }}>
 
               {/* Header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
