@@ -1005,7 +1005,7 @@ export default function Dashboard() {
             height="175"
             style={{ width:"100%", overflow:"hidden", background:"transparent", display:"block" }}
             sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
-            src="https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0?theme=dark"
+            src="https://embed.music.apple.com/us/playlist/chill-beats-groove-relax/pl.u-11zBJWbHNv4evR0"
           />
         </div>
 
