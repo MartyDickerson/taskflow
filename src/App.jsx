@@ -1587,12 +1587,19 @@ export default function Dashboard() {
                     {(()=>{
                       const motivations=[
                         {img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80",quote:"Push harder than yesterday."},
-                        {img:"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80",quote:"Your body can do it."},
+                        {img:"https://images.unsplash.com/photo-1483721310020-03333e577078?w=400&q=80",quote:"Every mile is a gift."},
                         {img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80",quote:"Sweat now. Shine later."},
                         {img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80",quote:"No pain, no gain."},
                         {img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80",quote:"Believe in yourself."},
                         {img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80",quote:"The only bad workout is the one that didn't happen."},
                         {img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80",quote:"Make yourself proud."},
+                        {img:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",quote:"Run like you mean it."},
+                        {img:"https://images.unsplash.com/photo-1486218119243-13301543a212?w=400&q=80",quote:"One step at a time."},
+                        {img:"https://images.unsplash.com/photo-1530143311094-34d807799e8f?w=400&q=80",quote:"Your only limit is you."},
+                        {img:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80",quote:"Run your own race."},
+                        {img:"https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&q=80",quote:"The road is yours — take it."},
+                        {img:"https://images.unsplash.com/photo-1502904550040-7534597429ae?w=400&q=80",quote:"Every run makes you stronger."},
+                        {img:"https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80",quote:"Lace up and go."},
                       ];
                       const mv=motivations[new Date().getDay()];
                       return (
