@@ -618,8 +618,8 @@ function PomodoroTimer() {
         {pomState==="idle"?(
           <button onClick={()=>{ setPomSecs(customMin*60); setPomState("work"); }}
             style={{ flex:2, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
-              background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", color:"white",
-              boxShadow:`0 4px 14px ${T.accentGlow}` }}>▶ Start Focus</button>
+              background:`linear-gradient(135deg,${T.green},#059669)`, border:"none", color:"white",
+              boxShadow:`0 4px 14px rgba(16,185,129,0.4)` }}>▶ Start Focus</button>
         ):(
           <button onClick={()=>{ clearInterval(pomRef.current); setPomState("idle"); setPomSecs(customMin*60); }}
             style={{ flex:1, padding:"10px", borderRadius:10, fontWeight:700, fontSize:13,
