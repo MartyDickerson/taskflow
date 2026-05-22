@@ -876,7 +876,7 @@ export default function Dashboard() {
         </div>
 
         {/* Book list */}
-        <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
           {books.length===0&&(
             <div style={{ textAlign:"center", padding:"20px 0", color:T.muted, fontSize:11 }}>
               <div style={{ fontSize:28, marginBottom:8 }}>📖</div>
