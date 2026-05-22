@@ -1100,7 +1100,7 @@ export default function Dashboard() {
                   <div>
                     <ResponsiveContainer width="100%" height={120}>
                       <BarChart data={weekBars} barSize={22} margin={{top:4,right:4,left:-20,bottom:0}}>
-                        <XAxis dataKey="day" tick={{fill:"#8b8bcc",fontSize:12,fontWeight:600}} axisLine={false} tickLine={false}/>
+                        <XAxis dataKey="day" tick={false} axisLine={false} tickLine={false} height={4}/>
                         <YAxis tick={{fill:"#6b6b9a",fontSize:11}} axisLine={false} tickLine={false} allowDecimals={false}/>
                         <Tooltip content={<CustomTip/>} cursor={{fill:"rgba(124,58,237,0.08)"}}/>
                         <Bar dataKey="done" radius={[5,5,0,0]}>
