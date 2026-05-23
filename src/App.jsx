@@ -705,9 +705,11 @@ function HabitTracker() {
   const [adding, setAdding]   = useState(false);
   const [newHabit, setNewHabit] = useState({ name:"", icon:"✅", color:"#7c3aed" });
   const today = new Date().toISOString().split("T")[0];
+  const dayOfWeek = new Date().getDay();
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
   useEffect(()=>{
-    supabase.from("habits").select("*").order("sort_order").then(({data})=>setHabits(data||[]));
+    supabase.from("habits").select("*").eq("day_of_week", dayOfWeek).order("sort_order").then(({data})=>setHabits(data||[]));
     supabase.from("habit_logs").select("*").eq("log_date",today).then(({data})=>{
       const map = {};
       (data||[]).forEach(l=>{ map[l.habit_id]=l; });
@@ -718,18 +720,18 @@ function HabitTracker() {
   const toggle = async(habit) => {
     const existing = logs[habit.id];
     if(existing){
-      const newVal = !existing.completed;
-      setLogs(l=>({...l,[habit.id]:{...existing,completed:newVal}}));
-      await supabase.from("habit_logs").update({completed:newVal}).eq("id",existing.id);
+      const newVal = !existing.done;
+      setLogs(l=>({...l,[habit.id]:{...existing,done:newVal}}));
+      await supabase.from("habit_logs").update({done:newVal}).eq("id",existing.id);
     } else {
-      const {data} = await supabase.from("habit_logs").insert({habit_id:habit.id,log_date:today,completed:true}).select().single();
+      const {data} = await supabase.from("habit_logs").insert({habit_id:habit.id,log_date:today,done:true}).select().single();
       if(data) setLogs(l=>({...l,[habit.id]:data}));
     }
   };
 
   const addHabit = async() => {
     if(!newHabit.name.trim()) return;
-    const {data} = await supabase.from("habits").insert({...newHabit,sort_order:habits.length+1}).select().single();
+    const {data} = await supabase.from("habits").insert({habit_name:newHabit.name,label:newHabit.name,icon:newHabit.icon,color:newHabit.color,sort_order:habits.length+1,day_of_week:dayOfWeek}).select().single();
     if(data) setHabits(h=>[...h,data]);
     setNewHabit({name:"",icon:"✅",color:"#7c3aed"});
     setAdding(false);
@@ -740,24 +742,27 @@ function HabitTracker() {
     await supabase.from("habits").delete().eq("id",id);
   };
 
-  const done = habits.filter(h=>logs[h.id]?.completed).length;
+  const done = habits.filter(h=>logs[h.id]?.done).length;
   const pct  = habits.length>0 ? Math.round((done/habits.length)*100) : 0;
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1 }}>
+      {/* Header */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>✅ {dayNames[dayOfWeek]}'s Habits</div>
+        <span style={{ fontSize:11, fontWeight:700, color:pct===100?T.green:T.accentLight }}>{done}/{habits.length}</span>
+      </div>
       {/* Progress bar */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:2 }}>
-        <span style={{ fontSize:11, color:T.muted }}>{done}/{habits.length} completed</span>
-        <span style={{ fontSize:11, fontWeight:700, color:pct===100?T.green:T.accentLight }}>{pct}%</span>
+        <span style={{ fontSize:11, color:T.muted }}>{pct}% complete</span>
       </div>
-      <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:6 }}>
+      <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden", marginBottom:10 }}>
         <div style={{ height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.5s ease",
           background:pct===100?T.green:`linear-gradient(90deg,${T.accent},${T.accentB})` }}/>
       </div>
 
-      {/* Habit list */}
       {habits.map(h=>{
-        const completed = logs[h.id]?.completed;
+        const completed = logs[h.id]?.done;
         return (
           <div key={h.id} onClick={()=>toggle(h)}
             style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 12px", borderRadius:10, cursor:"pointer",
@@ -771,7 +776,7 @@ function HabitTracker() {
               <span style={{ fontSize:14 }}>{completed?"✓":h.icon}</span>
             </div>
             <span style={{ flex:1, fontSize:12, fontWeight:500, color:completed?T.muted:T.text,
-              textDecoration:completed?"line-through":"none" }}>{h.name}</span>
+              textDecoration:completed?"line-through":"none" }}>{h.label||h.habit_name||h.name}</span>
             {completed&&<span style={{ fontSize:10, color:h.color, fontWeight:700 }}>Done!</span>}
             <button className="hdel" onClick={e=>{e.stopPropagation();deleteHabit(h.id);}}
               style={{ background:"none", color:T.red, fontSize:13, opacity:0, transition:"opacity 0.15s", padding:"0 4px" }}>×</button>
