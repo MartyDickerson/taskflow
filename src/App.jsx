@@ -818,6 +818,7 @@ function HabitTracker() {
 
 
 
+export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tick, setTick] = useState(0);
   useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),60000); return()=>clearInterval(t); },[]);
