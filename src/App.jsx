@@ -713,7 +713,7 @@ function CyberNewsFeed() {
           model:"claude-sonnet-4-20250514",
           max_tokens:1000,
           tools:[{ type:"web_search_20250305", name:"web_search" }],
-          messages:[{ role:"user", content:"Search for the 5 most recent cybersecurity news headlines from today or this week. Focus on SOC relevant topics: threat intelligence, data breaches, malware, ransomware, CVEs, and security tools. Return ONLY a JSON array (no markdown, no backticks) with objects having fields: title (short headline), source (news source name), severity (critical/high/medium/low), category (Threat Intel/Breach/Malware/Vulnerability/Tools), summary (1 sentence), url (link). Example: [{"title":"...","source":"...","severity":"high","category":"Breach","summary":"...","url":"https://..."}]" }]
+          messages:[{ role:"user", content:'Search for the 5 most recent cybersecurity news headlines from today or this week. Focus on SOC relevant topics: threat intelligence, data breaches, malware, ransomware, CVEs, and security tools. Return ONLY a JSON array (no markdown, no backticks) with objects having fields: title (short headline), source (news source name), severity (critical/high/medium/low), category (Threat Intel/Breach/Malware/Vulnerability/Tools), summary (1 sentence), url (link). Example: [{"title":"...","source":"...","severity":"high","category":"Breach","summary":"...","url":"https://..."}]' }]
         })
       });
       const data = await response.json();
