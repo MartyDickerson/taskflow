@@ -134,7 +134,6 @@ function Calendar() {
 
   // Today's events
   const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-  const selectedStr = `${cal.getFullYear()}-${String(cal.getMonth()+1).padStart(2,"0")}`;
   const todayEvents = events.filter(e=>e.event_date===todayStr);
 
   return (
@@ -588,7 +587,7 @@ function PomodoroTimer() {
       });
     },1000);
     return ()=>clearInterval(pomRef.current);
-  },[pomState]);
+  },[pomState, customMin]);
 
   const mins  = String(Math.floor(pomSecs/60)).padStart(2,"0");
   const secs  = String(pomSecs%60).padStart(2,"0");
@@ -763,7 +762,7 @@ function CyberNewsFeed() {
       ) : (
         <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1, overflowY:"auto" }}>
           {news.map((item,i)=>(
-            <a key={i} href={item.url!=="?"?item.url:"#"} target="_blank" rel="noopener noreferrer"
+            <a key={i} href={item.url&&item.url!=="?"&&item.url!=="#"?item.url:"#"} target={item.url&&item.url!=="?"&&item.url!=="#"?"_blank":undefined} rel="noopener noreferrer"
               style={{ textDecoration:"none", display:"block" }}>
               <div style={{ padding:"10px 12px", borderRadius:10, background:T.raised,
                 border:`1px solid ${T.border2}`, transition:"all 0.2s", cursor:"pointer" }}
@@ -935,7 +934,7 @@ export default function Dashboard() {
           .tf-content{padding:22px 32px 40px}
           .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
           .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
-        }to{opacity:1;transform:translateY(0)}}
+        }
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
         .fu{animation:fadeUp 0.3s ease}
         .pulse{animation:pulse 2s infinite}
@@ -1033,8 +1032,8 @@ export default function Dashboard() {
             const isDone = b.status==="done";
             return (
               <div key={b.id} style={{ background:T.raised, borderRadius:11, padding:"10px 11px", border:`1px solid ${T.border2}`, position:"relative" }}
-                onMouseEnter={e=>e.currentTarget.querySelector(".book-del").style.opacity="1"}
-                onMouseLeave={e=>e.currentTarget.querySelector(".book-del").style.opacity="0"}>
+                onMouseEnter={e=>{ const el=e.currentTarget.querySelector(".book-del"); if(el) el.style.opacity="1"; }}
+                onMouseLeave={e=>{ const el=e.currentTarget.querySelector(".book-del"); if(el) el.style.opacity="0"; }}>
                 <div style={{ display:"flex", gap:9, alignItems:"flex-start" }}>
                   {/* Book cover image or colored spine */}
                   {b.cover_image ? (
@@ -1551,7 +1550,7 @@ export default function Dashboard() {
               </div>
               <div style={{ display:"flex", gap:7, marginBottom:12 }}>
                 <input id="newTaskInput" value={newTask} onChange={e=>setNewTask(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addTask()} placeholder="Add task… Enter to save"
-                  style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:9, padding:"8px 12px", color:T.text, fontSize:12 }} />
+                  style={{ flex:1, minWidth:0, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:9, padding:"8px 12px", color:T.text, fontSize:12 }} />
                 <button onClick={addTask} disabled={saving} style={{ padding:"8px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:9, color:"white", fontSize:16, fontWeight:900, boxShadow:`0 0 12px ${T.accentGlow}`, opacity:saving?0.6:1 }}>+</button>
               </div>
               {loading.tasks?<Spinner/>:(
