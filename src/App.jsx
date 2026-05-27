@@ -713,7 +713,7 @@ function CyberNewsFeed() {
           model:"claude-sonnet-4-20250514",
           max_tokens:1000,
           tools:[{ type:"web_search_20250305", name:"web_search" }],
-          messages:[{ role:"user", content:'Search for the 5 most recent cybersecurity news headlines from today or this week. Focus on SOC relevant topics: threat intelligence, data breaches, malware, ransomware, CVEs, and security tools. Return ONLY a JSON array (no markdown, no backticks) with objects having fields: title (short headline), source (news source name), severity (critical/high/medium/low), category (Threat Intel/Breach/Malware/Vulnerability/Tools), summary (1 sentence), url (link). Example: [{"title":"...","source":"...","severity":"high","category":"Breach","summary":"...","url":"https://..."}]' }]
+          messages:[{ role:"user", content:"Search for the 5 most recent cybersecurity news headlines from today or this week. Focus on SOC relevant topics: threat intelligence, data breaches, malware, ransomware, CVEs, and security tools. Return ONLY a JSON array (no markdown, no backticks) with objects having fields: title (short headline), source (news source name), severity (critical/high/medium/low), category (Threat Intel/Breach/Malware/Vulnerability/Tools), summary (1 sentence), url (link). Example: [{"title":"...","source":"...","severity":"high","category":"Breach","summary":"...","url":"https://..."}]" }]
         })
       });
       const data = await response.json();
@@ -855,6 +855,24 @@ export default function Dashboard() {
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
+  // Auto-reset tasks each new day
+  useEffect(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const resetStaleTasks = async () => {
+      const { data } = await supabase.from("tasks").select("id,completed_date").eq("done", true);
+      if (!data) return;
+      const stale = data.filter(t => t.completed_date && t.completed_date < todayStr).map(t => t.id);
+      if (!stale.length) return;
+      await supabase.from("tasks").update({ done: false, completed_date: null }).in("id", stale);
+      setTasks(ts => ts.map(t => stale.includes(t.id) ? { ...t, done: false, completed_date: null } : t));
+    };
+    resetStaleTasks();
+    const now = new Date();
+    const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0, 0, 1) - now;
+    const midnightTimer = setTimeout(() => { resetStaleTasks(); }, msUntilMidnight);
+    return () => clearTimeout(midnightTimer);
+  }, []);
+
   useEffect(() => {
     const s1 = supabase.channel("t").on("postgres_changes",{event:"*",schema:"public",table:"tasks"},()=>supabase.from("tasks").select("*").order("created_at",{ascending:true}).then(({data})=>setTasks(data||[]))).subscribe();
     const s2 = supabase.channel("g").on("postgres_changes",{event:"*",schema:"public",table:"goals"},()=>supabase.from("goals").select("*").order("created_at",{ascending:true}).then(({data})=>setGoals(data||[]))).subscribe();
@@ -908,7 +926,7 @@ export default function Dashboard() {
         .tf-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
         .tf-content{flex:1;overflow-y:auto;padding:clamp(14px,1.5vw,24px) clamp(16px,2vw,32px) 32px}
         .tf-row1{display:grid;grid-template-columns:1.4fr 0.8fr 1.2fr 0.9fr;gap:14px;align-items:stretch}
-        .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.9fr;gap:14px;min-height:380px}
+        .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px;min-height:380px}
         .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
         @media(max-width:1280px){
@@ -933,7 +951,7 @@ export default function Dashboard() {
         @media(min-width:1600px){
           .tf-content{padding:22px 32px 40px}
           .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
-          .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 1fr}
+          .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
         }
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
         .fu{animation:fadeUp 0.3s ease}
@@ -1661,6 +1679,154 @@ export default function Dashboard() {
             {/* CYBER NEWS FEED */}
             <div id="section-calendar" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
               <CyberNewsFeed />
+            </div>
+
+                        {/* FITNESS TRACKER */}
+            <div style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column", gap:8 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🏋️ Weekly Progress</div>
+                <button onClick={async()=>{
+                  if(!fitnessLog) return;
+                  setSaving(true);
+                  await supabase.from("fitness").upsert({...fitnessLog, log_date:new Date().toISOString().split("T")[0]});
+                  setSaving(false); showToast("Fitness saved ✓");
+                }} style={{ fontSize:11, padding:"5px 14px", borderRadius:8, fontWeight:700,
+                  background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
+                  border:"none", color:"white", cursor:"pointer",
+                  boxShadow:`0 4px 12px ${T.accentGlow}`,
+                  opacity:saving?0.6:1, letterSpacing:"0.3px" }}>
+                  💾 Save
+                </button>
+              </div>
+              {!fitnessLog ? <Spinner/> : (()=>{
+                const metrics = [
+                  { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:fitnessGoals.steps,    color:T.accent },
+                  { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:fitnessGoals.calories,  color:"#f97316" },
+                  { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:fitnessGoals.water_oz,  color:"#38bdf8" },
+                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#a78bfa" },
+                  { key:"tea_cups",  label:"Ginseng Tea", icon:"🍵", unit:"8oz", max:fitnessGoals.tea_cups||3, color:"#86efac" },
+                ];
+                const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
+                const size=110, r=40, cx=55, cy=55, circ=2*Math.PI*r;
+                let offset=0;
+                const segments = metrics.map(m=>{
+                  const pct=Math.min(((fitnessLog[m.key]||0)/m.max),1);
+                  const dash=pct*(circ/metrics.length);
+                  const gap=circ-dash;
+                  const seg={color:m.color,dash,gap,offset,pct};
+                  offset+=circ/metrics.length;
+                  return seg;
+                });
+                return (
+                  <div style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
+                    {/* Top: donut + metric list */}
+                    <div style={{ display:"flex", gap:12, alignItems:"center" }}>
+                      {/* Donut */}
+                      <div style={{ position:"relative", flexShrink:0 }}>
+                        <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
+                          <circle cx={cx} cy={cy} r={r} fill="none" stroke={T.faint} strokeWidth={9}/>
+                          {segments.map((s,i)=>(
+                            <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+                              stroke={s.color} strokeWidth={9}
+                              strokeDasharray={`${s.dash} ${s.gap}`}
+                              strokeDashoffset={-s.offset}
+                              strokeLinecap="round"/>
+                          ))}
+                        </svg>
+                        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+                          <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.text, lineHeight:1 }}>{totalPct}%</div>
+                          <div style={{ fontSize:8, color:T.muted, textAlign:"center", lineHeight:1.3 }}>Goal<br/>Progress</div>
+                        </div>
+                      </div>
+
+                      {/* Metrics */}
+                      <div style={{ flex:1, display:"flex", flexDirection:"column", gap:7 }}>
+                        {metrics.map(m=>{
+                          const val=fitnessLog[m.key]||0;
+                          const pct=Math.min(Math.round((val/m.max)*100),100);
+                          return (
+                            <div key={m.key}>
+                              <div style={{ display:"grid", gridTemplateColumns:"auto 1fr auto", alignItems:"center", gap:6, marginBottom:3 }}>
+                                {/* Label */}
+                                <div style={{ display:"flex", alignItems:"center", gap:5, minWidth:60 }}>
+                                  <div style={{ width:7, height:7, borderRadius:"50%", background:m.color, flexShrink:0 }}/>
+                                  <span style={{ fontSize:11, color:T.text, fontWeight:500 }}>{m.label}</span>
+                                </div>
+                                {/* Empty spacer */}
+                                <div/>
+                                {/* Value / Goal — right aligned */}
+                                <div style={{ display:"flex", alignItems:"center", gap:2, justifyContent:"flex-end" }}>
+                                  <input type="number" value={val}
+                                    onChange={e=>setFitnessLog(f=>({...f,[m.key]:parseFloat(e.target.value)||0}))}
+                                    style={{ width:44, textAlign:"right", background:"transparent", border:"none",
+                                      color:T.text, fontSize:11, fontWeight:700, padding:0 }} />
+                                  <span style={{ fontSize:9, color:T.faint }}>/</span>
+                                  {editingGoal===m.key ? (
+                                    <input type="number" defaultValue={m.max} autoFocus
+                                      onBlur={e=>{ const v=parseInt(e.target.value)||m.max; const updated={...fitnessGoals,[m.key]:v}; setFitnessGoals(updated); setEditingGoal(null);
+                                        try{ localStorage.setItem("taskflow_fitness_goals",JSON.stringify(updated)); }catch(e){}; }}
+                                      onKeyDown={e=>{ if(e.key==="Enter") e.target.blur(); if(e.key==="Escape") setEditingGoal(null); }}
+                                      style={{ width:40, textAlign:"left", background:T.accentDim, border:`1px solid ${T.accent}`, borderRadius:4, padding:"1px 4px", color:T.accentLight, fontSize:10, fontWeight:700 }} />
+                                  ) : (
+                                    <span onClick={()=>setEditingGoal(m.key)}
+                                      style={{ fontSize:9, color:T.muted, cursor:"pointer", width:36, textAlign:"left" }}
+                                      title="Click to edit goal">{m.max}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div style={{ height:3, background:T.faint, borderRadius:3, overflow:"hidden" }}>
+                                <div style={{ height:"100%", width:`${pct}%`, background:m.color, borderRadius:3, transition:"width 0.5s ease" }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Status message */}
+                    <div style={{ padding:"7px 11px", borderRadius:9,
+                      background:totalPct>=75?`rgba(16,185,129,0.12)`:totalPct>=40?T.accentDim:`rgba(239,68,68,0.08)`,
+                      border:`1px solid ${totalPct>=75?T.green+"44":totalPct>=40?T.accent+"44":T.red+"33"}`,
+                      display:"flex", alignItems:"center", gap:7 }}>
+                      <span style={{ fontSize:13 }}>{totalPct>=75?"✅":totalPct>=40?"💪":"🎯"}</span>
+                      <span style={{ fontSize:10, color:totalPct>=75?T.green:totalPct>=40?T.accentLight:T.muted, fontWeight:600, lineHeight:1.4 }}>
+                        {totalPct>=75?"Great job! You're on track."
+                          :totalPct>=40?"Good progress! Keep pushing."
+                          :"Log your activity to track your goals!"}
+                      </span>
+                    </div>
+
+                    {/* Motivation image */}
+                    {(()=>{
+                      const motivations=[
+                        {img:"https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=400&q=80",quote:"Push harder than yesterday."},
+                        {img:"https://images.unsplash.com/photo-1483721310020-03333e577078?w=400&q=80",quote:"Every mile is a gift."},
+                        {img:"https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&q=80",quote:"Sweat now. Shine later."},
+                        {img:"https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=400&q=80",quote:"No pain, no gain."},
+                        {img:"https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80",quote:"Believe in yourself."},
+                        {img:"https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&q=80",quote:"The only bad workout is the one that didn't happen."},
+                        {img:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80",quote:"Make yourself proud."},
+                        {img:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80",quote:"Run like you mean it."},
+                        {img:"https://images.unsplash.com/photo-1486218119243-13301543a212?w=400&q=80",quote:"One step at a time."},
+                        {img:"https://images.unsplash.com/photo-1530143311094-34d807799e8f?w=400&q=80",quote:"Your only limit is you."},
+                        {img:"https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&q=80",quote:"Run your own race."},
+                        {img:"https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&q=80",quote:"The road is yours — take it."},
+                        {img:"https://images.unsplash.com/photo-1502904550040-7534597429ae?w=400&q=80",quote:"Every run makes you stronger."},
+                        {img:"https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80",quote:"Lace up and go."},
+                      ];
+                      const mv=motivations[new Date().getDay()];
+                      return (
+                        <div style={{ borderRadius:12, overflow:"hidden", position:"relative", flex:1, minHeight:90 }}>
+                          <img src={mv.img} style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0, filter:"saturate(1.5) brightness(1.1)" }} alt="motivation"/>
+                          <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top,rgba(0,0,0,0.85),rgba(0,0,0,0.05))", display:"flex", alignItems:"flex-end", padding:"12px 14px" }}>
+                            <div style={{ fontSize:12, color:"white", fontWeight:700, lineHeight:1.5, fontStyle:"italic" }}>"{mv.quote}"</div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* FINANCE */}
