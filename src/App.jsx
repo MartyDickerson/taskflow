@@ -1339,7 +1339,7 @@ export default function Dashboard() {
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
               <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:"2px", lineHeight:1, background:`linear-gradient(135deg,${T.text},${T.accentLight})`, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} <span style={{ fontWeight:800, fontSize:28, letterSpacing:"1px" }}>Marty</span>! {(()=>{ const h=new Date().getHours(); return h<12?"☀️":h<17?"🌤️":"🌙"; })()}
+              {(()=>{ const h=new Date().getHours(); return h<12?"Good Morning,":h<17?"Good Afternoon,":"Good Evening,"; })()} <span style={{ fontWeight:800, fontSize:28, letterSpacing:"1px" }}>Marty</span>! <span style={{ fontSize:13, padding:"2px 8px", borderRadius:6, background:T.accentDim, color:T.accentLight, letterSpacing:"1px", verticalAlign:"middle" }}>{(()=>{ const h=new Date().getHours(); return h<12?"AM":h<17?"PM":"NIGHT"; })()}</span>
               </div>
             </div>
             <div style={{ fontSize:11, color:T.muted }}>
