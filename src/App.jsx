@@ -1052,29 +1052,55 @@ export default function Dashboard() {
         .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px;min-height:380px}
         .tf-hamburger{display:none;background:#12122c;border:1px solid #252548;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
-        @media(max-width:1280px){
-          .tf-row2{grid-template-columns:repeat(3,1fr)}
+        /* Large desktop */
+        @media(min-width:1600px){
+          .tf-content{padding:22px 32px 40px}
+          .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
+          .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
         }
+        /* Medium desktop */
+        @media(max-width:1400px){
+          .tf-row1{grid-template-columns:1fr 0.8fr 1fr 0.9fr}
+          .tf-row2{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
+        }
+        /* Small desktop / large tablet landscape */
+        @media(max-width:1280px){
+          .tf-row1{grid-template-columns:1fr 1fr}
+          .tf-row2{grid-template-columns:repeat(3,1fr)}
+          .tf-row2>*:nth-child(4){grid-column:1}
+          .tf-row2>*:nth-child(5){grid-column:2/4}
+        }
+        /* Tablet / collapsed sidebar */
         @media(max-width:1100px){
           .tf-sidebar{position:fixed;top:0;left:0;height:100vh;z-index:200;transform:translateX(-100%)}
           .tf-sidebar.open{transform:translateX(0)}
           .tf-row1{grid-template-columns:1fr 1fr}
           .tf-row2{grid-template-columns:repeat(2,1fr)}
+          .tf-row2>*:nth-child(4){grid-column:auto}
+          .tf-row2>*:nth-child(5){grid-column:auto}
           .tf-hamburger{display:flex}
           .tf-content{padding:14px 16px 28px}
           .tf-overlay.open{display:block}
         }
+        /* Large mobile / small tablet */
         @media(max-width:768px){
-          .tf-row1{grid-template-columns:1fr}
-          .tf-row2{grid-template-columns:1fr}
-          .tf-content{padding:10px 12px 24px}
+          .tf-app{height:auto;min-height:100vh;overflow-x:hidden}
+          .tf-main{overflow:visible}
+          .tf-content{overflow-y:visible;padding:10px 12px 80px}
+          .tf-row1{grid-template-columns:1fr;gap:12px}
+          .tf-row2{grid-template-columns:1fr;gap:12px;min-height:unset}
+          .tf-row2>*:nth-child(4){grid-column:auto}
+          .tf-row2>*:nth-child(5){grid-column:auto}
           .tf-quote{display:none}
-          .tf-header{flex-direction:column;align-items:flex-start;gap:8px}
+          .tf-header{flex-wrap:wrap;gap:8px;padding:12px 14px}
+          .tf-header>div:first-child{flex:1;min-width:0}
         }
-        @media(min-width:1600px){
-          .tf-content{padding:22px 32px 40px}
-          .tf-row1{grid-template-columns:1.5fr 0.75fr 1.2fr 0.85fr}
-          .tf-row2{grid-template-columns:1.2fr 1fr 0.9fr 0.9fr 1fr}
+        /* Mobile */
+        @media(max-width:480px){
+          .tf-content{padding:8px 10px 80px}
+          .tf-row1{gap:10px}
+          .tf-row2{gap:10px}
+          .tf-header{padding:10px 12px}
         }
         @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
         .fu{animation:fadeUp 0.3s ease}
@@ -1308,7 +1334,7 @@ export default function Dashboard() {
       <div className="tf-main">
 
         {/* Header */}
-        <div className="tf-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)`, gap:12 }}>
+        <div className="tf-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#11112a)`, gap:12, flexWrap:"wrap" }}>
           <div>
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
@@ -1681,7 +1707,7 @@ export default function Dashboard() {
           </div>
 
           {/* ROW 2: Tasks | Goals | Calendar | Fitness | Finance */}
-          <div className="tf-row2" style={{ minHeight:380 }}>
+          <div className="tf-row2" style={{ minHeight:"auto" }}>
 
             {/* TO-DO */}
             <div id="section-tasks" style={{ background:T.surface, borderRadius:14, padding:"18px 18px", border:`1px solid ${T.border}`, display:"flex", flexDirection:"column" }}>
