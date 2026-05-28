@@ -708,9 +708,9 @@ function CisaKevFeed() {
     setLoading(true);
     try {
       // NVD API — free, no key needed for basic use, proper CORS headers
-      // Fetch recently modified CVEs with CVSS >= 7.0, sorted by date
+      // Fetch recently published critical CVEs
       const res = await fetch(
-        "https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=CRITICAL&resultsPerPage=20&startIndex=0",
+        "https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=CRITICAL&resultsPerPage=20&startIndex=0&sortBy=published&sortOrder=dsc",
         { headers: { "Accept": "application/json" } }
       );
       const data = await res.json();
