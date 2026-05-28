@@ -706,17 +706,29 @@ function CisaKevFeed() {
 
   const fetchKevDirect = async () => {
     setLoading(true);
-    try {
-      const res = await fetch("https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json");
-      const data = await res.json();
-      const items = (data.vulnerabilities || [])
-        .sort((a,b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-        .slice(0,20);
-      setKevs(items);
-      setLastFetch(new Date());
-    } catch(e) {
-      setKevs([]);
+    const CISA_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json";
+    const PROXIES = [
+      `https://corsproxy.io/?${encodeURIComponent(CISA_URL)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(CISA_URL)}`,
+      CISA_URL,
+    ];
+    let loaded = false;
+    for (const url of PROXIES) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const items = (data.vulnerabilities || [])
+          .sort((a,b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+          .slice(0,20);
+        if (items.length > 0) {
+          setKevs(items);
+          setLastFetch(new Date());
+          loaded = true;
+          break;
+        }
+      } catch(e) { continue; }
     }
+    if (!loaded) setKevs([]);
     setLoading(false);
   };
 
