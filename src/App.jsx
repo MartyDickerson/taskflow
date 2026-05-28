@@ -698,155 +698,215 @@ function timeAgo(ts) {
   return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 }
 
-function CisaKevFeed() {
-  const [kevs,    setKevs]    = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [lastFetch, setLastFetch] = useState(null);
-  const [filter, setFilter]   = useState("all");
+function SOCOpsPanel() {
+  const today = new Date();
+  const dayIdx = today.getDay();
+  const dateStr = today.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
 
-  const fetchKevDirect = async () => {
-    setLoading(true);
-    try {
-      // NVD API — free, no key needed for basic use, proper CORS headers
-      // Fetch recently published critical CVEs
-      const res = await fetch(
-        "https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=CRITICAL&resultsPerPage=20&startIndex=0&sortBy=published&sortOrder=dsc",
-        { headers: { "Accept": "application/json" } }
-      );
-      const data = await res.json();
-      const items = (data.vulnerabilities || []).map(v => {
-        const cve = v.cve;
-        const metrics = cve.metrics?.cvssMetricV31?.[0] || cve.metrics?.cvssMetricV30?.[0] || cve.metrics?.cvssMetricV2?.[0];
-        const score = metrics?.cvssData?.baseScore || null;
-        const desc = cve.descriptions?.find(d => d.lang === "en")?.value || "";
-        const refs = cve.references?.[0]?.url || `https://nvd.nist.gov/vuln/detail/${cve.id}`;
-        const published = cve.published ? new Date(cve.published).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}) : "";
-        const cpe = cve.configurations?.[0]?.nodes?.[0]?.cpeMatch?.[0]?.criteria || "";
-        const vendor = cpe.split(":")?.[3] || "N/A";
-        const product = cpe.split(":")?.[4] || "";
-        return {
-          cveID: cve.id,
-          vulnerabilityName: desc.slice(0, 80),
-          shortDescription: desc,
-          cvssV3BaseScore: score,
-          vendorProject: vendor,
-          product,
-          dateAdded: published,
-          url: refs,
-        };
-      });
-      setKevs(items);
-      setLastFetch(new Date());
-    } catch(e) {
-      setKevs([]);
-    }
-    setLoading(false);
+  const [checked, setChecked] = useState({});
+  const [tab, setTab] = useState("checklist");
+
+  const CHECKLISTS = {
+    0: [ // Sunday
+      { id:"s1", p:"high",   text:"Review weekend SIEM alert backlog" },
+      { id:"s2", p:"high",   text:"Check for after-hours login anomalies" },
+      { id:"s3", p:"medium", text:"Review firewall deny logs" },
+      { id:"s4", p:"medium", text:"Validate backup job completions" },
+      { id:"s5", p:"low",    text:"Update threat intel feeds" },
+    ],
+    1: [ // Monday
+      { id:"m1", p:"high",   text:"Review weekend alerts & triage queue" },
+      { id:"m2", p:"high",   text:"Check CISA KEV for new additions" },
+      { id:"m3", p:"high",   text:"Update incident log / ticketing system" },
+      { id:"m4", p:"medium", text:"Review EDR detections from weekend" },
+      { id:"m5", p:"medium", text:"Check patch status on critical assets" },
+      { id:"m6", p:"low",    text:"Team standup — sync on open incidents" },
+    ],
+    2: [ // Tuesday
+      { id:"t1", p:"high",   text:"Threat hunt: review lateral movement indicators" },
+      { id:"t2", p:"high",   text:"Scan threat intel feeds (CISA, SANS)" },
+      { id:"t3", p:"medium", text:"Review IDS/IPS rule hit counts" },
+      { id:"t4", p:"medium", text:"Analyze top talkers on network" },
+      { id:"t5", p:"low",    text:"Document any new TTPs observed" },
+    ],
+    3: [ // Wednesday
+      { id:"w1", p:"high",   text:"Review privileged account activity" },
+      { id:"w2", p:"high",   text:"Check for new CVEs on production systems" },
+      { id:"w3", p:"medium", text:"Validate DLP alerts — review exfil attempts" },
+      { id:"w4", p:"medium", text:"Review VPN & remote access logs" },
+      { id:"w5", p:"low",    text:"Update runbook / playbook documentation" },
+    ],
+    4: [ // Thursday
+      { id:"h1", p:"high",   text:"Hunt for persistence mechanisms (reg, schtasks)" },
+      { id:"h2", p:"high",   text:"Review phishing email queue" },
+      { id:"h3", p:"medium", text:"Cross-reference IOCs with SIEM alerts" },
+      { id:"h4", p:"medium", text:"Check cloud access logs (AWS/Azure/GCP)" },
+      { id:"h5", p:"low",    text:"Threat intel report review" },
+    ],
+    5: [ // Friday
+      { id:"f1", p:"high",   text:"End-of-week incident summary report" },
+      { id:"f2", p:"high",   text:"Verify all P1/P2 tickets resolved or escalated" },
+      { id:"f3", p:"medium", text:"Weekend on-call handoff briefing" },
+      { id:"f4", p:"medium", text:"Rotate/review API keys & service accounts" },
+      { id:"f5", p:"low",    text:"Clean up stale alerts in SIEM" },
+    ],
+    6: [ // Saturday
+      { id:"a1", p:"high",   text:"Monitor for weekend attack spikes" },
+      { id:"a2", p:"high",   text:"Verify automated response playbooks firing" },
+      { id:"a3", p:"medium", text:"Check authentication failure spikes" },
+      { id:"a4", p:"low",    text:"Review threat actor activity reports" },
+    ],
   };
 
-  useEffect(()=>{ fetchKevDirect(); },[]);
+  const HUNT_QUERIES = [
+    { title:"Suspicious PowerShell Execution", tool:"Splunk", query:'index=windows EventCode=4104 ScriptBlockText="*-enc*" OR "*bypass*" OR "*IEX*"', tag:"Execution" },
+    { title:"Lateral Movement via PsExec", tool:"Splunk", query:'index=windows EventCode=7045 ServiceFileName="*PSEXESVC*"', tag:"Lateral Movement" },
+    { title:"Brute Force Login Attempts", tool:"Splunk", query:'index=windows EventCode=4625 | stats count by src_ip | where count > 10', tag:"Credential Access" },
+    { title:"Beaconing C2 Detection", tool:"Splunk", query:'index=network | bucket _time span=1h | stats count by dest_ip _time | eventstats stdev(count) as std | where count > std*3', tag:"C2" },
+    { title:"New Local Admin Created", tool:"Splunk", query:'index=windows EventCode=4732 Group_Name="Administrators"', tag:"Persistence" },
+    { title:"Suspicious Scheduled Task", tool:"Splunk", query:'index=windows EventCode=4698 | search TaskContent="*http*" OR TaskContent="*cmd*"', tag:"Persistence" },
+    { title:"Data Exfil — Large Uploads", tool:"Splunk", query:'index=network bytes_out > 50000000 | stats sum(bytes_out) by src_ip dest_ip', tag:"Exfiltration" },
+  ];
 
-  const cvssColor = (v) => {
-    if(!v) return T.muted;
-    const n = parseFloat(v);
-    if(n >= 9) return "#ef4444";
-    if(n >= 7) return "#f97316";
-    if(n >= 4) return "#f59e0b";
-    return "#10b981";
-  };
-  const cvssLabel = (v) => {
-    if(!v) return "N/A";
-    const n = parseFloat(v);
-    if(n >= 9) return "CRITICAL";
-    if(n >= 7) return "HIGH";
-    if(n >= 4) return "MEDIUM";
-    return "LOW";
-  };
+  const RESOURCES = [
+    { label:"CISA KEV Catalog",     url:"https://www.cisa.gov/known-exploited-vulnerabilities-catalog", icon:"🛡️", desc:"Known exploited vulns" },
+    { label:"SANS Internet Storm",  url:"https://isc.sans.edu/",                                         icon:"🌩️", desc:"Daily threat briefings" },
+    { label:"VirusTotal",           url:"https://www.virustotal.com",                                    icon:"🔬", desc:"IOC analysis" },
+    { label:"MITRE ATT&CK",         url:"https://attack.mitre.org",                                      icon:"🗺️", desc:"TTP framework" },
+    { label:"Shodan",               url:"https://www.shodan.io",                                         icon:"🔭", desc:"Exposed asset search" },
+    { label:"AbuseIPDB",            url:"https://www.abuseipdb.com",                                     icon:"🚫", desc:"Malicious IP lookup" },
+    { label:"ThreatFox",            url:"https://threatfox.abuse.ch",                                    icon:"🦠", desc:"IOC feeds" },
+    { label:"URLScan",              url:"https://urlscan.io",                                             icon:"🔗", desc:"URL analysis" },
+  ];
 
-  const displayed = filter === "all" ? kevs : kevs.filter(k => {
-    const n = parseFloat(k.cvssV3BaseScore || k.cvssV2Score || 0);
-    if(filter === "critical") return n >= 9;
-    if(filter === "high") return n >= 7 && n < 9;
-    return true;
-  });
+  const todayList = CHECKLISTS[dayIdx] || CHECKLISTS[1];
+  const doneCount = todayList.filter(i => checked[i.id]).length;
+  const pct = Math.round((doneCount / todayList.length) * 100);
+  const pColor = p => p==="high" ? T.red : p==="medium" ? T.yellow : T.faint;
+
+  const huntIdx = dayIdx % HUNT_QUERIES.length;
+  const todayHunt = HUNT_QUERIES[huntIdx];
 
   return (
     <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
       {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-          <div style={{ fontSize:10, color:"#ef4444", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🛡️ CISA KEV</div>
-          <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer"
-            style={{ fontSize:8, color:T.muted, textDecoration:"none", padding:"1px 5px", borderRadius:4, border:`1px solid ${T.border2}` }}>catalog ↗</a>
-        </div>
-        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-          {lastFetch&&<span style={{ fontSize:9, color:T.muted }}>{lastFetch.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>}
-          <button onClick={fetchKevDirect} disabled={loading}
-            style={{ fontSize:10, padding:"3px 10px", borderRadius:7, fontWeight:700,
-              background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-              border:"none", color:"white", opacity:loading?0.6:1, cursor:"pointer" }}>
-            {loading?"...":"↻"}
-          </button>
-        </div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🖥️ SOC Daily Ops</div>
+        <div style={{ fontSize:9, color:T.muted }}>{dateStr}</div>
       </div>
 
-      {/* Filter tabs */}
+      {/* Tabs */}
       <div style={{ display:"flex", gap:4, marginBottom:10 }}>
-        {[["all","All"],["critical","Critical"],["high","High"]].map(([val,lbl])=>(
-          <button key={val} onClick={()=>setFilter(val)}
+        {[["checklist","Checklist"],["hunt","Hunt Query"],["resources","Resources"]].map(([val,lbl])=>(
+          <button key={val} onClick={()=>setTab(val)}
             style={{ fontSize:9, padding:"3px 9px", borderRadius:6, fontWeight:700, cursor:"pointer",
-              background:filter===val?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.raised,
-              border:`1px solid ${filter===val?"transparent":T.border2}`,
-              color:filter===val?"white":T.muted }}>
+              background:tab===val?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.raised,
+              border:`1px solid ${tab===val?"transparent":T.border2}`,
+              color:tab===val?"white":T.muted }}>
             {lbl}
           </button>
         ))}
-        <div style={{ marginLeft:"auto", fontSize:9, color:T.muted, alignSelf:"center" }}>
-          {displayed.length} entries
-        </div>
       </div>
 
-      {/* KEV list */}
-      {loading ? (
-        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-          {[...Array(5)].map((_,i)=>(
-            <div key={i} style={{ height:54, borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, animation:"pulse 1.5s ease-in-out infinite", opacity:0.6 }}/>
-          ))}
-        </div>
-      ) : displayed.length === 0 ? (
-        <div style={{ textAlign:"center", color:T.muted, fontSize:11, padding:"30px 0" }}>No entries found</div>
-      ) : (
-        <div style={{ display:"flex", flexDirection:"column", gap:6, flex:1, overflowY:"auto" }}>
-          {displayed.map((item,i)=>{
-            const score = item.cvssV3BaseScore || item.cvssV2Score || null;
-            const color = cvssColor(score);
-            const label = cvssLabel(score);
-            const dateAdded = item.dateAdded ? new Date(item.dateAdded).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}) : "";
-            return (
-              <a key={i} href={`https://nvd.nist.gov/vuln/detail/${item.cveID}`} target="_blank" rel="noopener noreferrer"
-                style={{ textDecoration:"none", display:"block" }}>
-                <div style={{ padding:"9px 11px", borderRadius:10, background:T.raised,
-                  border:`1px solid ${T.border2}`, transition:"all 0.2s", cursor:"pointer" }}
-                  onMouseEnter={e=>{ e.currentTarget.style.background=T.card; e.currentTarget.style.borderColor=color+"44"; }}
-                  onMouseLeave={e=>{ e.currentTarget.style.background=T.raised; e.currentTarget.style.borderColor=T.border2; }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
-                    <span style={{ fontSize:11, fontWeight:800, color, fontFamily:"monospace", flexShrink:0 }}>{item.cveID}</span>
-                    <div style={{ flex:1, fontSize:10, fontWeight:700, color:T.text, lineHeight:1.3,
-                      overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{item.vulnerabilityName}</div>
-                    <div style={{ padding:"2px 6px", borderRadius:20, fontSize:8, fontWeight:700, flexShrink:0,
-                      background:`${color}22`, color, border:`1px solid ${color}44` }}>{label}</div>
-                  </div>
-                  <div style={{ fontSize:10, color:T.muted, lineHeight:1.4, marginBottom:4,
-                    overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>
-                    {item.shortDescription}
-                  </div>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                    <span style={{ fontSize:9, color:T.faint }}>{item.vendorProject} · {item.product}</span>
-                    <span style={{ fontSize:9, color:"#ef4444", fontWeight:600 }}>Added {dateAdded}</span>
-                  </div>
+      {/* CHECKLIST TAB */}
+      {tab==="checklist"&&(
+        <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
+          {/* Progress */}
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10, padding:"8px 11px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}` }}>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                <span style={{ fontSize:10, color:T.muted }}>Shift Progress</span>
+                <span style={{ fontSize:10, fontWeight:700, color:pct===100?T.green:T.accentLight }}>{doneCount}/{todayList.length} done</span>
+              </div>
+              <div style={{ height:4, background:T.faint, borderRadius:4, overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${pct}%`, borderRadius:4, transition:"width 0.4s",
+                  background:pct===100?T.green:`linear-gradient(90deg,${T.accent},${T.pink})` }} />
+              </div>
+            </div>
+            <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:pct===100?T.green:T.accent, lineHeight:1 }}>{pct}%</div>
+          </div>
+
+          {/* Task list */}
+          <div style={{ display:"flex", flexDirection:"column", gap:4, overflowY:"auto", flex:1 }}>
+            {todayList.map(item=>(
+              <div key={item.id} onClick={()=>setChecked(c=>({...c,[item.id]:!c[item.id]}))}
+                style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 10px", borderRadius:9, cursor:"pointer",
+                  background:checked[item.id]?"rgba(16,185,129,0.05)":"transparent",
+                  border:`1px solid ${checked[item.id]?"rgba(16,185,129,0.15)":"transparent"}`,
+                  transition:"all 0.15s" }}>
+                <div style={{ width:16, height:16, borderRadius:5, flexShrink:0,
+                  border:`2px solid ${checked[item.id]?T.green:T.faint}`,
+                  background:checked[item.id]?T.green:"transparent",
+                  display:"flex", alignItems:"center", justifyContent:"center", transition:"all 0.2s" }}>
+                  {checked[item.id]&&<span style={{ fontSize:9, color:"white" }}>✓</span>}
                 </div>
-              </a>
-            );
-          })}
+                <div style={{ width:6, height:6, borderRadius:2, background:pColor(item.p), flexShrink:0 }} />
+                <span style={{ fontSize:12, flex:1, color:checked[item.id]?T.muted:T.text,
+                  textDecoration:checked[item.id]?"line-through":"none" }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* HUNT QUERY TAB */}
+      {tab==="hunt"&&(
+        <div style={{ display:"flex", flexDirection:"column", gap:10, flex:1 }}>
+          <div style={{ padding:"10px 12px", borderRadius:10, background:`rgba(239,68,68,0.08)`, border:`1px solid rgba(239,68,68,0.2)` }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+              <span style={{ fontSize:10, fontWeight:700, color:"#ef4444" }}>Today's Hunt</span>
+              <span style={{ fontSize:9, padding:"2px 7px", borderRadius:20, background:"rgba(239,68,68,0.15)", color:"#ef4444", fontWeight:700 }}>{todayHunt.tag}</span>
+            </div>
+            <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:4 }}>{todayHunt.title}</div>
+            <div style={{ fontSize:9, color:T.muted, marginBottom:8 }}>Tool: {todayHunt.tool}</div>
+            <div style={{ background:T.bg, borderRadius:8, padding:"10px 12px", fontFamily:"monospace", fontSize:10, color:T.accentLight, lineHeight:1.7, wordBreak:"break-all", border:`1px solid ${T.border2}` }}>
+              {todayHunt.query}
+            </div>
+            <button onClick={()=>navigator.clipboard?.writeText(todayHunt.query).then(()=>{})}
+              style={{ marginTop:8, width:"100%", padding:"6px", background:T.accentDim, border:`1px solid ${T.accent}44`,
+                borderRadius:7, color:T.accentLight, fontSize:10, fontWeight:700, cursor:"pointer" }}>
+              📋 Copy Query
+            </button>
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:6, overflowY:"auto", flex:1 }}>
+            <div style={{ fontSize:9, color:T.muted, fontWeight:700, textTransform:"uppercase", letterSpacing:1 }}>All Hunt Queries</div>
+            {HUNT_QUERIES.map((q,i)=>(
+              <div key={i} style={{ padding:"8px 10px", borderRadius:9, background:T.raised, border:`1px solid ${i===huntIdx?T.accent+"44":T.border2}`,
+                cursor:"pointer", transition:"all 0.15s" }}
+                onClick={()=>navigator.clipboard?.writeText(q.query)}
+                onMouseEnter={e=>e.currentTarget.style.borderColor=T.accent+"44"}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=i===huntIdx?T.accent+"44":T.border2}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                  <span style={{ fontSize:11, fontWeight:600, color:T.text }}>{q.title}</span>
+                  <span style={{ fontSize:8, padding:"1px 6px", borderRadius:10, background:T.accentDim, color:T.accentLight }}>{q.tag}</span>
+                </div>
+                <div style={{ fontSize:9, color:T.muted, marginTop:2 }}>{q.tool}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* RESOURCES TAB */}
+      {tab==="resources"&&(
+        <div style={{ display:"flex", flexDirection:"column", gap:6, overflowY:"auto", flex:1 }}>
+          <div style={{ fontSize:9, color:T.muted, fontWeight:700, textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>SOC Analyst Toolkit</div>
+          {RESOURCES.map((r,i)=>(
+            <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 11px", borderRadius:10,
+                background:T.raised, border:`1px solid ${T.border2}`, transition:"all 0.15s", cursor:"pointer" }}
+                onMouseEnter={e=>{ e.currentTarget.style.background=T.card; e.currentTarget.style.borderColor=T.accent+"44"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=T.raised; e.currentTarget.style.borderColor=T.border2; }}>
+                <div style={{ fontSize:20, flexShrink:0 }}>{r.icon}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:12, fontWeight:700, color:T.text }}>{r.label}</div>
+                  <div style={{ fontSize:10, color:T.muted }}>{r.desc}</div>
+                </div>
+                <span style={{ fontSize:10, color:T.muted }}>↗</span>
+              </div>
+            </a>
+          ))}
         </div>
       )}
     </div>
@@ -854,7 +914,7 @@ function CisaKevFeed() {
 }
 
 function CyberNewsFeed() {
-  return <CisaKevFeed />;
+  return <SOCOpsPanel />;
 }
 
 
