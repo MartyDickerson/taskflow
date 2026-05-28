@@ -698,100 +698,140 @@ function timeAgo(ts) {
   return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 }
 
-function CyberNewsFeed() {
-  const [news,    setNews]    = useState([]);
+function CisaKevFeed() {
+  const [kevs,    setKevs]    = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastFetch, setLastFetch] = useState(null);
+  const [filter, setFilter]   = useState("all");
 
-  const fetchNews = async() => {
+  const fetchKevDirect = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST",
-        headers:{"Content-Type":"application/json","x-api-key":import.meta.env.VITE_ANTHROPIC_KEY||"MISSING_KEY","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-        body: JSON.stringify({
-          model:"claude-sonnet-4-20250514",
-          max_tokens:1000,
-          tools:[{ type:"web_search_20250305", name:"web_search" }],
-          messages:[{ role:"user", content:"Search for the 5 most recent cybersecurity news headlines from today or this week. Focus on SOC relevant topics: threat intelligence, data breaches, malware, ransomware, CVEs, and security tools. Return ONLY a JSON array (no markdown, no backticks) with objects having fields: title (short headline), source (news source name), severity (critical/high/medium/low), category (Threat Intel/Breach/Malware/Vulnerability/Tools), summary (1 sentence), url (link). Example: [{title:...,source:...,severity:high,category:Breach,summary:...,url:https://...}]" }]
-        })
-      });
-      const data = await response.json();
-      const text = data.content?.filter(b=>b.type==="text").map(b=>b.text).join("") || "[]";
-      const clean = text.replace(/```json|```/g,"").trim();
-      const parsed = JSON.parse(clean);
-      setNews(parsed.slice(0,5));
+      const res = await fetch("https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json");
+      const data = await res.json();
+      const items = (data.vulnerabilities || [])
+        .sort((a,b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+        .slice(0,20);
+      setKevs(items);
       setLastFetch(new Date());
     } catch(e) {
-      setNews([
-        { title:"Unable to fetch live news", source:"Try refreshing", severity:"low", category:"Info", summary:"Click refresh to load the latest cybersecurity headlines.", url:"#" }
-      ]);
+      setKevs([]);
     }
     setLoading(false);
   };
 
-  useEffect(()=>{ fetchNews(); },[]);
+  useEffect(()=>{ fetchKevDirect(); },[]);
 
-  const sevColor = (s) => s==="critical"?"#ef4444":s==="high"?"#f97316":s==="medium"?"#f59e0b":"#10b981";
-  const catIcon  = (c) => c==="Breach"?"🔓":c==="Malware"?"🦠":c==="Vulnerability"?"🔍":c==="Tools"?"🛠️":"🛡️";
+  const cvssColor = (v) => {
+    if(!v) return T.muted;
+    const n = parseFloat(v);
+    if(n >= 9) return "#ef4444";
+    if(n >= 7) return "#f97316";
+    if(n >= 4) return "#f59e0b";
+    return "#10b981";
+  };
+  const cvssLabel = (v) => {
+    if(!v) return "N/A";
+    const n = parseFloat(v);
+    if(n >= 9) return "CRITICAL";
+    if(n >= 7) return "HIGH";
+    if(n >= 4) return "MEDIUM";
+    return "LOW";
+  };
+
+  const displayed = filter === "all" ? kevs : kevs.filter(k => {
+    const n = parseFloat(k.cvssV3BaseScore || k.cvssV2Score || 0);
+    if(filter === "critical") return n >= 9;
+    if(filter === "high") return n >= 7 && n < 9;
+    return true;
+  });
 
   return (
     <div style={{ display:"flex", flexDirection:"column", flex:1, minHeight:0 }}>
       {/* Header */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-        <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🚨 Cyber News</div>
-        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:7 }}>
+          <div style={{ fontSize:10, color:"#ef4444", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🛡️ CISA KEV</div>
+          <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer"
+            style={{ fontSize:8, color:T.muted, textDecoration:"none", padding:"1px 5px", borderRadius:4, border:`1px solid ${T.border2}` }}>catalog ↗</a>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
           {lastFetch&&<span style={{ fontSize:9, color:T.muted }}>{lastFetch.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}</span>}
-          <button onClick={fetchNews} disabled={loading}
+          <button onClick={fetchKevDirect} disabled={loading}
             style={{ fontSize:10, padding:"3px 10px", borderRadius:7, fontWeight:700,
               background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
               border:"none", color:"white", opacity:loading?0.6:1, cursor:"pointer" }}>
-            {loading?"...":"↻ Refresh"}
+            {loading?"...":"↻"}
           </button>
         </div>
       </div>
 
-      {/* News list */}
+      {/* Filter tabs */}
+      <div style={{ display:"flex", gap:4, marginBottom:10 }}>
+        {[["all","All"],["critical","Critical"],["high","High"]].map(([val,lbl])=>(
+          <button key={val} onClick={()=>setFilter(val)}
+            style={{ fontSize:9, padding:"3px 9px", borderRadius:6, fontWeight:700, cursor:"pointer",
+              background:filter===val?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.raised,
+              border:`1px solid ${filter===val?"transparent":T.border2}`,
+              color:filter===val?"white":T.muted }}>
+            {lbl}
+          </button>
+        ))}
+        <div style={{ marginLeft:"auto", fontSize:9, color:T.muted, alignSelf:"center" }}>
+          {displayed.length} entries
+        </div>
+      </div>
+
+      {/* KEV list */}
       {loading ? (
-        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-          {[...Array(4)].map((_,i)=>(
-            <div key={i} style={{ height:60, borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`,
-              animation:"pulse 1.5s ease-in-out infinite", opacity:0.6 }}/>
+        <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+          {[...Array(5)].map((_,i)=>(
+            <div key={i} style={{ height:54, borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, animation:"pulse 1.5s ease-in-out infinite", opacity:0.6 }}/>
           ))}
         </div>
+      ) : displayed.length === 0 ? (
+        <div style={{ textAlign:"center", color:T.muted, fontSize:11, padding:"30px 0" }}>No entries found</div>
       ) : (
-        <div style={{ display:"flex", flexDirection:"column", gap:8, flex:1, overflowY:"auto" }}>
-          {news.map((item,i)=>(
-            <a key={i} href={item.url&&item.url!=="?"&&item.url!=="#"?item.url:"#"} target={item.url&&item.url!=="?"&&item.url!=="#"?"_blank":undefined} rel="noopener noreferrer"
-              style={{ textDecoration:"none", display:"block" }}>
-              <div style={{ padding:"10px 12px", borderRadius:10, background:T.raised,
-                border:`1px solid ${T.border2}`, transition:"all 0.2s", cursor:"pointer" }}
-                onMouseEnter={e=>{ e.currentTarget.style.background=T.card; e.currentTarget.style.borderColor=T.accent+"44"; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=T.raised; e.currentTarget.style.borderColor=T.border2; }}>
-                {/* Top row */}
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
-                  <span style={{ fontSize:12 }}>{catIcon(item.category)}</span>
-                  <div style={{ flex:1, fontSize:12, fontWeight:700, color:T.text, lineHeight:1.3 }}>{item.title}</div>
-                  <div style={{ padding:"2px 7px", borderRadius:20, fontSize:8, fontWeight:700, flexShrink:0,
-                    background:`${sevColor(item.severity)}22`, color:sevColor(item.severity),
-                    border:`1px solid ${sevColor(item.severity)}44`, textTransform:"uppercase" }}>
-                    {item.severity}
+        <div style={{ display:"flex", flexDirection:"column", gap:6, flex:1, overflowY:"auto" }}>
+          {displayed.map((item,i)=>{
+            const score = item.cvssV3BaseScore || item.cvssV2Score || null;
+            const color = cvssColor(score);
+            const label = cvssLabel(score);
+            const dateAdded = item.dateAdded ? new Date(item.dateAdded).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}) : "";
+            return (
+              <a key={i} href={`https://nvd.nist.gov/vuln/detail/${item.cveID}`} target="_blank" rel="noopener noreferrer"
+                style={{ textDecoration:"none", display:"block" }}>
+                <div style={{ padding:"9px 11px", borderRadius:10, background:T.raised,
+                  border:`1px solid ${T.border2}`, transition:"all 0.2s", cursor:"pointer" }}
+                  onMouseEnter={e=>{ e.currentTarget.style.background=T.card; e.currentTarget.style.borderColor=color+"44"; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.background=T.raised; e.currentTarget.style.borderColor=T.border2; }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
+                    <span style={{ fontSize:11, fontWeight:800, color, fontFamily:"monospace", flexShrink:0 }}>{item.cveID}</span>
+                    <div style={{ flex:1, fontSize:10, fontWeight:700, color:T.text, lineHeight:1.3,
+                      overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{item.vulnerabilityName}</div>
+                    <div style={{ padding:"2px 6px", borderRadius:20, fontSize:8, fontWeight:700, flexShrink:0,
+                      background:`${color}22`, color, border:`1px solid ${color}44` }}>{label}</div>
+                  </div>
+                  <div style={{ fontSize:10, color:T.muted, lineHeight:1.4, marginBottom:4,
+                    overflow:"hidden", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical" }}>
+                    {item.shortDescription}
+                  </div>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <span style={{ fontSize:9, color:T.faint }}>{item.vendorProject} · {item.product}</span>
+                    <span style={{ fontSize:9, color:"#ef4444", fontWeight:600 }}>Added {dateAdded}</span>
                   </div>
                 </div>
-                {/* Summary */}
-                <div style={{ fontSize:10, color:T.muted, lineHeight:1.4, marginBottom:4 }}>{item.summary}</div>
-                {/* Footer */}
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                  <span style={{ fontSize:9, color:T.faint }}>{item.source}</span>
-                  <span style={{ fontSize:9, color:T.accentLight, fontWeight:600 }}>{item.category}</span>
-                </div>
-              </div>
-            </a>
-          ))}
+              </a>
+            );
+          })}
         </div>
       )}
     </div>
   );
+}
+
+function CyberNewsFeed() {
+  return <CisaKevFeed />;
 }
 
 
