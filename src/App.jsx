@@ -1350,50 +1350,27 @@ export default function Dashboard() {
           {/* Hamburger menu on compact */}
           <button className="tf-hamburger" onClick={()=>setSidebarOpen(o=>!o)}>☰</button>
 
-          {/* Live Clock + Quick Stats */}
-          <div className="tf-quote" style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
-
-            {/* Live Clock */}
-            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:80 }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"3px", color:T.text, lineHeight:1 }}>
-                {(()=>{ const n=new Date(); const h=String(n.getHours()%12||12).padStart(2,"0"); const m=String(n.getMinutes()).padStart(2,"0"); const s=String(n.getSeconds()).padStart(2,"0"); return `${h}:${m}:${s}`; })()}
+          {/* Live Clock */}
+          <div className="tf-quote" style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:2 }}>
+            <div style={{ display:"flex", alignItems:"baseline", gap:6 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:38, letterSpacing:"4px", lineHeight:1,
+                background:`linear-gradient(135deg,${T.text},${T.accentLight},${T.pink})`,
+                WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+                filter:`drop-shadow(0 0 12px ${T.accentGlow})` }}>
+                {(()=>{ const n=new Date(); const h=String(n.getHours()%12||12).padStart(2,"0"); const m=String(n.getMinutes()).padStart(2,"0"); return `${h}:${m}`; })()}
               </div>
-              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"2px", lineHeight:1,
+                color:T.accent, opacity:0.9,
+                filter:`drop-shadow(0 0 8px ${T.accentGlow})` }}>
+                {String(new Date().getSeconds()).padStart(2,"0")}
+              </div>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:16, color:T.muted, letterSpacing:"1px", paddingBottom:2 }}>
                 {new Date().getHours()>=12?"PM":"AM"}
               </div>
             </div>
-
-            {/* Tasks Done */}
-            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:72 }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:done===tasks.length&&tasks.length>0?T.green:T.accent, lineHeight:1 }}>{done}<span style={{ fontSize:13, color:T.muted }}>/{tasks.length}</span></div>
-              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Tasks</div>
+            <div style={{ fontSize:9, color:T.muted, letterSpacing:"2px", textTransform:"uppercase", textAlign:"right" }}>
+              {new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
             </div>
-
-            {/* Goals Progress */}
-            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:72 }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.accentLight, lineHeight:1 }}>
-                {goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0}<span style={{ fontSize:13, color:T.muted }}>%</span>
-              </div>
-              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Goals</div>
-            </div>
-
-            {/* Net Balance */}
-            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:80 }}>
-              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:income-expenses>=0?T.green:T.red, lineHeight:1 }}>
-                {income-expenses>=0?"+":"-"}${Math.abs(income-expenses).toFixed(0)}
-              </div>
-              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Net</div>
-            </div>
-
-            {/* Supabase status */}
-            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
-                <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, boxShadow:`0 0 6px ${T.green}` }}/>
-                <span style={{ fontSize:10, color:T.green, fontWeight:700 }}>Live</span>
-              </div>
-              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase" }}>Supabase</div>
-            </div>
-
           </div>
         </div>
 
