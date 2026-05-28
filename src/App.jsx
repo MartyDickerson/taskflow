@@ -1368,9 +1368,6 @@ export default function Dashboard() {
                 {new Date().getHours()>=12?"PM":"AM"}
               </div>
             </div>
-            <div style={{ fontSize:9, color:T.muted, letterSpacing:"2px", textTransform:"uppercase", textAlign:"right" }}>
-              {new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
-            </div>
           </div>
         </div>
 
