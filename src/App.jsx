@@ -923,7 +923,7 @@ function CyberNewsFeed() {
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tick, setTick] = useState(0);
-  useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),60000); return()=>clearInterval(t); },[]);
+  useEffect(()=>{ const t=setInterval(()=>setTick(x=>x+1),1000); return()=>clearInterval(t); },[]);
 
   const [tasks,       setTasks]       = useState([]);
   const [goals,       setGoals]       = useState([]);
@@ -1349,30 +1349,51 @@ export default function Dashboard() {
 
           {/* Hamburger menu on compact */}
           <button className="tf-hamburger" onClick={()=>setSidebarOpen(o=>!o)}>☰</button>
-          {/* SOC Threat of the Day */}
-          <div className="tf-quote" style={{ maxWidth:480, padding:"10px 16px", borderRadius:10, background:"rgba(239,68,68,0.08)", border:`1px solid rgba(239,68,68,0.25)`, display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ fontSize:18, flexShrink:0 }}>🛡️</div>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:9, color:"#ef4444", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:3 }}>
-                SOC Threat · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}
+
+          {/* Live Clock + Quick Stats */}
+          <div className="tf-quote" style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+
+            {/* Live Clock */}
+            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:80 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"3px", color:T.text, lineHeight:1 }}>
+                {(()=>{ const n=new Date(); const h=String(n.getHours()%12||12).padStart(2,"0"); const m=String(n.getMinutes()).padStart(2,"0"); const s=String(n.getSeconds()).padStart(2,"0"); return `${h}:${m}:${s}`; })()}
               </div>
-              <div style={{ fontSize:11, color:T.text, lineHeight:1.5, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                {[
-                  {t:"CVE-2026-45498 — MS Defender DoS zero-day added to CISA KEV. Patch by Jun 3.", s:"Critical"},
-                  {t:"CVE-2026-20182 — Cisco SD-WAN auth bypass exploited by UAT-8616. Apply patches now.", s:"Critical"},
-                  {t:"DirtyDecrypt PoC released for Linux kernel LPE (CVE-2026-31635). Update kernel immediately.", s:"High"},
-                  {t:"CVE-2026-20223 — Cisco Secure Workload CVSS 10.0 RCE. Patch immediately.", s:"Critical"},
-                  {t:"Exim Dead.Letter (CVE-2026-45185) — CVSS 9.8 RCE in GnuTLS builds. Update Exim now.", s:"Critical"},
-                  {t:"CISA KEV: CVE-2026-31431 Linux kernel LPE. 9-year-old flaw actively exploited in wild.", s:"High"},
-                  {t:"455 malicious Android apps with 183 C2 domains found. Review mobile device policies.", s:"Medium"},
-                ][new Date().getDay()].t}
-              </div>
-              <div style={{ fontSize:9, color:"#ef4444", marginTop:2, fontWeight:600 }}>
-                {["Critical","Critical","High","Critical","Critical","High","Medium"][new Date().getDay()]} Severity
+              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>
+                {new Date().getHours()>=12?"PM":"AM"}
               </div>
             </div>
-            <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer"
-              style={{ fontSize:9, color:"#ef4444", textDecoration:"none", fontWeight:700, flexShrink:0 }}>KEV ↗</a>
+
+            {/* Tasks Done */}
+            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:72 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:done===tasks.length&&tasks.length>0?T.green:T.accent, lineHeight:1 }}>{done}<span style={{ fontSize:13, color:T.muted }}>/{tasks.length}</span></div>
+              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Tasks</div>
+            </div>
+
+            {/* Goals Progress */}
+            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:72 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:T.accentLight, lineHeight:1 }}>
+                {goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0}<span style={{ fontSize:13, color:T.muted }}>%</span>
+              </div>
+              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Goals</div>
+            </div>
+
+            {/* Net Balance */}
+            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", minWidth:80 }}>
+              <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, color:income-expenses>=0?T.green:T.red, lineHeight:1 }}>
+                {income-expenses>=0?"+":"-"}${Math.abs(income-expenses).toFixed(0)}
+              </div>
+              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase", marginTop:2 }}>Net</div>
+            </div>
+
+            {/* Supabase status */}
+            <div style={{ padding:"8px 14px", borderRadius:10, background:T.raised, border:`1px solid ${T.border2}`, display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <div className="pulse" style={{ width:6, height:6, borderRadius:"50%", background:T.green, boxShadow:`0 0 6px ${T.green}` }}/>
+                <span style={{ fontSize:10, color:T.green, fontWeight:700 }}>Live</span>
+              </div>
+              <div style={{ fontSize:8, color:T.muted, letterSpacing:"1px", textTransform:"uppercase" }}>Supabase</div>
+            </div>
+
           </div>
         </div>
 
