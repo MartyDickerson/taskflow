@@ -706,29 +706,40 @@ function CisaKevFeed() {
 
   const fetchKevDirect = async () => {
     setLoading(true);
-    const CISA_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json";
-    const PROXIES = [
-      `https://corsproxy.io/?${encodeURIComponent(CISA_URL)}`,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(CISA_URL)}`,
-      CISA_URL,
-    ];
-    let loaded = false;
-    for (const url of PROXIES) {
-      try {
-        const res = await fetch(url);
-        const data = await res.json();
-        const items = (data.vulnerabilities || [])
-          .sort((a,b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-          .slice(0,20);
-        if (items.length > 0) {
-          setKevs(items);
-          setLastFetch(new Date());
-          loaded = true;
-          break;
-        }
-      } catch(e) { continue; }
+    try {
+      // NVD API — free, no key needed for basic use, proper CORS headers
+      // Fetch recently modified CVEs with CVSS >= 7.0, sorted by date
+      const res = await fetch(
+        "https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=CRITICAL&resultsPerPage=20&startIndex=0",
+        { headers: { "Accept": "application/json" } }
+      );
+      const data = await res.json();
+      const items = (data.vulnerabilities || []).map(v => {
+        const cve = v.cve;
+        const metrics = cve.metrics?.cvssMetricV31?.[0] || cve.metrics?.cvssMetricV30?.[0] || cve.metrics?.cvssMetricV2?.[0];
+        const score = metrics?.cvssData?.baseScore || null;
+        const desc = cve.descriptions?.find(d => d.lang === "en")?.value || "";
+        const refs = cve.references?.[0]?.url || `https://nvd.nist.gov/vuln/detail/${cve.id}`;
+        const published = cve.published ? new Date(cve.published).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}) : "";
+        const cpe = cve.configurations?.[0]?.nodes?.[0]?.cpeMatch?.[0]?.criteria || "";
+        const vendor = cpe.split(":")?.[3] || "N/A";
+        const product = cpe.split(":")?.[4] || "";
+        return {
+          cveID: cve.id,
+          vulnerabilityName: desc.slice(0, 80),
+          shortDescription: desc,
+          cvssV3BaseScore: score,
+          vendorProject: vendor,
+          product,
+          dateAdded: published,
+          url: refs,
+        };
+      });
+      setKevs(items);
+      setLastFetch(new Date());
+    } catch(e) {
+      setKevs([]);
     }
-    if (!loaded) setKevs([]);
     setLoading(false);
   };
 
