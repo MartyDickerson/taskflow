@@ -9,27 +9,27 @@ const supabase = createClient(
 );
 
 const T = {
-  bg:        "#0d0d0d",
-  surface:   "#141414",
-  raised:    "#1c1c1c",
-  card:      "#222222",
-  border:    "#252525",
-  border2:   "#2e2e2e",
-  accent:    "#e8440a",
-  accentB:   "#ff5722",
-  accentDim: "rgba(232,68,10,0.12)",
-  accentGlow:"rgba(232,68,10,0.25)",
-  accentLight:"#ff7043",
-  pink:      "#ff5722",
-  pinkDim:   "rgba(255,87,34,0.12)",
+  bg:        "#111111",
+  surface:   "#181818",
+  raised:    "#1f1f1f",
+  card:      "#262626",
+  border:    "#272727",
+  border2:   "#303030",
+  accent:    "#ff4d2e",
+  accentB:   "#ff6b4a",
+  accentDim: "rgba(255,77,46,0.12)",
+  accentGlow:"rgba(255,77,46,0.22)",
+  accentLight:"#ff8066",
+  pink:      "#ff4d2e",
+  pinkDim:   "rgba(255,77,46,0.12)",
   green:     "#4ade80",
   greenDim:  "rgba(74,222,128,0.12)",
   red:       "#ef4444",
   redDim:    "rgba(239,68,68,0.12)",
   yellow:    "#f59e0b",
   text:      "#ffffff",
-  muted:     "#6b6b6b",
-  faint:     "#252525",
+  muted:     "#707070",
+  faint:     "#272727",
 };
 
 const SPEND_DATA = [
@@ -530,7 +530,7 @@ function DailyBibleChapter() {
   const isToday = idx === dayOfYear % chapters.length;
 
   return (
-    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,rgba(10,10,10,0.95),rgba(30,15,5,0.7))`, border:`1px solid ${T.accent}44` }}>
+    <div style={{ padding:"12px", borderRadius:12, background:`linear-gradient(135deg,rgba(12,12,12,0.95),rgba(35,18,10,0.7))`, border:`1px solid ${T.accent}44` }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
         <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📖 Daily Reading</div>
         <div style={{ display:"flex", gap:4 }}>
@@ -597,7 +597,7 @@ function PomodoroTimer() {
   const SIZE  = 160; const R = 68; const C = SIZE/2; const CIRC = 2*Math.PI*R;
 
   return (
-    <div style={{ background:`linear-gradient(145deg,#1c1c1c,${T.surface})`, borderRadius:14, padding:"18px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}`, display:"flex", flexDirection:"column", height:"100%" }}>
+    <div style={{ background:`linear-gradient(145deg,#1f1f1f,${T.surface})`, borderRadius:14, padding:"18px", border:`1px solid ${T.accent}33`, boxShadow:`0 0 20px ${T.accentGlow}`, display:"flex", flexDirection:"column", height:"100%" }}>
       {/* Header */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
         <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🍅 Focus Timer</div>
@@ -936,13 +936,13 @@ export default function Dashboard() {
   const [newCard,     setNewCard]     = useState({ name:"", number:"", balance:"", type:"visa", color:T.accent });
   const [showTxnForm, setShowTxnForm] = useState(false);
   const [showGoalForm,setShowGoalForm]= useState(false);
-  const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#e8440a" });
+  const [newGoal,     setNewGoal]     = useState({ text:"", progress:0, color:"#ff4d2e" });
   const [fitnessGoals, setFitnessGoals] = useState({ steps:10000, calories:2500, water_oz:128, sleep_hrs:12, tea_cups:3 });
   const [editingGoal,  setEditingGoal]  = useState(null);
   const [fitnessLog,   setFitnessLog]   = useState(null);
   const [books,       setBooks]       = useState([]);
   const [showBookForm,setShowBookForm]= useState(false);
-  const [newBook,     setNewBook]     = useState({ title:"", author:"", pages_total:0, pages_read:0, cover_color:"#e8440a" });
+  const [newBook,     setNewBook]     = useState({ title:"", author:"", pages_total:0, pages_read:0, cover_color:"#ff4d2e" });
   const [editBookId,  setEditBookId]  = useState(null);
   const [showCardForm,setShowCardForm]= useState(false);
   const [showPayForm, setShowPayForm] = useState(false);
@@ -1014,7 +1014,7 @@ export default function Dashboard() {
   const addTask     = async() => { if(!newTask.trim()) return; setSaving(true); const{data}=await supabase.from("tasks").insert({text:newTask.trim(),done:false,priority:"medium"}).select().single(); if(data) setTasks(ts=>[...ts,data]); setNewTask(""); setSaving(false); showToast("Task added ✓"); };
   const deleteTask  = async(id) => { setTasks(ts=>ts.filter(t=>t.id!==id)); await supabase.from("tasks").delete().eq("id",id); showToast("Task removed"); };
   const saveGoal    = async(goal,pct) => { setGoals(gs=>gs.map(g=>g.id===goal.id?{...g,progress:pct}:g)); await supabase.from("goals").update({progress:pct}).eq("id",goal.id); setEditGoal(null); showToast("Goal updated ✓"); };
-  const addGoal     = async() => { if(!newGoal.text.trim()) return; setSaving(true); const{data}=await supabase.from("goals").insert({text:newGoal.text,progress:newGoal.progress,color:newGoal.color}).select().single(); if(data) setGoals(gs=>[...gs,data]); setNewGoal({text:"",progress:0,color:"#e8440a"}); setShowGoalForm(false); setSaving(false); showToast("Goal added ✓"); };
+  const addGoal     = async() => { if(!newGoal.text.trim()) return; setSaving(true); const{data}=await supabase.from("goals").insert({text:newGoal.text,progress:newGoal.progress,color:newGoal.color}).select().single(); if(data) setGoals(gs=>[...gs,data]); setNewGoal({text:"",progress:0,color:"#ff4d2e"}); setShowGoalForm(false); setSaving(false); showToast("Goal added ✓"); };
   const deleteGoal  = async(id) => { setGoals(gs=>gs.filter(g=>g.id!==id)); await supabase.from("goals").delete().eq("id",id); showToast("Goal removed"); };
   const addTxn      = async() => { if(!newTxn.name.trim()||!newTxn.amount) return; setSaving(true); const amt=newTxn.type==="expense"?-Math.abs(parseFloat(newTxn.amount)):Math.abs(parseFloat(newTxn.amount)); const{data}=await supabase.from("transactions").insert({name:newTxn.name,amount:amt,icon:newTxn.icon,date_label:"Just now",type:newTxn.type}).select().single(); if(data) setTxns(tx=>[data,...tx.slice(0,5)]); setNewTxn({name:"",amount:"",type:"expense",icon:"💳"}); setShowTxnForm(false); setSaving(false); showToast("Transaction saved ✓"); };
   const addCard     = async() => { if(!newCard.name.trim()||!newCard.number.trim()) return; setSaving(true); const{data}=await supabase.from("cards").insert({name:newCard.name,number:newCard.number,balance:parseFloat(newCard.balance)||0,type:newCard.type,color:newCard.color,spend_limit:parseFloat(newCard.spendLimit)||0,spent:0,expiry:newCard.expiry||""}).select().single(); if(data) setCards(c=>[...c,data]); setNewCard({name:"",number:"",balance:"",type:"visa",color:T.accent,spendLimit:"",expiry:""}); setShowCardForm(false); setSaving(false); showToast("Card added ✓"); };
@@ -1031,14 +1031,14 @@ export default function Dashboard() {
   return (
     <div className="tf-app" style={{ background:T.bg, fontFamily:"'Plus Jakarta Sans',sans-serif", color:T.text, fontSize:13 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');        *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#252525 transparent}
-        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#2e2e2e;border-radius:2px}
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap');        *{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:#272727 transparent}
+        ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#303030;border-radius:2px}
         html,body,#root{height:100%;width:100%}
         input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif}
-        input::placeholder{color:#2e2e2e}input:focus,select:focus{outline:none}
+        input::placeholder{color:#303030}input:focus,select:focus{outline:none}
         button{cursor:pointer;border:none;outline:none}
-        .nb:hover{background:rgba(232,68,10,0.10)!important}
-        .task-row:hover{background:rgba(232,68,10,0.06)!important}
+        .nb:hover{background:rgba(255,77,46,0.10)!important}
+        .task-row:hover{background:rgba(255,77,46,0.06)!important}
         .task-row:hover .del{opacity:1!important}
         .txn-row:hover{background:rgba(255,255,255,0.03)!important}
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -1050,7 +1050,7 @@ export default function Dashboard() {
         .tf-content{flex:1;overflow-y:auto;padding:clamp(14px,1.5vw,24px) clamp(16px,2vw,32px) 32px}
         .tf-row1{display:grid;grid-template-columns:1.4fr 0.8fr 1.2fr 0.9fr;gap:14px;align-items:stretch}
         .tf-row2{display:grid;grid-template-columns:1.1fr 0.9fr 0.8fr 0.8fr 0.9fr;gap:14px;min-height:380px}
-        .tf-hamburger{display:none;background:#1c1c1c;border:1px solid #2e2e2e;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+        .tf-hamburger{display:none;background:#1f1f1f;border:1px solid #303030;color:#6b6b9a;width:34px;height:34px;border-radius:8px;font-size:16px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
         .tf-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:199}
         /* Large desktop */
         @media(min-width:1600px){
@@ -1153,9 +1153,9 @@ export default function Dashboard() {
             <div style={{ display:"flex", gap:6 }}>
               <select value={newBook.cover_color} onChange={e=>setNewBook({...newBook,cover_color:e.target.value})}
                 style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"6px 8px", color:T.text, fontSize:11 }}>
-                <option value="#e8440a">🟣 Purple</option>
+                <option value="#ff4d2e">🟣 Purple</option>
                 <option value="#10b981">🟢 Green</option>
-                <option value="#ff5722">🟡 Yellow</option>
+                <option value="#ff6b4a">🟡 Yellow</option>
                 <option value="#ec4899">🩷 Pink</option>
                 <option value="#3b82f6">🔵 Blue</option>
                 <option value="#ef4444">🔴 Red</option>
@@ -1165,7 +1165,7 @@ export default function Dashboard() {
                 setSaving(true);
                 const {data} = await supabase.from("books").insert({...newBook}).select().single();
                 if(data) setBooks(b=>[data,...b]);
-                setNewBook({title:"",author:"",pages_total:0,pages_read:0,cover_color:"#e8440a"});
+                setNewBook({title:"",author:"",pages_total:0,pages_read:0,cover_color:"#ff4d2e"});
                 setShowBookForm(false); setSaving(false); showToast("Book added ✓");
               }} disabled={saving} style={{ padding:"6px 10px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"white", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
             </div>
@@ -1334,7 +1334,7 @@ export default function Dashboard() {
       <div className="tf-main">
 
         {/* Header */}
-        <div className="tf-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#141414)`, gap:12, flexWrap:"wrap" }}>
+        <div className="tf-header" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 22px", borderBottom:`1px solid ${T.border}`, flexShrink:0, background:`linear-gradient(135deg,${T.surface},#181818)`, gap:12, flexWrap:"wrap" }}>
           <div>
             {/* Greeting */}
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:4 }}>
@@ -1378,7 +1378,7 @@ export default function Dashboard() {
           <div className="tf-row1" style={{ alignItems:"stretch" }}>
 
             {/* Weekly Bar */}
-            <div style={{ background:`linear-gradient(145deg,#1c1c1c,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
+            <div style={{ background:`linear-gradient(145deg,#1f1f1f,${T.surface})`, borderRadius:14, padding:"16px 18px", border:`1px solid ${T.accent}44`, boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                 <div>
                   <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase", marginBottom:4 }}>Weekly Activity</div>
@@ -1455,8 +1455,8 @@ export default function Dashboard() {
                     <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:5, marginTop:8 }}>
                       {weekBars.map((d,i)=>(
                         <div key={i} style={{ padding:"8px 5px", borderRadius:9, minHeight:80,
-                          background: d.isToday ? T.accentDim : d.done>0 ? "rgba(232,68,10,0.06)" : "rgba(255,255,255,0.02)",
-                          border:`1px solid ${d.isToday?T.accent+"44":d.done>0?"rgba(232,68,10,0.12)":T.border}` }}>
+                          background: d.isToday ? T.accentDim : d.done>0 ? "rgba(255,77,46,0.06)" : "rgba(255,255,255,0.02)",
+                          border:`1px solid ${d.isToday?T.accent+"44":d.done>0?"rgba(255,77,46,0.12)":T.border}` }}>
                           {/* Day + date header — always shown */}
                           <div style={{ fontSize:10, fontWeight:700, color:d.isToday?T.accentLight:T.muted, textTransform:"uppercase", letterSpacing:0.5, marginBottom:1 }}>{d.day}</div>
                           <div style={{ fontSize:9, color:d.isToday?T.accent:T.faint, marginBottom:5 }}>{d.dateLabel}</div>
@@ -1494,7 +1494,7 @@ export default function Dashboard() {
                         :streak>=4?`${streak} day streak — unstoppable! 🔥🔥`:"";
                       return (
                         <div style={{ marginTop:10, padding:"10px 14px", borderRadius:10,
-                          background:streak>0?`linear-gradient(135deg,rgba(232,68,10,0.12),rgba(236,72,153,0.08))`:"rgba(255,255,255,0.02)",
+                          background:streak>0?`linear-gradient(135deg,rgba(255,77,46,0.12),rgba(236,72,153,0.08))`:"rgba(255,255,255,0.02)",
                           border:`1px solid ${streak>0?T.accent+"33":T.border}`,
                           display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
@@ -1519,7 +1519,7 @@ export default function Dashboard() {
             <PomodoroTimer />
 
             {/* Weather */}
-            <div style={{ background:`linear-gradient(145deg,#1c1c1c,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
+            <div style={{ background:`linear-gradient(145deg,#1f1f1f,${T.surface})`, borderRadius:14, padding:"14px 16px", border:`1px solid ${T.accent}33`, overflow:"hidden", boxShadow:`0 0 20px ${T.accentGlow}` }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
                 <div style={{ fontSize:9, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>Weather · {weatherLocName}</div>
                 <Pill color={T.yellow}>Live</Pill>
@@ -1528,7 +1528,7 @@ export default function Dashboard() {
             </div>
 
             {/* MY CARDS */}
-            <div style={{ background:"linear-gradient(160deg,#1c1c1c 0%,#2e1a0a 50%,#1c1c1c 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(232,68,10,0.25)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(232,68,10,0.15)` }}>
+            <div style={{ background:"linear-gradient(160deg,#1f1f1f 0%,#2a1a12 50%,#1f1f1f 100%)", borderRadius:14, padding:"16px 18px", border:`1px solid rgba(255,77,46,0.22)`, display:"flex", flexDirection:"column", gap:10, boxShadow:`0 8px 32px rgba(255,77,46,0.15)` }}>
 
               {/* Header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
@@ -1577,9 +1577,9 @@ export default function Dashboard() {
                       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                         {/* Card preview */}
                         <div style={{ borderRadius:14, overflow:"hidden", position:"relative",
-                          background:`linear-gradient(135deg,${c.color||"#252525"}cc 0%, #1c1c1c 60%,#0d0d0d 100%)`,
+                          background:`linear-gradient(135deg,${c.color||"#272727"}cc 0%, #1f1f1f 60%,#111111 100%)`,
                           border:"1px solid rgba(255,255,255,0.12)", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" }}>
-                          <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(232,68,10,0.12)", pointerEvents:"none" }} />
+                          <div style={{ position:"absolute", top:-30, right:-30, width:100, height:100, borderRadius:"50%", background:"rgba(255,77,46,0.12)", pointerEvents:"none" }} />
                           <div style={{ padding:"14px", position:"relative", zIndex:1 }}>
                             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
                               <div><CardLogo type={c.type||""} /></div>
@@ -1756,12 +1756,12 @@ export default function Dashboard() {
                       style={{ width:70, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }} />
                     <select value={newGoal.color} onChange={e=>setNewGoal({...newGoal,color:e.target.value})}
                       style={{ flex:1, background:T.raised, border:`1px solid ${T.border2}`, borderRadius:7, padding:"7px 9px", color:T.text, fontSize:11 }}>
-                      <option value="#e8440a">🟣 Purple</option>
+                      <option value="#ff4d2e">🟣 Purple</option>
                       <option value="#10b981">🟢 Green</option>
-                      <option value="#ff5722">🟡 Yellow</option>
+                      <option value="#ff6b4a">🟡 Yellow</option>
                       <option value="#ec4899">🩷 Pink</option>
                       <option value="#ef4444">🔴 Red</option>
-                      <option value="#ff7043">💜 Lavender</option>
+                      <option value="#ff8066">💜 Lavender</option>
                     </select>
                     <button onClick={addGoal} disabled={saving}
                       style={{ padding:"7px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:7,
@@ -1847,7 +1847,7 @@ export default function Dashboard() {
                   { key:"steps",     label:"Steps",    icon:"👟", unit:"steps", max:fitnessGoals.steps,    color:T.accent },
                   { key:"calories",  label:"Calories", icon:"🔥", unit:"kcal",  max:fitnessGoals.calories,  color:"#f97316" },
                   { key:"water_oz",  label:"Water",    icon:"💧", unit:"oz",    max:fitnessGoals.water_oz,  color:"#38bdf8" },
-                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#ff7043" },
+                  { key:"sleep_hrs", label:"Sleep",    icon:"😴", unit:"hrs",   max:fitnessGoals.sleep_hrs, color:"#ff8066" },
                   { key:"tea_cups",  label:"Ginseng Tea", icon:"🍵", unit:"8oz", max:fitnessGoals.tea_cups||3, color:"#86efac" },
                 ];
                 const totalPct = Math.round(metrics.reduce((acc,m)=>acc+Math.min(((fitnessLog[m.key]||0)/m.max)*100,100),0)/metrics.length);
