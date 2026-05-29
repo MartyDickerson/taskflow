@@ -177,7 +177,7 @@ function Calendar() {
           <button onClick={()=>setShowAdd(!showAdd)}
             style={{ fontSize:10, padding:"2px 8px", borderRadius:6, fontWeight:700,
               background:showAdd?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-              border:showAdd?`1px solid ${T.accent}44`:"none", color:showAdd?T.accentLight:"white" }}>
+              border:showAdd?`1px solid ${T.accent}44`:"none", color:showAdd?T.accentLight:"#111111" }}>
             {showAdd?"✕":"+ Add"}
           </button>
         </div>
@@ -436,7 +436,7 @@ function AppleMusicPlayer() {
       <div style={{ padding:"10px 12px 8px", display:"flex", justifyContent:"space-between", alignItems:"center", background:"transparent" }}>
         <div style={{ fontSize:10, color:T.accentLight, fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>🎵 Music</div>
         <a href={playlists[active].link} target="_blank" rel="noopener noreferrer"
-          style={{ fontSize:9, color:T.muted, textDecoration:"none" }}>Open ↗</a>
+          style={{ fontSize:9, color:"#111111", background:T.accent, padding:"2px 7px", borderRadius:4, textDecoration:"none", fontWeight:700 }}>Open ↗</a>
       </div>
 
       {/* Tabs */}
@@ -446,7 +446,7 @@ function AppleMusicPlayer() {
             style={{ padding:"4px 10px", borderRadius:20, fontSize:10, fontWeight:600, whiteSpace:"nowrap",
               background:active===i?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.faint,
               border:active===i?"none":`1px solid ${T.border2}`,
-              color:active===i?"white":T.muted, cursor:"pointer",
+              color:active===i?"#111111":T.muted, cursor:"pointer",
               boxShadow:active===i?`0 2px 8px ${T.accentGlow}`:"none" }}>
             {p.label}
           </button>
@@ -1130,7 +1130,7 @@ export default function Dashboard() {
           <div style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:1, textTransform:"uppercase" }}>📚 Reading</div>
           <button onClick={()=>setShowBookForm(!showBookForm)} style={{ fontSize:10, padding:"3px 8px", borderRadius:6, fontWeight:700,
             background:showBookForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-            border:showBookForm?`1px solid ${T.accent}44`:"none", color:showBookForm?T.accentLight:"white" }}>
+            border:showBookForm?`1px solid ${T.accent}44`:"none", color:showBookForm?T.accentLight:"#111111" }}>
             {showBookForm?"✕":"+ Add"}
           </button>
         </div>
@@ -1533,7 +1533,7 @@ export default function Dashboard() {
               {/* Header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                 <div style={{ fontSize:11, color:"rgba(255,255,255,0.8)", fontWeight:700, letterSpacing:"1px", textTransform:"uppercase" }}>My Cards</div>
-                <button onClick={()=>setShowCardForm(!showCardForm)} style={{ fontSize:11, padding:"3px 10px", borderRadius:7, fontWeight:700, background:"rgba(255,255,255,0.15)", border:`1px solid rgba(255,255,255,0.3)`, color:"white" }}>
+                <button onClick={()=>setShowCardForm(!showCardForm)} style={{ fontSize:11, padding:"3px 10px", borderRadius:7, fontWeight:700, background:"rgba(255,255,255,0.15)", border:`1px solid rgba(255,255,255,0.3)`, color:"#111111" }}>
                   {showCardForm?"✕":"+ Add Card"}
                 </button>
               </div>
@@ -1739,7 +1739,7 @@ export default function Dashboard() {
                 <button onClick={()=>setShowGoalForm(!showGoalForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
                   background:showGoalForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
                   border:showGoalForm?`1px solid ${T.accent}44`:"none",
-                  color:showGoalForm?T.accentLight:"white" }}>
+                  color:showGoalForm?T.accentLight:"#111111" }}>
                   {showGoalForm?"✕":"+ Add"}
                 </button>
               </div>
@@ -2015,7 +2015,7 @@ export default function Dashboard() {
                   </label>
                   <button onClick={()=>setShowTxnForm(!showTxnForm)} style={{ fontSize:11, padding:"4px 10px", borderRadius:7, fontWeight:700,
                     background:showTxnForm?T.accentDim:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-                    border:showTxnForm?`1px solid ${T.accent}44`:"none", color:showTxnForm?T.accentLight:"white" }}>
+                    border:showTxnForm?`1px solid ${T.accent}44`:"none", color:showTxnForm?T.accentLight:"#111111" }}>
                     {showTxnForm?"✕":"+ Add"}
                   </button>
                 </div>
