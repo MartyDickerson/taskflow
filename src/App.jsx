@@ -315,7 +315,7 @@ function WeatherWidget({ compact=false, onLocChange=null }) {
               placeholder="Search city... e.g. Atlanta, GA"
               style={{ flex:1, background:T.raised, border:`1px solid ${T.accent}`, borderRadius:8, padding:"7px 10px", color:T.text, fontSize:12 }} />
             <button onClick={searchLocation} disabled={searching}
-              style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:8, color:"white", fontSize:12, fontWeight:700 }}>
+              style={{ padding:"7px 12px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:8, color:"#111111", fontSize:12, fontWeight:700 }}>
               {searching?"...":"Search"}
             </button>
             <button onClick={()=>{setEditLoc(false);setLocResults([]);}} style={{ padding:"7px 10px", background:T.faint, borderRadius:8, color:T.muted, fontSize:12 }}>✕</button>
@@ -556,7 +556,7 @@ function DailyBibleChapter() {
         style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6,
           padding:"7px", borderRadius:8, width:"100%",
           background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-          color:"white", fontSize:11, fontWeight:700, textDecoration:"none",
+          color:"#111111", fontSize:11, fontWeight:700, textDecoration:"none",
           boxShadow:`0 4px 12px ${T.accentGlow}` }}>
         📖 Read {viewing.ref} (NIV)
       </a>
@@ -1108,7 +1108,7 @@ export default function Dashboard() {
       `}</style>
 
       {toast&&<div style={{ position:"fixed",top:18,right:18,zIndex:9999,
-        background:`linear-gradient(135deg,${T.accent},${T.pink})`,color:"white",
+        background:`linear-gradient(135deg,${T.accent},${T.pink})`,color:"#111111",
         padding:"9px 18px",borderRadius:10,fontSize:13,fontWeight:700,
         boxShadow:`0 4px 24px ${T.accentGlow}`,animation:"toastIn 0.28s ease" }}>{toast}</div>}
 
@@ -1167,7 +1167,7 @@ export default function Dashboard() {
                 if(data) setBooks(b=>[data,...b]);
                 setNewBook({title:"",author:"",pages_total:0,pages_read:0,cover_color:"#c8f135"});
                 setShowBookForm(false); setSaving(false); showToast("Book added ✓");
-              }} disabled={saving} style={{ padding:"6px 10px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"white", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+              }} disabled={saving} style={{ padding:"6px 10px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:7, color:"#111111", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
             </div>
           </div>
         )}
@@ -1260,7 +1260,7 @@ export default function Dashboard() {
                             setBooks(bs=>bs.map(x=>x.id===b.id?{...x,...updated}:x));
                             await supabase.from("books").update(updated).eq("id",b.id);
                             setEditBookId(null); showToast("Book updated ✓");
-                          }} style={{ flex:2, padding:"5px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:6, color:"white", fontSize:10, fontWeight:700, border:"none" }}>Save</button>
+                          }} style={{ flex:2, padding:"5px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, borderRadius:6, color:"#111111", fontSize:10, fontWeight:700, border:"none" }}>Save</button>
                         </div>
                       </div>
                     ) : (
@@ -1667,7 +1667,7 @@ export default function Dashboard() {
                                 setPayForm({name:"",amount:""});
                                 setShowPayForm(false); setSaving(false);
                                 showToast(`💳 Payment of $${Math.abs(amt).toFixed(2)} logged!`);
-                              }} style={{ flex:2, padding:"7px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", borderRadius:7, color:"white", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>
+                              }} style={{ flex:2, padding:"7px", background:`linear-gradient(135deg,${T.accent},${T.accentB})`, border:"none", borderRadius:7, color:"#111111", fontSize:11, fontWeight:700, opacity:saving?0.6:1 }}>
                                 Pay ${payForm.amount||"0.00"}
                               </button>
                             </div>
@@ -1765,7 +1765,7 @@ export default function Dashboard() {
                     </select>
                     <button onClick={addGoal} disabled={saving}
                       style={{ padding:"7px 14px", background:`linear-gradient(135deg,${T.accent},${T.pink})`, borderRadius:7,
-                        color:"white", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
+                        color:"#111111", fontSize:12, fontWeight:700, opacity:saving?0.6:1 }}>Save</button>
                   </div>
                 </div>
               )}
@@ -1836,7 +1836,7 @@ export default function Dashboard() {
                   setSaving(false); showToast("Fitness saved ✓");
                 }} style={{ fontSize:11, padding:"5px 14px", borderRadius:8, fontWeight:700,
                   background:`linear-gradient(135deg,${T.accent},${T.accentB})`,
-                  border:"none", color:"white", cursor:"pointer",
+                  border:"none", color:"#111111", cursor:"pointer",
                   boxShadow:`0 4px 12px ${T.accentGlow}`,
                   opacity:saving?0.6:1, letterSpacing:"0.3px" }}>
                   💾 Save
