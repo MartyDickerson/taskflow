@@ -802,7 +802,7 @@ function SOCOpsPanel() {
             style={{ fontSize:9, padding:"3px 9px", borderRadius:6, fontWeight:700, cursor:"pointer",
               background:tab===val?`linear-gradient(135deg,${T.accent},${T.accentB})`:T.raised,
               border:`1px solid ${tab===val?"transparent":T.border2}`,
-              color:tab===val?"white":T.muted }}>
+              color:tab===val?"#111111":T.muted }}>
             {lbl}
           </button>
         ))}
